@@ -123,10 +123,6 @@ export function ProductsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               {/* Text & Action Column */}
               <div className="lg:col-span-7 flex flex-col items-start gap-4">
-                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-surface-container-low text-primary font-label-caps text-label-caps tracking-wider uppercase font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-primary" />
-                  <span>Flagship Audio Architecture</span>
-                </div>
                 <h1 className="font-display-hero text-display-hero text-on-surface tracking-tight leading-tight">
                   Precision Engineering for Everyday Living.
                 </h1>

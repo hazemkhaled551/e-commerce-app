@@ -1,5 +1,3 @@
-export { ProductsPage } from './pages/ProductsPage'
-export { ProductDetailPage } from './pages/ProductDetailPage'
 export { ProductCard } from './components/ProductCard'
 export { ProductList } from './components/ProductList'
 export { ProductFilters } from './components/ProductFilters'

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { Logo } from '@/components/ui/Logo'
 import { useCart } from '@/features/cart'
 import { useProducts } from '@/features/products'
 import { useAuth } from '@/features/auth'
@@ -28,54 +29,12 @@ export function Header() {
 
   return (
     <header className="w-full sticky top-0 z-40 bg-surface-container-lowest shadow-sm">
-      {/* 1. Top Announcement Bar */}
-      {/* <div className="w-full bg-surface-container-high text-on-surface-variant font-body-sm text-body-sm py-2 px-4 shadow-sm relative z-30">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-space-xs text-center sm:text-left">
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary text-on-primary uppercase tracking-wider">
-              Announcement
-            </span>
-            <span>
-              Free express courier shipping on all orders over $99 • 30-Day Hassle-Free Returns • 256-Bit SSL Encrypted
-            </span>
-          </div>
-          <div className="hidden md:flex items-center gap-space-md text-on-surface-variant text-[11px] font-medium">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Regional Hubs Live</span>
-            </span>
-            <span>•</span>
-            <a className="hover:text-primary transition-colors" href="#support">
-              Help Center
-            </a>
-          </div>
-        </div>
-      </div> */}
-
+    
       {/* 2. Main Search & Status Hub */}
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-3 flex flex-col gap-3">
         <div className="flex items-center justify-between gap-4">
           {/* Logo & Security Badge */}
-          <Link
-            to="/"
-            className="flex items-center gap-3 shrink-0 cursor-pointer group"
-            onClick={() => changeCategory('all')}
-          >
-            <div className="w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center font-bold font-headline-sm shadow-md group-hover:scale-105 transition-transform">
-              N
-            </div>
-            <div className="flex flex-col">
-              <span className="font-headline-sm text-headline-sm font-bold tracking-tight text-on-surface leading-none">
-                NexaStore
-              </span>
-              <div className="flex items-center gap-1 mt-0.5">
-                <span className="material-symbols-outlined text-[13px] text-emerald-600">lock</span>
-                <span className="font-label-caps text-[10px] text-on-surface-variant tracking-wider uppercase">
-                  256-Bit SSL Secured
-                </span>
-              </div>
-            </div>
-          </Link>
+          <Logo onClick={() => changeCategory('all')} />
 
           {/* Global Search Input with Shortcut */}
           <form

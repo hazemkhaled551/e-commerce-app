@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { Logo } from '@/components/ui/Logo'
 
 export function AuthHeader() {
   const location = useLocation()
@@ -8,17 +9,8 @@ export function AuthHeader() {
     <header className="fixed top-0 left-0 right-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
       <div className="h-16 max-w-7xl mx-auto px-margin-mobile md:px-margin-tablet lg:px-margin flex items-center justify-between">
         <div className="flex items-center gap-space-lg">
-          <Link to="/" className="flex items-center gap-space-xs group">
-            <span className="font-headline-sm text-headline-sm text-primary tracking-tight font-bold">
-              Nexa<span className="text-on-surface font-normal">Store</span>
-            </span>
-          </Link>
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant">
-            <span className="material-symbols-outlined text-[15px] text-primary">lock</span>
-            <span className="font-label-caps text-label-caps uppercase text-on-surface-variant">
-              256-Bit SSL Encrypted
-            </span>
-          </div>
+          <Logo size="md" />
+       
         </div>
 
         <div className="flex items-center gap-space-md">

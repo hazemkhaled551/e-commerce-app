@@ -1,3 +1,5 @@
+import { Logo } from '@/components/ui/Logo'
+
 export function Footer() {
   return (
     <footer className="w-full bg-surface-container-lowest mt-10 pt-12 pb-8 shadow-sm">
@@ -5,14 +7,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 pb-12">
           {/* Logo & Mission Column */}
           <div className="lg:col-span-2 flex flex-col items-start gap-4 pr-6">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center font-bold text-base shadow-sm">
-                N
-              </div>
-              <span className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                NexaStore
-              </span>
-            </div>
+            <Logo size="sm" />
             <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed max-w-sm">
               Nexa Store engineers tactile, high-performance hardware and lifestyle artifacts for modern spaces. Designed with meticulous craft and durable materials.
             </p>
