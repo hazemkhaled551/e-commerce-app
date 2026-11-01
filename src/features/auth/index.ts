@@ -1,8 +1,24 @@
 export { useAuth } from './hooks/useAuth'
 export {
+  registerApi,
+  verifyEmailApi,
+  resendVerificationApi,
+  refreshTokenApi,
+  logoutApi,
+  forgotPasswordApi,
+  resetPasswordApi,
+  resendPasswordResetApi,
+} from './api/authApi'
+export {
   default as authReducer,
   loginUser,
   registerUser,
+  verifyEmailUser,
+  resendVerificationCode,
+  forgotPasswordUser,
+  resetPasswordUser,
+  refreshTokenThunk,
+  logoutUser,
   logout,
   clearError,
   setDemoUser,

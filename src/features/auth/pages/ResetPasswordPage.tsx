@@ -11,7 +11,7 @@ export function ResetPasswordPage() {
   const emailParam = searchParams.get('email') || ''
 
   // Form Field States
-  const [targetEmail] = useState(emailParam || 'sarah.jenkins@workmail.io')
+  const [targetEmail] = useState(emailParam || '')
   const [otpValues, setOtpValues] = useState<string[]>(['', '', '', '', '', ''])
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -208,9 +208,10 @@ export function ResetPasswordPage() {
 
     try {
       await resetPasswordApi({
+        email: targetEmail,
         otp: fullOtp,
         newPassword,
-        email: targetEmail,
+        confirmNewPassword: confirmPassword,
       })
       setIsSuccess(true)
     } catch (err: unknown) {

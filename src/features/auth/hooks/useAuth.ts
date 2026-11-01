@@ -1,9 +1,14 @@
 import { useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks'
- import {
+import {
   loginUser,
   registerUser,
-  logout,
+  verifyEmailUser,
+  resendVerificationCode,
+  forgotPasswordUser,
+  resetPasswordUser,
+  refreshTokenThunk,
+  logoutUser,
   clearError,
   setDemoUser,
   selectUser,
@@ -11,7 +16,13 @@ import { useAppDispatch, useAppSelector } from '@/app/store/hooks'
   selectAuthStatus,
   selectAuthError,
 } from '../store/authSlice'
-import type { LoginCredentials, RegisterCredentials, User } from '../types/auth'
+import type {
+  LoginCredentials,
+  RegisterCredentials,
+  ResetPasswordPayload,
+  User,
+  VerifyEmailPayload,
+} from '../types/auth'
 
 export function useAuth() {
   const dispatch = useAppDispatch()
@@ -38,13 +49,65 @@ export function useAuth() {
       if (registerUser.fulfilled.match(resultAction)) {
         return resultAction.payload
       }
-      throw new Error(resultAction.payload as string)
+      throw new Error((resultAction.payload as string) || 'Registration failed')
     },
     [dispatch]
   )
 
-  const handleLogout = useCallback(() => {
-    dispatch(logout())
+  const verifyEmail = useCallback(
+    async (payload: VerifyEmailPayload) => {
+      const resultAction = await dispatch(verifyEmailUser(payload))
+      if (verifyEmailUser.fulfilled.match(resultAction)) {
+        return resultAction.payload
+      }
+      throw new Error((resultAction.payload as string) || 'Verification failed')
+    },
+    [dispatch]
+  )
+
+  const resendVerification = useCallback(
+    async (email: string) => {
+      const resultAction = await dispatch(resendVerificationCode(email))
+      if (resendVerificationCode.fulfilled.match(resultAction)) {
+        return resultAction.payload
+      }
+      throw new Error((resultAction.payload as string) || 'Resending verification failed')
+    },
+    [dispatch]
+  )
+
+  const forgotPassword = useCallback(
+    async (email: string) => {
+      const resultAction = await dispatch(forgotPasswordUser(email))
+      if (forgotPasswordUser.fulfilled.match(resultAction)) {
+        return resultAction.payload
+      }
+      throw new Error((resultAction.payload as string) || 'Password recovery failed')
+    },
+    [dispatch]
+  )
+
+  const resetPassword = useCallback(
+    async (payload: ResetPasswordPayload) => {
+      const resultAction = await dispatch(resetPasswordUser(payload))
+      if (resetPasswordUser.fulfilled.match(resultAction)) {
+        return resultAction.payload
+      }
+      throw new Error((resultAction.payload as string) || 'Password reset failed')
+    },
+    [dispatch]
+  )
+
+  const refreshToken = useCallback(async () => {
+    const resultAction = await dispatch(refreshTokenThunk())
+    if (refreshTokenThunk.fulfilled.match(resultAction)) {
+      return resultAction.payload
+    }
+    throw new Error((resultAction.payload as string) || 'Refresh failed')
+  }, [dispatch])
+
+  const handleLogout = useCallback(async () => {
+    await dispatch(logoutUser())
   }, [dispatch])
 
   const handleClearError = useCallback(() => {
@@ -65,6 +128,11 @@ export function useAuth() {
     error,
     login,
     register,
+    verifyEmail,
+    resendVerification,
+    forgotPassword,
+    resetPassword,
+    refreshToken,
     logout: handleLogout,
     clearError: handleClearError,
     setDemoUser: handleSetDemoUser,

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '../hooks/useAuth'
@@ -9,7 +9,7 @@ import type { RegisterCredentials } from '../types/auth'
 
 export function RegisterPage() {
   const navigate = useNavigate()
-  const { register: registerAuth, status } = useAuth()
+  const { register: registerAuth, resendVerification, status } = useAuth()
 
   // UI States
   const [showPassword, setShowPassword] = useState(false)
@@ -43,6 +43,15 @@ export function RegisterPage() {
     },
     mode: 'onTouched',
   })
+
+  // Register phone field validation with react-hook-form
+  useEffect(() => {
+    register('phone', {
+      required: 'Phone number is required',
+      validate: (val) =>
+        Boolean(val && val.trim().length >= 8) || 'Please enter a valid phone number',
+    })
+  }, [register])
 
   // Password analysis
   const hasLength = currentPassword.length >= 8
@@ -80,7 +89,12 @@ export function RegisterPage() {
       const msg = err instanceof Error ? err.message : 'Registration failed'
       const lower = msg.toLowerCase()
 
-      if (lower.includes('already') || lower.includes('exist') || lower.includes('conflict')) {
+      if (
+        lower.includes('already') ||
+        lower.includes('exist') ||
+        lower.includes('in use') ||
+        lower.includes('conflict')
+      ) {
         setEmailConflict(data.email)
       } else {
         setGeneralError(msg)
@@ -88,11 +102,15 @@ export function RegisterPage() {
     }
   }
 
-  const handleResendVerification = () => {
-    setResendStatus('transmitting')
-    setTimeout(() => {
+  const handleResendVerification = async () => {
+    if (!registeredEmail) return
+    try {
+      setResendStatus('transmitting')
+      await resendVerification(registeredEmail)
       setResendStatus('sent')
-    }, 800)
+    } catch {
+      setResendStatus('idle')
+    }
   }
 
   const getMaskedEmail = (emailStr: string) => {
@@ -283,7 +301,7 @@ export function RegisterPage() {
                       )}
                     </div>
 
-                    {/* Optional Phone Number with Country Code Picker */}
+                    {/* Phone Number with Country Code Picker */}
                     <div className="flex flex-col gap-space-xs text-left">
                       <label
                         htmlFor="phoneInput"
@@ -291,7 +309,7 @@ export function RegisterPage() {
                       >
                         <span>Phone Number</span>
                         <span className="font-body-sm text-body-sm text-on-surface-variant">
-                          Optional (For real-time SMS delivery tracking)
+                          Required
                         </span>
                       </label>
                       <PhoneInputField

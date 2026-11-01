@@ -11,7 +11,7 @@ import type { LoginCredentials, AuthPreviewState } from '../types/auth'
 
 export function LoginPage() {
   const navigate = useNavigate()
-  const { login, status } = useAuth()
+  const { login, resendVerification, status } = useAuth()
 
   // Dynamic server feedback states (handled from backend response)
   const [serverState, setServerState] = useState<AuthPreviewState>('default')
@@ -19,7 +19,6 @@ export function LoginPage() {
   const [serverMessage, setServerMessage] = useState<string | undefined>(undefined)
 
   const [showPassword, setShowPassword] = useState(false)
-  const [loginSuccess, setLoginSuccess] = useState(false)
   const [resendAlert, setResendAlert] = useState(false)
 
   const {
@@ -27,6 +26,7 @@ export function LoginPage() {
     handleSubmit,
     setValue,
     setError,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<LoginCredentials>({
     defaultValues: {
@@ -48,10 +48,7 @@ export function LoginPage() {
       setServerMessage(undefined)
 
       await login(data)
-      setLoginSuccess(true)
-      setTimeout(() => {
-        navigate('/')
-      }, 1000)
+      navigate('/', { replace: true })
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Authentication failed'
       const lower = msg.toLowerCase()
@@ -118,19 +115,6 @@ export function LoginPage() {
             <div className="w-full max-w-md my-space-md">
               {/* Dynamic state feedback banner (Triggered by backend response) */}
               <div className="transition-all duration-300 ease-in-out" id="state-banner-container">
-                {loginSuccess && (
-                  <div className="mb-space-md p-space-md rounded-lg bg-surface-container-high text-on-surface flex items-center justify-between shadow-xs animate-pulse">
-                    <div className="flex items-center gap-space-sm">
-                      <span className="material-symbols-outlined text-primary text-[20px]">
-                        check_circle
-                      </span>
-                      <span className="font-body-md text-body-md font-semibold">
-                        Authenticating credentials... Welcome back!
-                      </span>
-                    </div>
-                  </div>
-                )}
-
                 {resendAlert && (
                   <div className="mb-space-md p-space-md rounded-lg bg-primary-container text-on-primary flex items-center justify-between shadow-xs animate-fade-in">
                     <div className="flex items-center gap-space-sm">
@@ -154,9 +138,18 @@ export function LoginPage() {
                   title={serverTitle}
                   message={serverMessage}
                   onClose={() => setServerState('default')}
-                  onResendVerification={() => {
-                    setResendAlert(true)
-                    setTimeout(() => setResendAlert(false), 4000)
+                  onResendVerification={async () => {
+                    const currentEmail = getValues('email')
+                    if (currentEmail) {
+                      try {
+                        await resendVerification(currentEmail)
+                        setResendAlert(true)
+                        setTimeout(() => setResendAlert(false), 4000)
+                      } catch (err: unknown) {
+                        const msg = err instanceof Error ? err.message : 'Failed to resend'
+                        setServerMessage(msg)
+                      }
+                    }
                   }}
                 />
               </div>
@@ -373,21 +366,8 @@ export function LoginPage() {
                 </div>
               </div>
 
-              {/* Employee / Staff Console Pill */}
-              <div className="mt-space-md flex justify-center">
-                <a
-                  href="#staff-console"
-                  className="group inline-flex items-center gap-space-xs px-space-md py-2 rounded-full bg-surface-container-lowest/80 hover:bg-surface-container-lowest border border-outline-variant/30 shadow-xs hover:shadow-sm transition-all text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm"
-                >
-                  <span className="material-symbols-outlined text-[16px] text-tertiary-container group-hover:rotate-12 transition-transform">
-                    badge
-                  </span>
-                  <span>Store Manager or Employee?</span>
-                  <span className="text-primary-container font-semibold group-hover:translate-x-0.5 transition-transform flex items-center">
-                    Access Staff Console →
-                  </span>
-                </a>
-              </div>
+        
+         
             </div>
 
             {/* Security & Trust Indicators Strip */}

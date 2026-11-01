@@ -35,7 +35,6 @@ export function ForgotPasswordPage() {
   // Flow State: 'form' | 'success'
   const [isSuccess, setIsSuccess] = useState(false)
   const [submittedEmail, setSubmittedEmail] = useState(initialEmail)
-  const [authRef, setAuthRef] = useState('Auth Ref: NX-8891')
 
   // Rate Limiting & Cooldown
   const [isRateLimited, setIsRateLimited] = useState(false)
@@ -48,7 +47,7 @@ export function ForgotPasswordPage() {
 
   const emailInputRef = useRef<HTMLInputElement | null>(null)
 
-  const [currentEmail, setCurrentEmail] = useState(initialEmail || 'sarah.jenkins@workmail.io')
+  const [currentEmail, setCurrentEmail] = useState(initialEmail || '')
 
   const {
     register,
@@ -59,7 +58,7 @@ export function ForgotPasswordPage() {
     formState: { errors, isSubmitting },
   } = useForm<ForgotPasswordFormData>({
     defaultValues: {
-      email: initialEmail || 'sarah.jenkins@workmail.io',
+      email: initialEmail || '',
     },
     mode: 'onTouched',
   })
@@ -105,11 +104,8 @@ export function ForgotPasswordPage() {
 
     try {
       clearErrors('email')
-      const response = await forgotPasswordApi(data.email)
+      await forgotPasswordApi(data.email)
       setSubmittedEmail(data.email)
-      if (response.resetTokenId) {
-        setAuthRef(`Auth Ref: ${response.resetTokenId}`)
-      }
       setIsSuccess(true)
       setResendCooldown(45)
     } catch (err: unknown) {
@@ -132,8 +128,7 @@ export function ForgotPasswordPage() {
 
     setIsResending(true)
     try {
-      const response = await resendPasswordResetApi(submittedEmail)
-      setAuthRef(`Auth Ref: ${response.resetTokenId}`)
+      await resendPasswordResetApi(submittedEmail)
       setResendToast('A fresh reset token has been dispatched to your inbox.')
       setResendCooldown(45)
       setTimeout(() => setResendToast(null), 3500)
@@ -189,9 +184,6 @@ export function ForgotPasswordPage() {
                     <div className="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shadow-sm shadow-primary/10">
                       <span className="material-symbols-outlined text-[26px]">lock_reset</span>
                     </div>
-                    <span className="font-label-caps text-label-caps uppercase tracking-wider px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant">
-                      {authRef}
-                    </span>
                   </div>
 
                   {/* Typography Heading */}
@@ -248,9 +240,8 @@ export function ForgotPasswordPage() {
 
                       <div className="relative flex items-center">
                         <span
-                          className={`material-symbols-outlined absolute left-3 text-[20px] pointer-events-none transition-colors ${
-                            errors.email ? 'text-error' : 'text-on-surface-variant'
-                          }`}
+                          className={`material-symbols-outlined absolute left-3 text-[20px] pointer-events-none transition-colors ${errors.email ? 'text-error' : 'text-on-surface-variant'
+                            }`}
                           id="email-icon"
                         >
                           mail
@@ -270,11 +261,10 @@ export function ForgotPasswordPage() {
                             setCurrentEmail(e.target.value)
                             emailFieldProps.onChange(e)
                           }}
-                          className={`w-full h-11 pl-10 pr-10 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-outline-variant focus:outline-none focus:ring-2 shadow-sm transition-all ${
-                            errors.email
-                              ? 'border border-error text-error focus:ring-error bg-error-container/10'
-                              : 'border border-outline-variant/40 focus:ring-primary'
-                          } ${isSubmitting || isRateLimited ? 'opacity-70 cursor-not-allowed' : ''}`}
+                          className={`w-full h-11 pl-10 pr-10 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-outline-variant focus:outline-none focus:ring-2 shadow-sm transition-all ${errors.email
+                            ? 'border border-error text-error focus:ring-error bg-error-container/10'
+                            : 'border border-outline-variant/40 focus:ring-primary'
+                            } ${isSubmitting || isRateLimited ? 'opacity-70 cursor-not-allowed' : ''}`}
                         />
 
                         {currentEmail && !isSubmitting && !isRateLimited && (
@@ -310,11 +300,10 @@ export function ForgotPasswordPage() {
 
                     {/* Primary Submit Button */}
                     <button
-                      className={`w-full h-11 rounded-lg bg-primary hover:bg-secondary active:scale-[0.99] text-on-primary font-headline-sm text-headline-sm text-sm font-semibold flex items-center justify-center gap-space-xs shadow-md shadow-primary/25 transition-all duration-150 ${
-                        isSubmitting || isRateLimited
-                          ? 'opacity-80 cursor-not-allowed'
-                          : 'cursor-pointer'
-                      }`}
+                      className={`w-full h-11 rounded-lg bg-primary hover:bg-secondary active:scale-[0.99] text-on-primary font-headline-sm text-headline-sm text-sm font-semibold flex items-center justify-center gap-space-xs shadow-md shadow-primary/25 transition-all duration-150 ${isSubmitting || isRateLimited
+                        ? 'opacity-80 cursor-not-allowed'
+                        : 'cursor-pointer'
+                        }`}
                       id="submit-btn"
                       type="submit"
                       disabled={isSubmitting || isRateLimited}
@@ -425,11 +414,10 @@ export function ForgotPasswordPage() {
                     </Link>
 
                     <button
-                      className={`w-full h-11 rounded-lg bg-surface-container-low text-on-surface-variant font-headline-sm text-headline-sm text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
-                        resendCooldown > 0 || isResending
-                          ? 'opacity-75 cursor-not-allowed'
-                          : 'hover:bg-surface-container text-primary cursor-pointer'
-                      }`}
+                      className={`w-full h-11 rounded-lg bg-surface-container-low text-on-surface-variant font-headline-sm text-headline-sm text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${resendCooldown > 0 || isResending
+                        ? 'opacity-75 cursor-not-allowed'
+                        : 'hover:bg-surface-container text-primary cursor-pointer'
+                        }`}
                       disabled={resendCooldown > 0 || isResending}
                       id="resend-btn"
                       onClick={handleResend}
@@ -440,8 +428,8 @@ export function ForgotPasswordPage() {
                         {isResending
                           ? 'Sending fresh token...'
                           : resendCooldown > 0
-                          ? `Resend email in ${resendCooldown}s`
-                          : 'Resend Reset Link Now'}
+                            ? `Resend email in ${resendCooldown}s`
+                            : 'Resend Reset Link Now'}
                       </span>
                     </button>
                   </div>

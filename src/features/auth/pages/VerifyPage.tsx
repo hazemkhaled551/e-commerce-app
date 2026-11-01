@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { FormEvent, KeyboardEvent, ClipboardEvent } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { AuthHeader } from '../components/AuthHeader'
 import { AuthFooter } from '../components/AuthFooter'
@@ -8,11 +8,11 @@ import { AuthFooter } from '../components/AuthFooter'
 export type VerificationViewMode = 'otp' | 'success' | 'expired'
 
 export function VerifyPage() {
-  const { user } = useAuth()
+  const navigate = useNavigate()
+  const { user, verifyEmail, resendVerification } = useAuth()
   const [searchParams] = useSearchParams()
 
   const emailFromUrl = searchParams.get('email')
-  const nameFromUrl = searchParams.get('name')
 
   // Determine initial state from API / query parameters (e.g. /verify?status=expired or /verify?status=verified)
   const initialStatus = searchParams.get('status') || searchParams.get('state')
@@ -23,21 +23,21 @@ export function VerifyPage() {
   })
 
   // Target email dynamically resolved from registration or active session
-  const defaultEmail = emailFromUrl || user?.email || 'sarah.jenkins@example.com'
-  const [targetEmail, setTargetEmail] = useState(defaultEmail)
+  const targetEmail = emailFromUrl || user?.email || ''
 
   // OTP inputs (6 digits)
-  const [otpValues, setOtpValues] = useState<string[]>(['4', '8', '', '', '', ''])
+  const [otpValues, setOtpValues] = useState<string[]>(['', '', '', '', '', ''])
+  const [focusedIndex, setFocusedIndex] = useState<number>(0)
   const [otpError, setOtpError] = useState<string | null>(null)
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [isResending, setIsResending] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   // Countdown timer for OTP
-  const [timeLeft, setTimeLeft] = useState(48)
+  const [timeLeft, setTimeLeft] = useState(60)
   const isResendActive = timeLeft <= 0
 
-  // Modal & Toast states
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
-  const [newEmailInput, setNewEmailInput] = useState('')
+  // Toast state
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const toastTimeoutRef = useRef<number | null>(null)
 
@@ -63,10 +63,16 @@ export function VerifyPage() {
     return () => clearInterval(timer)
   }, [timeLeft])
 
-  // Focus third slot on initial mount
+  // Focus slot 0 (or first empty slot) on initial mount
   useEffect(() => {
-    if (verificationView === 'otp' && inputRefs.current[2]) {
-      inputRefs.current[2]?.focus()
+    if (verificationView === 'otp') {
+      const firstEmptyIndex = otpValues.findIndex((val) => !val)
+      const targetIndex = firstEmptyIndex === -1 ? 0 : firstEmptyIndex
+      setFocusedIndex(targetIndex)
+      const timer = setTimeout(() => {
+        inputRefs.current[targetIndex]?.focus()
+      }, 50)
+      return () => clearTimeout(timer)
     }
   }, [verificationView])
 
@@ -79,21 +85,77 @@ export function VerifyPage() {
 
   // Handle OTP digit changes
   const handleOtpChange = (index: number, value: string) => {
-    const digit = value.replace(/\D/g, '').slice(-1)
-    const newOtp = [...otpValues]
-    newOtp[index] = digit
-    setOtpValues(newOtp)
+    const digitsOnly = value.replace(/\D/g, '')
     setOtpError(null)
 
-    if (digit && index < 5) {
+    if (!digitsOnly) {
+      const newOtp = [...otpValues]
+      newOtp[index] = ''
+      setOtpValues(newOtp)
+      return
+    }
+
+    // If typed into an already-filled slot (e.g. length is 2)
+    if (digitsOnly.length === 2 && otpValues[index]) {
+      const nextChar = digitsOnly[digitsOnly.length - 1]
+      const newOtp = [...otpValues]
+      newOtp[index] = nextChar
+      setOtpValues(newOtp)
+      if (index < 5) {
+        inputRefs.current[index + 1]?.focus()
+        setFocusedIndex(index + 1)
+      }
+      return
+    }
+
+    // If pasted or multi-char input
+    if (digitsOnly.length > 1) {
+      const newOtp = [...otpValues]
+      const chars = digitsOnly.slice(0, 6).split('')
+      let lastFilled = index
+      chars.forEach((char, i) => {
+        if (index + i < 6) {
+          newOtp[index + i] = char
+          lastFilled = index + i
+        }
+      })
+      setOtpValues(newOtp)
+      const nextFocus = Math.min(lastFilled + 1, 5)
+      inputRefs.current[nextFocus]?.focus()
+      setFocusedIndex(nextFocus)
+      return
+    }
+
+    // Single digit entered
+    const newOtp = [...otpValues]
+    newOtp[index] = digitsOnly
+    setOtpValues(newOtp)
+
+    if (index < 5) {
       inputRefs.current[index + 1]?.focus()
+      setFocusedIndex(index + 1)
     }
   }
 
-  // Handle backspace navigation
+  // Handle backspace and keyboard navigation
   const handleOtpKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !otpValues[index] && index > 0) {
+    if (e.key === 'Backspace') {
+      if (!otpValues[index] && index > 0) {
+        e.preventDefault()
+        const newOtp = [...otpValues]
+        newOtp[index - 1] = ''
+        setOtpValues(newOtp)
+        inputRefs.current[index - 1]?.focus()
+        setFocusedIndex(index - 1)
+      }
+    } else if (e.key === 'ArrowLeft' && index > 0) {
+      e.preventDefault()
       inputRefs.current[index - 1]?.focus()
+      setFocusedIndex(index - 1)
+    } else if (e.key === 'ArrowRight' && index < 5) {
+      e.preventDefault()
+      inputRefs.current[index + 1]?.focus()
+      setFocusedIndex(index + 1)
     }
   }
 
@@ -109,47 +171,57 @@ export function VerifyPage() {
       setOtpValues(newOtp)
       const nextIndex = Math.min(pastedData.length, 5)
       inputRefs.current[nextIndex]?.focus()
+      setFocusedIndex(nextIndex)
       showToast('Auto-filled security code from clipboard!')
     }
   }
 
-  // Submit OTP form (transitions to success state)
-  const handleOtpSubmit = (e: FormEvent) => {
+  // Submit OTP form (calls verifyEmail endpoint)
+  const handleOtpSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const enteredCode = otpValues.join('')
+    const enteredCode = otpValues.join('').trim()
     if (enteredCode.length < 6) {
       setOtpError('Please enter all 6 digits of your security PIN.')
       return
     }
 
-    showToast('Authentication successful! Loading profile...')
-    setTimeout(() => {
-      setVerificationView('success')
-    }, 700)
+    if (!targetEmail) {
+      setOtpError('Please provide a valid email address first.')
+      return
+    }
+
+    try {
+      setIsVerifying(true)
+      setOtpError(null)
+      await verifyEmail({ email: targetEmail, otp: enteredCode })
+      navigate('/', { replace: true })
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Invalid or expired verification code'
+      setOtpError(msg)
+      showToast(msg)
+    } finally {
+      setIsVerifying(false)
+    }
   }
 
-  // Resend OTP email handler
-  const handleResendOtp = () => {
-    if (!isResendActive) return
-    setTimeLeft(60)
-    showToast(`Fresh security code sent to ${targetEmail}`)
-  }
+  // Resend OTP email handler (calls resendVerification endpoint)
+  const handleResendOtp = async () => {
+    if (!isResendActive || isResending) return
+    if (!targetEmail) {
+      showToast('Please specify an email address first.')
+      return
+    }
 
-  // Trigger SMS delivery
-  const triggerSmsDelivery = () => {
-    showToast('SMS token sent to ending in 492')
-  }
-
-  // Save new email modal handler
-  const handleSaveNewEmail = () => {
-    if (newEmailInput && newEmailInput.includes('@')) {
-      setTargetEmail(newEmailInput)
-      setIsEmailModalOpen(false)
+    try {
+      setIsResending(true)
+      const res = await resendVerification(targetEmail)
       setTimeLeft(60)
-      showToast(`Verification code re-sent to ${newEmailInput}`)
-      setNewEmailInput('')
-    } else {
-      showToast('Please provide a valid email address')
+      showToast(res.message || `Fresh verification code sent to ${targetEmail}`)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to resend verification code'
+      showToast(msg)
+    } finally {
+      setIsResending(false)
     }
   }
 
@@ -168,27 +240,23 @@ export function VerifyPage() {
 
       {/* Main Content Stage */}
       <main className="w-full pt-28 sm:pt-32 pb-16 sm:pb-24 flex-1 flex flex-col justify-center items-center px-margin-mobile md:px-margin-tablet lg:px-margin">
-        <div className="flex flex-col w-full max-w-7xl mx-auto space-y-space-xl">
-          {/* Top Context Header & Security Metric Strip */}
-          <div className="w-full flex flex-col md:flex-row md:items-end justify-between gap-space-md text-left">
-            <div className="space-y-space-xs mt-5">
-              <div className="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container-high text-primary font-label-caps text-label-caps">
-                <span className="material-symbols-outlined text-[14px]">shield</span>
-                <span>TWO-FACTOR AUTHENTICATION SYSTEM</span>
-              </div>
-              <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
-                Identity &amp; Verification Center
-              </h1>
-              <p className="font-body-md text-body-md text-on-surface-variant">
-                Manage your account activation and review credential authorization status in real time.
-              </p>
+        <div className="flex flex-col w-full max-w-2xl mx-auto space-y-space-lg">
+          {/* Top Context Header */}
+          <div className="w-full flex flex-col items-center text-center space-y-space-xs mt-4">
+            <div className="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container-high text-primary font-label-caps text-label-caps">
+              <span className="material-symbols-outlined text-[14px]">shield</span>
+              <span>TWO-FACTOR AUTHENTICATION SYSTEM</span>
             </div>
+            <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+              Identity &amp; Verification Center
+            </h1>
+            <p className="font-body-md text-body-md text-on-surface-variant max-w-md">
+              Manage your account activation and review credential authorization status in real time.
+            </p>
           </div>
 
-          {/* Bento Grid Main Stage */}
-          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
-            {/* LEFT PANEL (Col 1-8): Active Verification Playground */}
-            <div className="lg:col-span-8 flex flex-col space-y-space-lg">
+          {/* Verification Main Stage */}
+          <div className="w-full flex flex-col space-y-space-lg">
               {/* STATE 1: OTP Input Module (Default & Interactive) */}
               {verificationView === 'otp' && (
                 <section className="w-full bg-surface-container-lowest rounded-xl p-space-lg md:p-space-xl shadow-md border border-outline-variant/30 transition-all text-left animate-fade-in">
@@ -215,29 +283,16 @@ export function VerifyPage() {
                   </div>
 
                   {/* Target Destination Alert / Banner */}
-                  <div className="mt-space-sm p-space-md bg-surface-container-low rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm border border-outline-variant/20">
-                    <div className="flex items-center gap-space-sm text-on-surface">
-                      <span className="material-symbols-outlined text-primary text-[20px]">
-                        alternate_email
-                      </span>
-                      <span className="font-body-md text-body-md">
-                        Code dispatched to{' '}
-                        <strong className="text-on-surface font-semibold font-body-md text-body-md">
-                          {getMaskedEmail(targetEmail)}
-                        </strong>
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNewEmailInput(targetEmail)
-                        setIsEmailModalOpen(true)
-                      }}
-                      className="inline-flex items-center gap-1 text-primary hover:text-secondary font-headline-sm text-body-sm transition-colors cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">edit</span>
-                      <span>Change Email</span>
-                    </button>
+                  <div className="mt-space-sm p-space-md bg-surface-container-low rounded-lg flex items-center gap-space-sm border border-outline-variant/20 text-on-surface">
+                    <span className="material-symbols-outlined text-primary text-[20px]">
+                      alternate_email
+                    </span>
+                    <span className="font-body-md text-body-md">
+                      Code dispatched to{' '}
+                      <strong className="text-on-surface font-semibold font-body-md text-body-md">
+                        {getMaskedEmail(targetEmail)}
+                      </strong>
+                    </span>
                   </div>
 
                   {/* Code Input Form */}
@@ -263,7 +318,7 @@ export function VerifyPage() {
                       {/* 6 PIN inputs */}
                       <div className="grid grid-cols-6 gap-space-xs sm:gap-space-sm md:gap-space-md max-w-xl mx-auto py-space-sm">
                         {otpValues.map((val, idx) => {
-                          const isActiveSlot = idx === 2
+                          const isFocused = focusedIndex === idx
                           return (
                             <input
                               key={idx}
@@ -273,16 +328,25 @@ export function VerifyPage() {
                               }}
                               type="text"
                               inputMode="numeric"
+                              autoComplete="one-time-code"
                               pattern="[0-9]*"
-                              maxLength={1}
+                              maxLength={2}
                               value={val}
+                              onFocus={(e) => {
+                                setFocusedIndex(idx)
+                                e.target.select()
+                              }}
+                              onBlur={() => {
+                                if (focusedIndex === idx) setFocusedIndex(-1)
+                              }}
                               onChange={(e) => handleOtpChange(idx, e.target.value)}
                               onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                               onPaste={handleOtpPaste}
-                              className={`otp-box w-full aspect-square text-center font-price-lg text-price-lg text-on-surface rounded-lg transition-all ${isActiveSlot
-                                ? 'bg-surface-container-lowest ring-2 ring-primary shadow-xs'
-                                : 'bg-surface-container-low border border-outline-variant/30 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary'
-                                }`}
+                              className={`otp-box w-full aspect-square text-center font-price-lg text-price-lg text-on-surface rounded-lg transition-all outline-none ${
+                                isFocused
+                                  ? 'bg-surface-container-lowest ring-2 ring-primary border-transparent shadow-xs'
+                                  : 'bg-surface-container-low border border-outline-variant/30 hover:border-outline-variant/60 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary'
+                              }`}
                             />
                           )
                         })}
@@ -316,28 +380,25 @@ export function VerifyPage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-space-md">
+                      <div className="flex items-center">
                         <button
                           type="button"
-                          disabled={!isResendActive}
+                          disabled={!isResendActive || isResending}
                           onClick={handleResendOtp}
                           className={`font-headline-sm text-body-sm flex items-center gap-1 transition-colors ${
-                            isResendActive
+                            isResendActive && !isResending
                               ? 'text-primary hover:text-secondary cursor-pointer'
                               : 'text-on-surface-variant opacity-50 cursor-not-allowed'
                           }`}
                         >
-                          <span className="material-symbols-outlined text-[16px]">refresh</span>
-                          <span>Resend OTP via Email</span>
-                        </button>
-                        <span className="text-outline-variant hidden sm:inline">•</span>
-                        <button
-                          type="button"
-                          onClick={triggerSmsDelivery}
-                          className="font-headline-sm text-body-sm text-primary hover:text-secondary flex items-center gap-1 transition-colors cursor-pointer"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">sms</span>
-                          <span>Send to SMS instead</span>
+                          <span
+                            className={`material-symbols-outlined text-[16px] ${
+                              isResending ? 'animate-spin' : ''
+                            }`}
+                          >
+                            refresh
+                          </span>
+                          <span>{isResending ? 'Transmitting...' : 'Resend OTP via Email'}</span>
                         </button>
                       </div>
                     </div>
@@ -346,10 +407,24 @@ export function VerifyPage() {
                     <div className="pt-space-sm">
                       <button
                         type="submit"
-                        className="w-full py-3.5 px-space-lg rounded-lg bg-primary-container hover:bg-secondary text-on-primary font-headline-sm text-headline-sm shadow-md active:scale-[0.99] transition-all flex items-center justify-center gap-space-sm cursor-pointer"
+                        disabled={isVerifying}
+                        className={`w-full py-3.5 px-space-lg rounded-lg bg-primary-container hover:bg-secondary text-on-primary font-headline-sm text-headline-sm shadow-md active:scale-[0.99] transition-all flex items-center justify-center gap-space-sm cursor-pointer ${
+                          isVerifying ? 'opacity-80 cursor-wait' : ''
+                        }`}
                       >
-                        <span className="material-symbols-outlined text-[20px]">verified</span>
-                        <span>Verify &amp; Activate Account</span>
+                        {isVerifying ? (
+                          <>
+                            <span>Verifying Security Code...</span>
+                            <span className="material-symbols-outlined animate-spin text-[20px]">
+                              progress_activity
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="material-symbols-outlined text-[20px]">verified</span>
+                            <span>Verify &amp; Activate Account</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   </form>
@@ -488,15 +563,32 @@ export function VerifyPage() {
                     <div className="w-full pt-space-sm flex flex-col sm:flex-row gap-space-sm">
                       <button
                         type="button"
-                        onClick={() =>
-                          showToast('Fresh magic verification link dispatched to mailbox.')
-                        }
+                        disabled={isResending}
+                        onClick={async () => {
+                          if (!targetEmail) {
+                            setVerificationView('otp')
+                            return
+                          }
+                          try {
+                            setIsResending(true)
+                            const res = await resendVerification(targetEmail)
+                            showToast(res.message || 'Fresh verification code dispatched to mailbox.')
+                            setTimeLeft(60)
+                            setVerificationView('otp')
+                          } catch (err: unknown) {
+                            const msg =
+                              err instanceof Error ? err.message : 'Failed to request new code'
+                            showToast(msg)
+                          } finally {
+                            setIsResending(false)
+                          }
+                        }}
                         className="flex-1 py-3.5 px-space-md rounded-lg bg-primary-container hover:bg-secondary text-on-primary font-headline-sm text-body-md shadow-md transition-all flex items-center justify-center gap-space-xs cursor-pointer"
                       >
                         <span className="material-symbols-outlined text-[18px]">
                           forward_to_inbox
                         </span>
-                        <span>Request New Link</span>
+                        <span>{isResending ? 'Transmitting...' : 'Request New Link'}</span>
                       </button>
                       <button
                         type="button"
@@ -539,202 +631,8 @@ export function VerifyPage() {
                 </a>
               </div>
             </div>
-
-            {/* RIGHT PANEL (Col 9-12): Real-Time Audit, Session Telemetry & Identity Staging */}
-            <div className="lg:col-span-4 flex flex-col space-y-space-lg text-left">
-              {/* User Profile Card */}
-              <div className="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-md border border-outline-variant/30 space-y-space-md">
-                <div className="flex items-center gap-space-md">
-                  <div className="relative">
-                    <img
-                      className="w-14 h-14 rounded-full object-cover shadow-xs"
-                      alt="User Portrait"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP3PruQ0ejZIaHk5Ehgj6wS6eU1eOE_Daop1q_I-OEwsNO1nanz6__Y97FzftAgVZlj39nXsB5MnKM-d-L9hYQeF1OD7N7aPwh_qu6xcttJ-5XhHg3rniSUQLIUdBLcwEOT-jZnZBQknYS78TTy9axbPWJJW4YERR8_YSqTl7442XduRlrSXK91HQp292Ar72suQnoQzY-upG__yH9yzDAKh0-1mlj2amOaZV15z4mJnh3hpVJUnjZhw"
-                    />
-                    <span
-                      className="absolute bottom-0 right-0 w-4 h-4 bg-amber-400 rounded-full ring-2 ring-surface-container-lowest"
-                      title="Verification Pending"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-headline-sm text-headline-sm text-on-surface truncate">
-                        {nameFromUrl || user?.name || (targetEmail ? targetEmail.split('@')[0] : 'Sarah Jenkins')}
-                      </h3>
-                    </div>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant truncate">
-                      Customer ID: #NX-88219
-                    </p>
-                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-label-caps text-label-caps font-semibold">
-                      PENDING CONFIRMATION
-                    </span>
-                  </div>
-                </div>
-
-                {/* Telemetry Breakdown */}
-                <div className="space-y-space-xs pt-space-xs font-body-sm text-body-sm text-on-surface-variant">
-                  <div className="flex items-center justify-between py-1.5 border-b border-surface-container">
-                    <span>Primary Contact</span>
-                    <span className="text-on-surface font-medium truncate max-w-[180px]">
-                      {getMaskedEmail(targetEmail)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between py-1.5 border-b border-surface-container">
-                    <span>Recovery Phone</span>
-                    <span className="text-on-surface font-medium">+1 (555) ••••-492</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1.5 border-b border-surface-container">
-                    <span>Login Device</span>
-                    <span className="text-on-surface font-medium">Safari on macOS 14.5</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1.5">
-                    <span>Origin IP</span>
-                    <span className="text-on-surface font-medium">198.51.100.44 (San Jose, CA)</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Trust & Cryptographic Verification Visual Card */}
-              <div className="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-md border border-outline-variant/30 space-y-space-md">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-space-xs text-primary font-headline-sm text-body-md">
-                    <span className="material-symbols-outlined text-[20px]">encrypted</span>
-                    <span>Security Health</span>
-                  </div>
-                  <span className="font-price-md text-price-md text-primary">85% Complete</span>
-                </div>
-
-                {/* Inline SVG Ring Graph */}
-                <div className="flex items-center gap-space-md bg-surface-container-low p-space-md rounded-xl border border-outline-variant/20">
-                  <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
-                    <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                      <path
-                        className="text-surface-container-highest"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3.5"
-                      />
-                      <path
-                        className="text-primary"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeDasharray="85, 100"
-                        strokeLinecap="round"
-                        strokeWidth="3.5"
-                      />
-                    </svg>
-                    <span className="absolute font-headline-sm text-body-sm text-on-surface">
-                      5/6
-                    </span>
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="font-headline-sm text-body-sm text-on-surface">
-                      Multi-Factor Readiness
-                    </p>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">
-                      Completing email auth unlocks instant transactions &amp; card vault storage.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Safe Checklist */}
-                <ul className="space-y-space-xs font-body-sm text-body-sm text-on-surface-variant">
-                  <li className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-emerald-600 text-[18px]">
-                      check
-                    </span>
-                    <span>Password complexity verified</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-emerald-600 text-[18px]">
-                      check
-                    </span>
-                    <span>Device fingerprint cataloged</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-on-surface font-medium">
-                    <span className="material-symbols-outlined text-primary text-[18px]">
-                      pending
-                    </span>
-                    <span>Email ownership verification (In progress)</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Quick Tips Card */}
-              <div className="w-full bg-surface-container rounded-xl p-space-md space-y-space-xs text-on-surface border border-outline-variant/20">
-                <div className="flex items-center gap-space-xs font-headline-sm text-body-sm text-primary">
-                  <span className="material-symbols-outlined text-[18px]">lightbulb</span>
-                  <span>Security Best Practice</span>
-                </div>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  Nexa employees will never ask for your 6-digit one-time code over the phone or email. Keep this tab open while retrieving your code.
-                </p>
-              </div>
-            </div>
           </div>
-        </div>
-      </main>
-
-      {/* MODAL: Change Email Address Overlay */}
-      {isEmailModalOpen && (
-        <div className="fixed inset-0 z-50 bg-inverse-surface/40 backdrop-blur-sm flex items-center justify-center p-margin-mobile animate-fade-in">
-          <div className="bg-surface-container-lowest rounded-xl max-w-md w-full p-space-lg shadow-xl space-y-space-md animate-in fade-in zoom-in-95 duration-150 border border-outline-variant/30 text-left">
-            <div className="flex items-center justify-between pb-space-xs">
-              <div className="flex items-center gap-space-xs text-on-surface">
-                <span className="material-symbols-outlined text-primary text-[22px]">
-                  contact_mail
-                </span>
-                <h3 className="font-headline-sm text-headline-sm">Update Email Address</h3>
-              </div>
-              <button
-                type="button"
-                className="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
-                onClick={() => setIsEmailModalOpen(false)}
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
-
-            <p className="font-body-sm text-body-sm text-on-surface-variant">
-              Enter the new email address you&apos;d like to use for Nexa Store credentials. A new
-              6-digit code will be generated immediately.
-            </p>
-
-            <div className="space-y-space-xs">
-              <label className="font-headline-sm text-body-sm text-on-surface" htmlFor="new-email">
-                New Email Address
-              </label>
-              <input
-                id="new-email"
-                type="email"
-                value={newEmailInput}
-                onChange={(e) => setNewEmailInput(e.target.value)}
-                placeholder="sarah.jenkins@work.org"
-                className="w-full h-11 px-space-md rounded-lg bg-surface-container-lowest border border-outline-variant focus:ring-2 focus:ring-primary focus:outline-none text-body-md text-on-surface placeholder:text-outline"
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-space-sm pt-space-sm">
-              <button
-                type="button"
-                className="px-space-md py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-sm text-body-sm cursor-pointer"
-                onClick={() => setIsEmailModalOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="px-space-md py-2 rounded-lg bg-primary hover:bg-secondary text-on-primary font-headline-sm text-body-sm shadow-xs cursor-pointer"
-                onClick={handleSaveNewEmail}
-              >
-                Save &amp; Dispatch Code
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        </main>
 
       {/* Notification Toast Container */}
       {toastMessage && (
