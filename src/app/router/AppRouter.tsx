@@ -1,17 +1,32 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
-import { CartDrawer } from '@/features/cart'
-import { PageLoader, FullPageLoader } from '@/components/feedback/PageLoader'
+import { CustomerLayout } from '@/components/layout/CustomerLayout'
+import { AdminLayout } from '@/components/layout/AdminLayout'
+import { FullPageLoader } from '@/components/feedback/PageLoader'
 
-// Lazy-loaded pages with separate chunk code-splitting
+// Lazy-loaded customer storefront pages
 const ProductsPage = lazy(() =>
   import('@/features/products/pages/ProductsPage').then((m) => ({ default: m.ProductsPage }))
 )
 const ProductDetailPage = lazy(() =>
   import('@/features/products/pages/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage }))
 )
+
+// Lazy-loaded admin dashboard pages
+const DashboardOverviewPage = lazy(() =>
+  import('@/features/dashboard').then((m) => ({ default: m.DashboardOverviewPage }))
+)
+const ProductsCatalogPage = lazy(() =>
+  import('@/features/dashboard').then((m) => ({ default: m.ProductsCatalogPage }))
+)
+const ProductEditPage = lazy(() =>
+  import('@/features/dashboard').then((m) => ({ default: m.ProductEditPage }))
+)
+const CategoriesPage = lazy(() =>
+  import('@/features/dashboard').then((m) => ({ default: m.CategoriesPage }))
+)
+
+// Lazy-loaded auth pages
 const LoginPage = lazy(() =>
   import('@/features/auth/pages/LoginPage').then((m) => ({ default: m.LoginPage }))
 )
@@ -28,44 +43,30 @@ const ResetPasswordPage = lazy(() =>
   import('@/features/auth/pages/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage }))
 )
 
-function StorefrontLayout() {
-  return (
-    <div className="min-h-screen flex flex-col bg-background font-body-md text-on-surface antialiased">
-      <Header />
-      <Suspense fallback={<PageLoader />}>
-        <ProductsPage />
-      </Suspense>
-      <CartDrawer />
-      <Footer />
-    </div>
-  )
-}
-
-function ProductDetailLayout() {
-  return (
-    <div className="min-h-screen flex flex-col bg-background font-body-md text-on-surface antialiased">
-      <Header />
-      <Suspense fallback={<PageLoader />}>
-        <ProductDetailPage />
-      </Suspense>
-      <CartDrawer />
-      <Footer />
-    </div>
-  )
-}
-
 export function AppRouter() {
   return (
     <Routes>
-      {/* Main Storefront Route */}
-      <Route path="/" element={<StorefrontLayout />} />
+      {/* 1. Customer Storefront Layout (Public Customer Views) */}
+      <Route element={<CustomerLayout />}>
+        <Route path="/" element={<ProductsPage />} />
+        <Route path="/products/:id" element={<ProductDetailPage />} />
+        <Route path="/product/:id" element={<ProductDetailPage />} />
+        <Route path="/product-detail" element={<ProductDetailPage />} />
+      </Route>
 
-      {/* Product Detail Routes */}
-      <Route path="/products/:id" element={<ProductDetailLayout />} />
-      <Route path="/product/:id" element={<ProductDetailLayout />} />
-      <Route path="/product-detail" element={<ProductDetailLayout />} />
+      {/* 2. Admin Dashboard Layout (Unprotected for now until backend implements roles) */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<DashboardOverviewPage />} />
+        <Route path="dashboard" element={<DashboardOverviewPage />} />
+        <Route path="products" element={<ProductsCatalogPage />} />
+        <Route path="products/new" element={<ProductEditPage />} />
+        <Route path="products/:id/edit" element={<ProductEditPage />} />
+        <Route path="products/:id" element={<ProductEditPage />} />
+        <Route path="categories" element={<CategoriesPage />} />
+      </Route>
+      <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
 
-      {/* Authentication Routes */}
+      {/* 3. Authentication Routes */}
       <Route
         path="/login"
         element={
@@ -112,5 +113,3 @@ export function AppRouter() {
     </Routes>
   )
 }
-
-
