@@ -119,10 +119,14 @@ export function ProductsPage() {
         {/* 1. Hero Section: Flagship Showcase */}
         {/* ============================================================ */}
         <section className="max-w-7xl mx-auto px-6 lg:px-12 py-8 sm:py-10 w-full">
-          <div className="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden p-6 lg:p-12">
+          <div className="bg-gradient-to-br from-surface-container-lowest via-surface-container-lowest to-surface-container-low/70 rounded-3xl border border-outline-variant/60 shadow-[0_8px_30px_rgba(36,51,49,0.04)] overflow-hidden p-6 lg:p-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               {/* Text & Action Column */}
               <div className="lg:col-span-7 flex flex-col items-start gap-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container text-primary font-body-sm text-xs font-semibold tracking-wider uppercase border border-primary/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  Flagship 2026 Collection
+                </div>
                 <h1 className="font-display-hero text-display-hero text-on-surface tracking-tight leading-tight">
                   Precision Engineering for Everyday Living.
                 </h1>
@@ -135,7 +139,7 @@ export function ProductsPage() {
                     onClick={() => {
                       document.getElementById('featured')?.scrollIntoView({ behavior: 'smooth' })
                     }}
-                    className="bg-primary hover:bg-secondary text-on-primary font-body-md text-body-md font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+                    className="bg-primary hover:bg-secondary text-on-primary font-body-md text-body-md font-semibold px-6 py-3 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <span>Shop Now</span>
                     <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -145,7 +149,7 @@ export function ProductsPage() {
                     onClick={() => {
                       document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })
                     }}
-                    className="bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-body-md text-body-md font-semibold px-6 py-3 rounded-xl shadow-sm transition-all cursor-pointer border border-outline-variant/30"
+                    className="bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-body-md text-body-md font-semibold px-6 py-3 rounded-xl shadow-xs hover:border-outline transition-all cursor-pointer border border-outline-variant"
                   >
                     Explore Categories
                   </button>
@@ -184,7 +188,7 @@ export function ProductsPage() {
                     </span>
                   </div>
                   <div className="absolute bottom-4 right-4 bg-surface-container-lowest/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-md flex items-center gap-2">
-                    <span className="material-symbols-outlined text-emerald-600 text-sm">battery_charging_full</span>
+                    <span className="material-symbols-outlined text-stock-in text-sm">battery_charging_full</span>
                     <span className="font-body-sm text-body-sm font-semibold text-on-surface">
                       60h Quick Charge
                     </span>
@@ -446,7 +450,7 @@ export function ProductsPage() {
               </p>
             </div>
             <div className="flex items-center gap-1 text-sm font-bold text-on-surface">
-              <span className="text-amber-500">★★★★★</span>
+              <span className="text-stock-low">★★★★★</span>
               <span>4.9/5 Overall Store Rating</span>
             </div>
           </div>

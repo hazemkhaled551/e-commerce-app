@@ -21,7 +21,7 @@ export function StickySaveBar({
         <span className="flex items-center gap-1.5 text-on-surface font-body-sm text-body-sm">
           <span
             className={`w-2 h-2 rounded-full ${
-              hasUnsavedChanges ? 'bg-secondary animate-pulse' : 'bg-emerald-500'
+              hasUnsavedChanges ? 'bg-secondary animate-pulse' : 'bg-stock-in'
             }`}
           />
           <span className="font-semibold">

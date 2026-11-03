@@ -68,7 +68,7 @@ export function RegisterPage() {
   const getStrengthLabel = () => {
     if (strengthScore === 0) return { text: 'None', color: 'text-on-surface-variant' }
     if (strengthScore === 1) return { text: 'Weak', color: 'text-error' }
-    if (strengthScore === 2) return { text: 'Fair', color: 'text-amber-600' }
+    if (strengthScore === 2) return { text: 'Fair', color: 'text-stock-low' }
     if (strengthScore === 3) return { text: 'Strong', color: 'text-primary' }
     return { text: 'Excellent', color: 'text-tertiary-container' }
   }
@@ -395,7 +395,7 @@ export function RegisterPage() {
                                 ? strengthScore === 1
                                   ? 'bg-error'
                                   : strengthScore === 2
-                                    ? 'bg-amber-500'
+                                    ? 'bg-stock-low'
                                     : 'bg-primary'
                                 : 'bg-surface-container-highest'
                             }`}
@@ -404,7 +404,7 @@ export function RegisterPage() {
                             className={`h-full rounded-full transition-all ${
                               strengthScore >= 2
                                 ? strengthScore === 2
-                                  ? 'bg-amber-500'
+                                  ? 'bg-stock-low'
                                   : 'bg-primary'
                                 : 'bg-surface-container-highest'
                             }`}

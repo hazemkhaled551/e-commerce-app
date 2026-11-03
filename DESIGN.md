@@ -1,53 +1,53 @@
 ---
-name: Modern Retail Blueprint
+name: Modern Retail Blueprint - Premium Teal & Ivory Edition
 colors:
-  surface: '#faf8ff'
-  surface-dim: '#d2d9f4'
-  surface-bright: '#faf8ff'
+  surface: '#faf8f1'
+  surface-dim: '#dfdbcf'
+  surface-bright: '#fffdf9'
   surface-container-lowest: '#ffffff'
-  surface-container-low: '#f2f3ff'
-  surface-container: '#eaedff'
-  surface-container-high: '#e2e7ff'
-  surface-container-highest: '#dae2fd'
-  on-surface: '#131b2e'
-  on-surface-variant: '#434655'
-  inverse-surface: '#283044'
-  inverse-on-surface: '#eef0ff'
-  outline: '#737686'
-  outline-variant: '#c3c6d7'
-  surface-tint: '#0053db'
-  primary: '#004ac6'
+  surface-container-low: '#fffdf9'
+  surface-container: '#f0f8f5'
+  surface-container-high: '#e2f3ef'
+  surface-container-highest: '#d1ebe5'
+  on-surface: '#243331'
+  on-surface-variant: '#788581'
+  inverse-surface: '#243331'
+  inverse-on-surface: '#faf8f1'
+  outline: '#9ba8a4'
+  outline-variant: '#e7eae3'
+  surface-tint: '#087f83'
+  primary: '#087f83'
   on-primary: '#ffffff'
-  primary-container: '#2563eb'
-  on-primary-container: '#eeefff'
-  inverse-primary: '#b4c5ff'
-  secondary: '#1d4ed8'
+  primary-container: '#087f83'
+  on-primary-container: '#ffffff'
+  inverse-primary: '#e2f3ef'
+  secondary: '#075b60'
   on-secondary: '#ffffff'
-  secondary-container: '#4069f2'
-  on-secondary-container: '#fffbff'
-  tertiary: '#0051b1'
+  secondary-container: '#159a96'
+  on-secondary-container: '#ffffff'
+  tertiary: '#159a96'
   on-tertiary: '#ffffff'
-  tertiary-container: '#0f69dc'
-  on-tertiary-container: '#edf0ff'
-  error: '#ba1a1a'
+  tertiary-container: '#e2f3ef'
+  on-tertiary-container: '#243331'
+  error: '#d66c68'
   on-error: '#ffffff'
-  error-container: '#ffdad6'
-  on-error-container: '#93000a'
-  primary-fixed: '#dbe1ff'
-  primary-fixed-dim: '#b4c5ff'
-  on-primary-fixed: '#00174b'
-  on-primary-fixed-variant: '#003ea8'
-  secondary-fixed: '#dce1ff'
-  secondary-fixed-dim: '#b7c4ff'
-  on-secondary-fixed: '#001551'
-  on-secondary-fixed-variant: '#0039b5'
-  tertiary-fixed: '#d8e2ff'
-  tertiary-fixed-dim: '#adc6ff'
-  on-tertiary-fixed: '#001a42'
-  on-tertiary-fixed-variant: '#004395'
-  background: '#faf8ff'
-  on-background: '#131b2e'
-  surface-variant: '#dae2fd'
+  error-container: '#fcf1f0'
+  on-error-container: '#7f1d1d'
+  primary-fixed: '#e2f3ef'
+  primary-fixed-dim: '#d1ebe5'
+  on-primary-fixed: '#087f83'
+  on-primary-fixed-variant: '#075b60'
+  secondary-fixed: '#f0f8f5'
+  secondary-fixed-dim: '#e2f3ef'
+  on-secondary-fixed: '#075b60'
+  on-secondary-fixed-variant: '#243331'
+  tertiary-fixed: '#e2f3ef'
+  tertiary-fixed-dim: '#d1ebe5'
+  on-tertiary-fixed: '#087f83'
+  on-tertiary-fixed-variant: '#075b60'
+  background: '#faf8f1'
+  on-background: '#243331'
+  surface-variant: '#f0f8f5'
 typography:
   display-hero:
     fontFamily: Inter
@@ -146,30 +146,37 @@ spacing:
 
 This design system establishes an institutional, dependable, and precision-driven light-mode e-commerce foundation. It targets modern digital consumers who value friction-free navigation, explicit transactional clarity, and uncompromised speed.
 
-The visual style blends **Corporate / Modern** discipline with high-utility e-commerce patterns:
-- **Tone:** Methodical, reliable, sharp, and confident.
+The visual style blends **Sophisticated Luxury / Organic Elegance** discipline with high-utility e-commerce patterns:
+- **Tone:** Sophisticated, elegant, refreshing, modern, and luxurious e-commerce experience. Clean, bright, light-mode interface dominated by warm ivory and pure white.
 - **Hierarchy:** High signal-to-noise ratio where product photography and transactional triggers dominate the visual weight.
-- **Surface Polish:** Clean `#FFFFFF` elevated planes set upon a calming, ultra-soft cool background `#F8FAFC`, avoiding sensory fatigue during long shopping sessions.
-- **Structural Integrity:** Precision 1px dividers, disciplined typographic contrast, and deliberate micro-interactions that communicate system responsiveness and checkout integrity.
+- **Surface Polish:** Clean `#FFFFFF` elevated planes set upon warm ivory background (`#FAF8F1`), warm white (`#FFFDF9`), and pale mint (`#F0F8F5`) micro-containers, avoiding sensory fatigue during long shopping sessions.
+- **Structural Integrity:** Precision 1px dividers `#E7EAE3`, disciplined typographic contrast, and deliberate micro-interactions that communicate system responsiveness and checkout integrity.
 
 ## Colors
 
-The palette leverages a classic corporate trust blue core paired with balanced slate neutrals to maximize product visibility and legal/transactional legitimacy.
+The palette leverages a refined **Premium Teal & Ivory** design system (`#087F83`, `#075B60`, `#159A96`, `#55BDB3`) paired with warm ivory canvas (`#FAF8F1`), pure white card surfaces (`#FFFFFF`), light mint accents (`#E2F3EF`), pale mint backgrounds (`#F0F8F5`), and dark spruce charcoal text (`#243331`).
 
 ### Palette Architecture
-- **Primary (`#2563EB`):** Primary actions, active navigation states, order placement actions, and key verification indicators.
-- **Secondary (`#1D4ED8`):** Pressed/hover states for primary buttons, highlighted text links, and focused active components.
-- **Tertiary (`#3B82F6`):** Secondary accents, progress trackers, and visual indicators.
-- **Neutral Core (`#0F172A`):** Used for primary headings, body copy, and heavy emphasis to maintain maximum legibility against white surfaces.
-- **Subdued Neutral (`#64748B`):** Metadata, SKU numbers, breadcrumbs, specifications, and secondary ratings.
-- **Canvas (`#F8FAFC`):** Global canvas background setting the staging area for elevated component surfaces.
-- **Surface & Cards (`#FFFFFF`):** High-clarity foreground planes for product cards, drawers, dialogs, and navigation headers.
-- **Outlines & Dividers (`#E2E8F0`):** Subtle separation lines preserving structural containment without visual clutter.
+- **Primary Teal (`#087F83`):** Primary buttons, CTA elements, active navigation, key brand icons, and important highlights.
+- **Deep Teal (`#075B60`):** Secondary interactive triggers, button hover states, and focused visual emphasis.
+- **Secondary Teal (`#159A96`):** Active pill borders, focus rings, and secondary interactive accents.
+- **Soft Turquoise (`#55BDB3`):** Decorative badges, subtle highlights, and organic energetic accents.
+- **Light Mint (`#E2F3EF`):** Active filter chips, pill backgrounds, and subtle status badges.
+- **Pale Mint (`#F0F8F5`):** Micro-section backgrounds, table headers, and neutral slate containers.
+- **Ivory Background (`#FAF8F1`):** Predominant light background throughout the entire website.
+- **Warm White (`#FFFDF9`):** Subtle section transitions and warm surface containers.
+- **Card Background (`#FFFFFF`):** High-clarity foreground planes for product cards, drawers, dialogs, and navigation headers.
+- **Primary Text (`#243331`):** Primary headings, body copy, and bold emphasis.
+- **Secondary Text (`#788581`):** Metadata, SKU numbers, breadcrumbs, and specifications.
+- **Border (`#E7EAE3`):** Subtle separation lines preserving structural containment without visual clutter.
+- **Success (`#398B67`):** In-stock status, confirmations, and success badges.
+- **Warning (`#D6A34D`):** Low inventory alerts, ratings, and warnings.
+- **Error (`#D66C68`):** Form errors, stock depletion, and failed payment notifications.
 
 ### Functional States
-- **Success / In Stock (`#16A34A`):** Inventory availability, free shipping qualifiers, confirmation checks.
-- **Warning / Low Stock (`#D97706`):** Low inventory alerts, countdown timers, basket expiration notices.
-- **Error / Out of Stock (`#DC2626`):** Form errors, stock depletion, failed payment notifications.
+- **Success / In Stock (`#398B67`):** Inventory availability, free shipping qualifiers, confirmation checks.
+- **Warning / Low Stock (`#D6A34D`):** Low inventory alerts, countdown timers, basket expiration notices.
+- **Error / Out of Stock (`#D66C68`):** Form errors, stock depletion, failed payment notifications.
 
 ## Typography
 
@@ -197,10 +204,10 @@ Padding and intra-element spacing adhere to a base-4 spatial system. Component i
 Visual hierarchy uses a hybrid strategy combining **low-contrast outlines** with **ambient, low-opacity shadows** to avoid heavy borders or muddy layers in light mode.
 
 ### Elevation Hierarchy
-- **Level 0 (Base / Canvas):** Surface color `#F8FAFC`. Zero elevation, zero border.
-- **Level 1 (Cards & Inputs):** Surface `#FFFFFF`, border `1px solid #E2E8F0`. Shadow: `0 1px 2px 0 rgba(15, 23, 42, 0.05)`. Used for passive catalog items and static content blocks.
-- **Level 2 (Hover States & Dropdowns):** Surface `#FFFFFF`, border `1px solid #CBD5E1`. Shadow: `0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04)`. Card hover states translate `translateY(-2px)` to affirm interactivity.
-- **Level 3 (Modals, Overlays, Sticky Cart Bars):** Surface `#FFFFFF`, border `1px solid #E2E8F0`. Shadow: `0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.04)`.
+- **Level 0 (Base / Canvas):** Surface color `#FAF8F1`. Zero elevation, zero border.
+- **Level 1 (Cards & Inputs):** Surface `#FFFFFF`, border `1px solid #E7EAE3`. Shadow: `0 1px 3px 0 rgba(36, 51, 49, 0.04), 0 1px 2px -1px rgba(36, 51, 49, 0.03)`. Used for passive catalog items and static content blocks.
+- **Level 2 (Hover States & Dropdowns):** Surface `#FFFFFF`, border `1px solid #159A96`. Shadow: `0 10px 15px -3px rgba(36, 51, 49, 0.07), 0 4px 6px -4px rgba(36, 51, 49, 0.03)`. Card hover states translate `translateY(-2px)` to affirm interactivity.
+- **Level 3 (Modals, Overlays, Sticky Cart Bars):** Surface `#FFFFFF`, border `1px solid #E7EAE3`. Shadow: `0 20px 25px -5px rgba(36, 51, 49, 0.09), 0 8px 10px -6px rgba(36, 51, 49, 0.03)`.
 
 ## Shapes
 
@@ -215,25 +222,25 @@ The design system adopts a **Soft (`1`)** shape language. This ensures buttons, 
 ## Components
 
 ### Buttons
-- **Primary:** Background `#2563EB`, text `#FFFFFF`, border `none`, `rounded-lg` (0.5rem), font weight `600`. Hover: `#1D4ED8`. Active: scale `0.98`. Focus ring: 2px offset with `#3B82F6`.
-- **Secondary / Outline:** Background `#FFFFFF`, text `#0F172A`, border `1px solid #E2E8F0`. Hover: `#F8FAFC` and border `#CBD5E1`.
-- **Ghost:** Text `#64748B`, background transparent. Hover: `#F1F5F9`, text `#0F172A`.
+- **Primary:** Background `#087F83` (`primary-container`), text `#FFFFFF`, border `none`, `rounded-lg` (0.5rem), font weight `600`. Hover: `#075B60` (`secondary`). Active: scale `0.98`. Focus ring: 2px offset with `#159A96`.
+- **Secondary / Outline:** Background `#FFFFFF`, text `#243331`, border `1px solid #E7EAE3`. Hover: `#F0F8F5` and border `#159A96`.
+- **Ghost:** Text `#788581`, background transparent. Hover: `#F0F8F5`, text `#243331`.
 
 ### Product Cards
-- **Structure:** Surface `#FFFFFF`, border `1px solid #E2E8F0`, rounded `rounded-lg`.
-- **Image Staging:** 1:1 or 4:5 aspect ratio wrapper with a subtle neutral-slate background `#F1F5F9` to anchor non-standard product photos.
-- **Content Flow:** Category label (`label-caps`, `#64748B`), Product Title (`body-md`, `#0F172A`, 2-line clamp), Pricing Row (`price-md`, tabular numbers), and a secondary "Add to Cart" quick-action button.
+- **Structure:** Surface `#FFFFFF`, border `1px solid #E7EAE3`, rounded `rounded-xl`.
+- **Image Staging:** 1:1 or 4:5 aspect ratio wrapper with a subtle pale mint background `#F0F8F5` to anchor non-standard product photos.
+- **Content Flow:** Category label (`label-caps`, `#788581`), Product Title (`body-md`, `#243331`, 2-line clamp), Pricing Row (`price-md`, tabular numbers), and a secondary "Add to Cart" quick-action button.
 
 ### Form Inputs & Selectors
-- **Input Fields:** Height 42px, padding `0 0.75rem`, border `1px solid #E2E8F0`, background `#FFFFFF`, text `#0F172A`, placeholder `#94A3B8`, `rounded-lg`. Focus state: border `#2563EB`, outer box-shadow ring `0 0 0 3px rgba(37, 99, 235, 0.15)`.
-- **Checkboxes & Radios:** 18px x 18px, border `1px solid #CBD5E1`, border-radius `4px` (checkbox) or `9999px` (radio). Checked state: `#2563EB` fill with sharp `#FFFFFF` icon.
+- **Input Fields:** Height 42px, padding `0 0.75rem`, border `1px solid #E7EAE3`, background `#FFFFFF`, text `#243331`, placeholder `#9BA8A4`, `rounded-lg`. Focus state: border `#087F83`, outer box-shadow ring `0 0 0 3px rgba(8, 127, 131, 0.15)`.
+- **Checkboxes & Radios:** 18px x 18px, border `1px solid #E7EAE3`, border-radius `4px` (checkbox) or `9999px` (radio). Checked state: `#087F83` fill with sharp `#FFFFFF` icon.
 
 ### Chips & Stock Badges
 - **Status Badges:** Fully rounded pill (`9999px`), padding `2px 8px`, font size `11px`, font weight `600`.
-  - In Stock: Background `#DCFCE7`, text `#16A34A`.
-  - Low Stock: Background `#FEF3C7`, text `#D97706`.
-  - Out of Stock: Background `#FEE2E2`, text `#DC2626`.
-- **Filter Chips:** Height 32px, `rounded-lg`, border `1px solid #E2E8F0`, background `#FFFFFF`. Active state: background `#DBEAFE`, text `#1D4ED8`, border `#93C5FD`.
+  - In Stock: Background `#EDF7F2`, text `#398B67`.
+  - Low Stock: Background `#FDF8EE`, text `#D6A34D`.
+  - Out of Stock: Background `#FCF1F0`, text `#D66C68`.
+- **Filter Chips:** Height 32px, `rounded-lg`, border `1px solid #E7EAE3`, background `#FFFFFF`. Active state: background `#E2F3EF`, text `#087F83`, border `#159A96`.
 
 ### Quantity Stepper
 - Compact inline control, border `1px solid #E2E8F0`, `rounded-lg`. Contains decrement button, tabular quantity number, and increment button. Disables decrement button at quantity `1`.

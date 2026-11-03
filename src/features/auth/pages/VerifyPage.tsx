@@ -277,7 +277,7 @@ export function VerifyPage() {
                     </div>
 
                     <div className="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-container text-on-surface font-label-caps text-label-caps self-start sm:self-auto">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-stock-in animate-pulse" />
                       <span>Awaiting Input</span>
                     </div>
                   </div>
@@ -447,8 +447,8 @@ export function VerifyPage() {
                 <div className="w-full bg-surface-container-lowest rounded-xl p-space-lg md:p-space-xl shadow-md border border-outline-variant/30 transition-all animate-fade-in text-left">
                   <div className="max-w-md mx-auto text-center flex flex-col items-center space-y-space-md py-space-md">
                     {/* Animated Success Icon Wrapper */}
-                    <div className="w-20 h-20 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-inner relative">
-                      <div className="absolute inset-0 rounded-full bg-emerald-200/40 animate-ping" />
+                    <div className="w-20 h-20 rounded-full bg-stock-in-bg text-stock-in flex items-center justify-center shadow-inner relative">
+                      <div className="absolute inset-0 rounded-full bg-stock-in/20 animate-ping" />
                       <span
                         className="material-symbols-outlined text-[44px]"
                         style={{ fontVariationSettings: "'FILL' 1" }}
@@ -458,7 +458,7 @@ export function VerifyPage() {
                     </div>
 
                     <div className="space-y-space-xs">
-                      <span className="font-label-caps text-label-caps text-emerald-700 bg-emerald-100/70 px-space-sm py-0.5 rounded-full uppercase">
+                      <span className="font-label-caps text-label-caps text-stock-in bg-stock-in-bg px-space-sm py-0.5 rounded-full uppercase">
                         Authenticated via Token
                       </span>
                       <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
@@ -527,12 +527,12 @@ export function VerifyPage() {
                 <div className="w-full bg-surface-container-lowest rounded-xl p-space-lg md:p-space-xl shadow-md border border-outline-variant/30 transition-all animate-fade-in text-left">
                   <div className="max-w-md mx-auto text-center flex flex-col items-center space-y-space-md py-space-md">
                     {/* Amber Alert Icon */}
-                    <div className="w-20 h-20 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shadow-inner">
+                    <div className="w-20 h-20 rounded-full bg-stock-low-bg text-stock-low flex items-center justify-center shadow-inner">
                       <span className="material-symbols-outlined text-[42px]">gpp_maybe</span>
                     </div>
 
                     <div className="space-y-space-xs">
-                      <span className="font-label-caps text-label-caps text-amber-700 bg-amber-100/70 px-space-sm py-0.5 rounded-full uppercase">
+                      <span className="font-label-caps text-label-caps text-stock-low bg-stock-low-bg px-space-sm py-0.5 rounded-full uppercase">
                         Security Token Stale
                       </span>
                       <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
@@ -546,7 +546,7 @@ export function VerifyPage() {
 
                     {/* Diagnostics snippet */}
                     <div className="w-full p-space-md bg-surface-container-low rounded-xl text-left flex items-start gap-space-sm border border-outline-variant/20">
-                      <span className="material-symbols-outlined text-amber-600 text-[20px] mt-0.5">
+                      <span className="material-symbols-outlined text-stock-low text-[20px] mt-0.5">
                         info
                       </span>
                       <div className="space-y-0.5">
@@ -637,7 +637,7 @@ export function VerifyPage() {
       {/* Notification Toast Container */}
       {toastMessage && (
         <div className="fixed bottom-space-lg right-space-lg z-50 bg-inverse-surface text-inverse-on-surface px-space-md py-2 rounded-xl shadow-xl flex items-center gap-space-sm animate-fade-in">
-          <span className="material-symbols-outlined text-[20px] text-emerald-400">
+          <span className="material-symbols-outlined text-[20px] text-stock-in">
             check_circle
           </span>
           <span className="font-body-sm text-body-sm">{toastMessage}</span>

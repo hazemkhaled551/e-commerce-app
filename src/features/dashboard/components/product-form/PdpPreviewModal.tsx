@@ -101,7 +101,7 @@ export function PdpPreviewModal({ isOpen, onClose, formData }: PdpPreviewModalPr
 
             {/* Ratings */}
             <div className="flex items-center gap-space-xs">
-              <div className="flex text-amber-500">
+              <div className="flex text-stock-low">
                 <span className="material-symbols-outlined text-[16px]">star</span>
                 <span className="material-symbols-outlined text-[16px]">star</span>
                 <span className="material-symbols-outlined text-[16px]">star</span>

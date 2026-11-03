@@ -29,11 +29,11 @@ export function TestimonialCard({
     <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center text-amber-500 text-sm">
+          <div className="flex items-center text-stock-low text-sm">
             <span>{stars}</span>
-            {remaining && <span className="text-amber-300">{remaining}</span>}
+            {remaining && <span className="opacity-40">{remaining}</span>}
           </div>
-          <span className="font-label-caps text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+          <span className="font-label-caps text-[10px] text-stock-in font-bold bg-stock-in-bg px-2 py-0.5 rounded-full flex items-center gap-1">
             <span className="material-symbols-outlined text-[12px]">check_circle</span> Verified Buyer
           </span>
         </div>

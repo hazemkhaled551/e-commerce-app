@@ -36,7 +36,7 @@ export function NewsletterCard({
       </p>
 
       {subscribed ? (
-        <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 font-body-sm text-body-sm font-semibold border border-emerald-200">
+        <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stock-in-bg text-stock-in font-body-sm text-body-sm font-semibold border border-stock-in/30">
           <span className="material-symbols-outlined text-base">check_circle</span>
           <span>Thank you for subscribing to Nexa Store drops!</span>
         </div>

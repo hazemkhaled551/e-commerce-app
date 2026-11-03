@@ -12,7 +12,7 @@ export function Footer() {
               Nexa Store engineers tactile, high-performance hardware and lifestyle artifacts for modern spaces. Designed with meticulous craft and durable materials.
             </p>
             <div className="flex items-center gap-2 text-on-surface-variant text-sm pt-2">
-              <span className="material-symbols-outlined text-emerald-600">verified</span>
+              <span className="material-symbols-outlined text-stock-in">verified</span>
               <span className="font-body-sm text-body-sm font-semibold text-on-surface">
                 ISO/IEC 27001 Certified Security
               </span>

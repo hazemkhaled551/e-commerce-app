@@ -352,7 +352,7 @@ export function ProductDetailPage() {
             {/* Social Proof & Rating Summary */}
             <div className="flex items-center gap-space-sm flex-wrap pb-1">
               <div className="flex items-center bg-surface-container-high px-space-sm py-1 rounded-full">
-                <div className="flex text-amber-500 mr-1.5">
+                <div className="flex text-stock-low mr-1.5">
                   {[...Array(5)].map((_, i) => (
                     <span
                       key={i}
@@ -388,7 +388,7 @@ export function ProductDetailPage() {
                 <span className="font-headline-sm text-headline-sm text-outline line-through">
                   ${((product.originalPrice || 249.0) + cushionAddon).toFixed(2)}
                 </span>
-                <span className="bg-emerald-100 text-emerald-800 font-label-caps text-label-caps px-2 py-1 rounded font-bold uppercase">
+                <span className="bg-stock-in-bg text-stock-in font-label-caps text-label-caps px-2 py-1 rounded font-bold uppercase">
                   Save $50 (20% OFF)
                 </span>
               </div>
@@ -402,11 +402,11 @@ export function ProductDetailPage() {
             </div>
 
             {/* Live Stock Availability State */}
-            <div className="p-space-sm bg-emerald-50 rounded-xl flex items-center justify-between text-emerald-800 shadow-sm">
+            <div className="p-space-sm bg-stock-in-bg rounded-xl flex items-center justify-between text-stock-in shadow-sm">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-stock-in animate-pulse"></span>
                 <span className="font-body-sm text-body-sm font-semibold">In Stock</span>
-                <span className="text-emerald-700 font-body-sm text-body-sm">
+                <span className="text-stock-in font-body-sm text-body-sm">
                   ― Ships today if ordered within <strong className="font-bold underline">3 hrs 24 mins</strong>
                 </span>
               </div>
@@ -553,7 +553,7 @@ export function ProductDetailPage() {
                 <span className="font-body-sm text-body-sm text-outline flex items-center gap-1">
                   <span className="material-symbols-outlined text-sm">info</span> Max 5 units per customer order
                 </span>
-                <span className="font-body-sm text-body-sm text-emerald-700 font-medium">
+                <span className="font-body-sm text-body-sm text-stock-in font-medium">
                   Free express courier eligibility active
                 </span>
               </div>
@@ -658,14 +658,14 @@ export function ProductDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-space-sm flex-wrap">
-            <div className="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-800 font-body-sm text-body-sm font-semibold flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-600"></span> In Stock (28+ units ready)
+            <div className="px-3 py-1.5 rounded-lg bg-stock-in-bg text-stock-in font-body-sm text-body-sm font-semibold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-stock-in"></span> In Stock (28+ units ready)
             </div>
-            <div className="px-3 py-1.5 rounded-lg bg-amber-100 text-amber-900 font-body-sm text-body-sm font-semibold flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-600"></span> Low Stock: Only 3 units left
+            <div className="px-3 py-1.5 rounded-lg bg-stock-low-bg text-stock-low font-body-sm text-body-sm font-semibold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-stock-low"></span> Low Stock: Only 3 units left
             </div>
-            <div className="px-3 py-1.5 rounded-lg bg-rose-100 text-rose-900 font-body-sm text-body-sm font-semibold flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-rose-600"></span> Backorder: Restock April 12
+            <div className="px-3 py-1.5 rounded-lg bg-stock-out-bg text-stock-out font-body-sm text-body-sm font-semibold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-stock-out"></span> Backorder: Restock April 12
             </div>
           </div>
         </div>
@@ -850,7 +850,7 @@ export function ProductDetailPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl p-space-lg bg-surface-container-low rounded-xl items-center">
                   <div className="lg:col-span-4 flex flex-col items-center justify-center text-center">
                     <span className="font-display-hero text-display-hero font-bold text-on-surface">4.9</span>
-                    <div className="flex text-amber-500 my-1">
+                    <div className="flex text-stock-low my-1">
                       {[...Array(5)].map((_, i) => (
                         <span
                           key={i}
@@ -877,7 +877,7 @@ export function ProductDetailPage() {
                     <div className="flex items-center gap-space-sm font-body-sm text-body-sm">
                       <span className="w-12 text-on-surface-variant font-medium">5 Star</span>
                       <div className="flex-1 h-2.5 bg-surface-container-high rounded-full overflow-hidden">
-                        <div className="bg-amber-500 h-full rounded-full" style={{ width: '82%' }}></div>
+                        <div className="bg-stock-low h-full rounded-full" style={{ width: '82%' }}></div>
                       </div>
                       <span className="w-10 text-right font-bold text-on-surface">82%</span>
                     </div>
@@ -885,7 +885,7 @@ export function ProductDetailPage() {
                     <div className="flex items-center gap-space-sm font-body-sm text-body-sm">
                       <span className="w-12 text-on-surface-variant font-medium">4 Star</span>
                       <div className="flex-1 h-2.5 bg-surface-container-high rounded-full overflow-hidden">
-                        <div className="bg-amber-500 h-full rounded-full" style={{ width: '14%' }}></div>
+                        <div className="bg-stock-low h-full rounded-full" style={{ width: '14%' }}></div>
                       </div>
                       <span className="w-10 text-right font-bold text-on-surface">14%</span>
                     </div>
@@ -893,7 +893,7 @@ export function ProductDetailPage() {
                     <div className="flex items-center gap-space-sm font-body-sm text-body-sm">
                       <span className="w-12 text-on-surface-variant font-medium">3 Star</span>
                       <div className="flex-1 h-2.5 bg-surface-container-high rounded-full overflow-hidden">
-                        <div className="bg-amber-500 h-full rounded-full" style={{ width: '3%' }}></div>
+                        <div className="bg-stock-low h-full rounded-full" style={{ width: '3%' }}></div>
                       </div>
                       <span className="w-10 text-right font-bold text-on-surface">3%</span>
                     </div>
@@ -901,7 +901,7 @@ export function ProductDetailPage() {
                     <div className="flex items-center gap-space-sm font-body-sm text-body-sm">
                       <span className="w-12 text-on-surface-variant font-medium">2 Star</span>
                       <div className="flex-1 h-2.5 bg-surface-container-high rounded-full overflow-hidden">
-                        <div className="bg-amber-500 h-full rounded-full" style={{ width: '1%' }}></div>
+                        <div className="bg-stock-low h-full rounded-full" style={{ width: '1%' }}></div>
                       </div>
                       <span className="w-10 text-right font-bold text-on-surface">1%</span>
                     </div>
@@ -909,7 +909,7 @@ export function ProductDetailPage() {
                     <div className="flex items-center gap-space-sm font-body-sm text-body-sm">
                       <span className="w-12 text-on-surface-variant font-medium">1 Star</span>
                       <div className="flex-1 h-2.5 bg-surface-container-high rounded-full overflow-hidden">
-                        <div className="bg-amber-500 h-full rounded-full" style={{ width: '0%' }}></div>
+                        <div className="bg-stock-low h-full rounded-full" style={{ width: '0%' }}></div>
                       </div>
                       <span className="w-10 text-right font-bold text-on-surface">0%</span>
                     </div>
@@ -930,7 +930,7 @@ export function ProductDetailPage() {
                             <span className="font-body-md text-body-md font-bold text-on-surface">
                               Marcus Vance
                             </span>
-                            <span className="bg-emerald-100 text-emerald-800 font-label-caps text-label-caps px-2 py-0.5 rounded font-semibold flex items-center gap-0.5">
+                            <span className="bg-stock-in-bg text-stock-in font-label-caps text-label-caps px-2 py-0.5 rounded font-semibold flex items-center gap-0.5">
                               <span className="material-symbols-outlined text-xs">verified</span> Verified Buyer
                             </span>
                           </div>
@@ -939,7 +939,7 @@ export function ProductDetailPage() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex text-amber-500">
+                      <div className="flex text-stock-low">
                         {[...Array(5)].map((_, i) => (
                           <span
                             key={i}
@@ -979,7 +979,7 @@ export function ProductDetailPage() {
                             <span className="font-body-md text-body-md font-bold text-on-surface">
                               Elena Rostova
                             </span>
-                            <span className="bg-emerald-100 text-emerald-800 font-label-caps text-label-caps px-2 py-0.5 rounded font-semibold flex items-center gap-0.5">
+                            <span className="bg-stock-in-bg text-stock-in font-label-caps text-label-caps px-2 py-0.5 rounded font-semibold flex items-center gap-0.5">
                               <span className="material-symbols-outlined text-xs">verified</span> Verified Buyer
                             </span>
                           </div>
@@ -988,7 +988,7 @@ export function ProductDetailPage() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex text-amber-500">
+                      <div className="flex text-stock-low">
                         {[...Array(5)].map((_, i) => (
                           <span
                             key={i}

@@ -52,7 +52,7 @@ export const ProductCard = memo(function ProductCard({
     return (
       <div
         onClick={() => navigate(`/products/${product.id}`)}
-        className="bg-surface-container-lowest rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col group cursor-pointer"
+        className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/60 shadow-[0_2px_12px_rgba(36,51,49,0.03)] hover:shadow-[0_8px_24px_rgba(36,51,49,0.08)] hover:-translate-y-1 hover:border-border-active/50 transition-all duration-300 flex flex-col group cursor-pointer"
       >
         <Link
           to={`/products/${product.id}`}
@@ -78,7 +78,7 @@ export const ProductCard = memo(function ProductCard({
               setIsWishlisted(!isWishlisted)
             }}
             className={`absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-container-lowest/90 flex items-center justify-center shadow-sm transition-colors cursor-pointer ${
-              isWishlisted ? 'text-red-500' : 'text-outline hover:text-red-500'
+              isWishlisted ? 'text-error' : 'text-outline hover:text-error'
             }`}
             title="Wishlist"
           >
@@ -86,7 +86,7 @@ export const ProductCard = memo(function ProductCard({
           </button>
         </Link>
         <div className="flex items-center gap-1 text-xs mb-1">
-          <span className="text-amber-500 font-bold">★</span>
+          <span className="text-stock-low font-bold">★</span>
           <span className="font-bold text-on-surface">{rating.rate.toFixed(1)}</span>
           <span className="text-outline">({rating.count} reviews)</span>
         </div>
@@ -116,7 +116,7 @@ export const ProductCard = memo(function ProductCard({
   return (
     <div
       onClick={() => navigate(`/products/${product.id}`)}
-      className="bg-surface-container-lowest rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col p-4 relative group cursor-pointer"
+      className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/60 shadow-[0_2px_12px_rgba(36,51,49,0.03)] hover:shadow-[0_8px_24px_rgba(36,51,49,0.08)] hover:-translate-y-1 hover:border-border-active/50 transition-all duration-300 flex flex-col relative group cursor-pointer"
     >
       <Link
         to={`/products/${product.id}`}
@@ -137,7 +137,7 @@ export const ProductCard = memo(function ProductCard({
             setIsWishlisted(!isWishlisted)
           }}
           className={`absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-container-lowest/90 flex items-center justify-center shadow-sm transition-colors cursor-pointer ${
-            isWishlisted ? 'text-red-500' : 'text-outline hover:text-red-500'
+            isWishlisted ? 'text-error' : 'text-outline hover:text-error'
           }`}
           title="Wishlist"
         >
@@ -146,7 +146,7 @@ export const ProductCard = memo(function ProductCard({
         {badge && (
           <span
             className={`absolute bottom-3 left-3 text-on-primary font-label-caps text-[10px] font-bold px-2 py-0.5 rounded-full ${
-              badge === 'Limited' ? 'bg-amber-500' : 'bg-primary'
+              badge === 'Limited' ? 'bg-stock-low' : 'bg-primary'
             }`}
           >
             {badge}
@@ -159,7 +159,7 @@ export const ProductCard = memo(function ProductCard({
           {category}
         </span>
         <span className="inline-flex items-center gap-1 font-bold text-on-surface text-xs">
-          <span className="text-amber-500">★</span> {rating.rate.toFixed(1)}{' '}
+          <span className="text-stock-low">★</span> {rating.rate.toFixed(1)}{' '}
           <span className="text-outline font-normal">({rating.count.toLocaleString()})</span>
         </span>
       </div>
@@ -186,15 +186,15 @@ export const ProductCard = memo(function ProductCard({
           <span
             className={`ml-auto font-label-caps text-[11px] font-semibold px-2 py-0.5 rounded-full ${
               stockStatus === 'low-stock'
-                ? 'text-amber-800 bg-amber-100'
-                : 'text-emerald-700 bg-emerald-100'
+                ? 'text-stock-low bg-stock-low-bg'
+                : 'text-stock-in bg-stock-in-bg'
             }`}
           >
             {stockLabel}
           </span>
         )}
         {variantLabel && !stockLabel && (
-          <span className="ml-auto font-label-caps text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full">
+          <span className="ml-auto font-label-caps text-[11px] font-semibold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">
             {variantLabel}
           </span>
         )}
@@ -208,7 +208,7 @@ export const ProductCard = memo(function ProductCard({
         }}
         className={`mt-auto w-full font-body-sm text-body-sm font-semibold py-2.5 rounded-xl transition-all shadow-sm cursor-pointer ${
           isAdded
-            ? 'bg-emerald-600 text-on-primary'
+            ? 'bg-stock-in text-on-primary'
             : 'bg-surface-container-high hover:bg-primary text-on-surface hover:text-on-primary'
         }`}
       >

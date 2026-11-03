@@ -1,78 +1,91 @@
 @import "tailwindcss";
 
 @theme {
-  /* Exact tokens from DESIGN.md frontmatter */
-  --color-surface: #faf8ff;
-  --color-surface-dim: #d2d9f4;
-  --color-surface-bright: #faf8ff;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f2f3ff;
-  --color-surface-container: #eaedff;
-  --color-surface-container-high: #e2e7ff;
-  --color-surface-container-highest: #dae2fd;
-  --color-on-surface: #131b2e;
-  --color-on-surface-variant: #434655;
-  --color-inverse-surface: #283044;
-  --color-inverse-on-surface: #eef0ff;
-  --color-outline: #737686;
-  --color-outline-variant: #c3c6d7;
-  --color-surface-tint: #0053db;
-  --color-primary: #004ac6;
+  /* Exact tokens: Premium Teal & Ivory Theme */
+  --color-primary: #087f83;
   --color-on-primary: #ffffff;
-  --color-primary-container: #2563eb;
-  --color-on-primary-container: #eeefff;
-  --color-inverse-primary: #b4c5ff;
-  --color-secondary: #1d4ed8;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #4069f2;
-  --color-on-secondary-container: #fffbff;
-  --color-tertiary: #0051b1;
-  --color-on-tertiary: #ffffff;
-  --color-tertiary-container: #0f69dc;
-  --color-on-tertiary-container: #edf0ff;
-  --color-error: #ba1a1a;
-  --color-on-error: #ffffff;
-  --color-error-container: #ffdad6;
-  --color-on-error-container: #93000a;
-  --color-primary-fixed: #dbe1ff;
-  --color-primary-fixed-dim: #b4c5ff;
-  --color-on-primary-fixed: #00174b;
-  --color-on-primary-fixed-variant: #003ea8;
-  --color-secondary-fixed: #dce1ff;
-  --color-secondary-fixed-dim: #b7c4ff;
-  --color-on-secondary-fixed: #001551;
-  --color-on-secondary-fixed-variant: #0039b5;
-  --color-tertiary-fixed: #d8e2ff;
-  --color-tertiary-fixed-dim: #adc6ff;
-  --color-on-tertiary-fixed: #001a42;
-  --color-on-tertiary-fixed-variant: #004395;
-  --color-background: #faf8ff;
-  --color-on-background: #131b2e;
-  --color-surface-variant: #dae2fd;
+  --color-primary-container: #087f83;
+  --color-on-primary-container: #ffffff;
 
-  /* Palette Architecture & Functional semantic tokens from DESIGN.md */
-  --color-action-primary: #2563eb;
-  --color-action-hover: #1d4ed8;
-  --color-action-focus: #3b82f6;
-  --color-neutral-core: #0f172a;
-  --color-neutral-subdued: #64748b;
-  --color-neutral-slate: #f1f5f9;
-  --color-neutral-placeholder: #94a3b8;
-  --color-border-divider: #e2e8f0;
-  --color-border-active: #cbd5e1;
-  --color-canvas: #f8fafc;
+  --color-secondary: #075b60;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #159a96;
+  --color-on-secondary-container: #ffffff;
+
+  --color-tertiary: #159a96;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #e2f3ef;
+  --color-on-tertiary-container: #243331;
+
+  --color-inverse-primary: #e2f3ef;
+  --color-surface-tint: #087f83;
+
+  /* Surfaces & Backgrounds (Dominant Ivory & Warm White) */
+  --color-background: #faf8f1;
+  --color-surface: #faf8f1;
+  --color-surface-bright: #fffdf9;
+  --color-surface-dim: #dfdbcf;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #fffdf9;
+  --color-surface-container: #f0f8f5;
+  --color-surface-container-high: #e2f3ef;
+  --color-surface-container-highest: #d1ebe5;
+  --color-surface-variant: #f0f8f5;
+  --color-canvas: #faf8f1;
   --color-surface-card: #ffffff;
 
-  --color-stock-in: #16a34a;
-  --color-stock-in-bg: #dcfce7;
-  --color-stock-low: #d97706;
-  --color-stock-low-bg: #fef3c7;
-  --color-stock-out: #dc2626;
-  --color-stock-out-bg: #fee2e2;
+  /* Typography & Neutrals */
+  --color-on-surface: #243331;
+  --color-on-surface-variant: #788581;
+  --color-on-background: #243331;
+  --color-neutral-core: #243331;
+  --color-neutral-subdued: #788581;
+  --color-neutral-slate: #f0f8f5;
+  --color-neutral-placeholder: #9ba8a4;
+  --color-inverse-surface: #243331;
+  --color-inverse-on-surface: #faf8f1;
 
-  --color-filter-active-bg: #dbeafe;
-  --color-filter-active-text: #1d4ed8;
-  --color-filter-active-border: #93c5fd;
+  /* Borders & Outlines */
+  --color-outline: #9ba8a4;
+  --color-outline-variant: #e7eae3;
+  --color-border-divider: #e7eae3;
+  --color-border-active: #159a96;
+
+  /* Interactive Actions */
+  --color-action-primary: #087f83;
+  --color-action-hover: #075b60;
+  --color-action-focus: #159a96;
+
+  /* Badges & Chips */
+  --color-primary-fixed: #e2f3ef;
+  --color-primary-fixed-dim: #d1ebe5;
+  --color-on-primary-fixed: #087f83;
+  --color-on-primary-fixed-variant: #075b60;
+  --color-secondary-fixed: #f0f8f5;
+  --color-secondary-fixed-dim: #e2f3ef;
+  --color-on-secondary-fixed: #075b60;
+  --color-on-secondary-fixed-variant: #243331;
+  --color-tertiary-fixed: #e2f3ef;
+  --color-tertiary-fixed-dim: #d1ebe5;
+  --color-on-tertiary-fixed: #087f83;
+  --color-on-tertiary-fixed-variant: #075b60;
+
+  /* Active Filter Pills */
+  --color-filter-active-bg: #e2f3ef;
+  --color-filter-active-text: #087f83;
+  --color-filter-active-border: #159a96;
+
+  /* Functional Status Colors (Success, Warning, Error) */
+  --color-stock-in: #398b67;
+  --color-stock-in-bg: #edf7f2;
+  --color-stock-low: #d6a34d;
+  --color-stock-low-bg: #fdf8ee;
+  --color-stock-out: #d66c68;
+  --color-stock-out-bg: #fcf1f0;
+  --color-error: #d66c68;
+  --color-on-error: #ffffff;
+  --color-error-container: #fcf1f0;
+  --color-on-error-container: #7f1d1d;
 
   /* Spacing system from template */
   --spacing-space-xs: 0.25rem;
