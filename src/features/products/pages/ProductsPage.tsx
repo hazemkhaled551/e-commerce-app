@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useProducts } from '../hooks/useProducts'
 import { ProductCard } from '../components/ProductCard'
 import { ProductDetailModal } from '../components/ProductDetailModal'
+import { HeroSlider } from '../components/HeroSlider'
 import { TrustCard } from '@/components/ui/TrustCard'
 import { CategoryCard } from '@/components/ui/CategoryCard'
 import { PromoBanner } from '@/components/ui/PromoBanner'
@@ -116,90 +117,20 @@ export function ProductsPage() {
     <main className="w-full bg-background min-h-screen">
       <div className="flex flex-col w-full">
         {/* ============================================================ */}
-        {/* 1. Hero Section: Flagship Showcase */}
+        {/* 1. Hero Section: Full-Width E-Commerce Hero Slider */}
         {/* ============================================================ */}
-        <section className="max-w-7xl mx-auto px-6 lg:px-12 py-8 sm:py-10 w-full">
-          <div className="bg-gradient-to-br from-surface-container-lowest via-surface-container-lowest to-surface-container-low/70 rounded-3xl border border-outline-variant/60 shadow-[0_8px_30px_rgba(36,51,49,0.04)] overflow-hidden p-6 lg:p-12">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* Text & Action Column */}
-              <div className="lg:col-span-7 flex flex-col items-start gap-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container text-primary font-body-sm text-xs font-semibold tracking-wider uppercase border border-primary/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  Flagship 2026 Collection
-                </div>
-                <h1 className="font-display-hero text-display-hero text-on-surface tracking-tight leading-tight">
-                  Precision Engineering for Everyday Living.
-                </h1>
-                <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
-                  Discover audiophile-grade acoustics, ergonomic workspace essentials, and minimalist home design built with meticulous craft and durable materials.
-                </p>
-                <div className="flex flex-wrap items-center gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      document.getElementById('featured')?.scrollIntoView({ behavior: 'smooth' })
-                    }}
-                    className="bg-primary hover:bg-secondary text-on-primary font-body-md text-body-md font-semibold px-6 py-3 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer"
-                  >
-                    <span>Shop Now</span>
-                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })
-                    }}
-                    className="bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-body-md text-body-md font-semibold px-6 py-3 rounded-xl shadow-xs hover:border-outline transition-all cursor-pointer border border-outline-variant"
-                  >
-                    Explore Categories
-                  </button>
-                </div>
+        <HeroSlider
+          onSelectCategory={(category) => {
+            changeCategory(category)
+          }}
+          onExploreCategories={() => {
+            document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })
+          }}
+        />
 
-                {/* Micro Spec Metric Highlights */}
-                <div className="grid grid-cols-3 gap-4 pt-6 w-full max-w-md">
-                  <div className="flex flex-col bg-surface-container-low p-3 rounded-xl">
-                    <span className="font-headline-sm text-headline-sm font-bold text-on-surface">42 dB</span>
-                    <span className="font-body-sm text-body-sm text-on-surface-variant">Active Isolation</span>
-                  </div>
-                  <div className="flex flex-col bg-surface-container-low p-3 rounded-xl">
-                    <span className="font-headline-sm text-headline-sm font-bold text-on-surface">60 Hrs</span>
-                    <span className="font-body-sm text-body-sm text-on-surface-variant">Battery Reserve</span>
-                  </div>
-                  <div className="flex flex-col bg-surface-container-low p-3 rounded-xl">
-                    <span className="font-headline-sm text-headline-sm font-bold text-primary">4.9 ★</span>
-                    <span className="font-body-sm text-body-sm text-on-surface-variant">3,420 Reviews</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Visual Column with Floating Spec Pills */}
-              <div className="lg:col-span-5 relative flex items-center justify-center">
-                <div className="w-full aspect-[4/3] sm:aspect-square bg-surface-container-low rounded-2xl overflow-hidden relative shadow-inner flex items-center justify-center p-6">
-                  <img
-                    className="w-full h-full object-contain filter drop-shadow-2xl hover:scale-105 transition-transform duration-500"
-                    alt="Flagship AeroSound Pro wireless active noise cancelling headphones"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNeEwW87IcBj1hbWUzIRNBgtGbk0FZew_6B-h9FCC9u8idw52_BCdlpN9h9FqKbtG5tJt_x1s3ijDrBBKj8qtPipgvNWj797DFlmAGAMzSRcXQMeitdY5QPyJxyRCuhUgt-eal8y_vg0g0STRzqcAK-_pbH24G7hVNqK02aREWPArVMi7Z7ommAIcN7wwjpbJ5FFofgSqWefIP54Rab9VVM2aifHoPCTyJyS66Op-jgbxvf1ZgfBuBvw"
-                  />
-                  {/* Floating Spec Badges */}
-                  <div className="absolute top-4 left-4 bg-surface-container-lowest/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-md flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-sm">tune</span>
-                    <span className="font-body-sm text-body-sm font-semibold text-on-surface">
-                      42dB Hybrid ANC
-                    </span>
-                  </div>
-                  <div className="absolute bottom-4 right-4 bg-surface-container-lowest/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-md flex items-center gap-2">
-                    <span className="material-symbols-outlined text-stock-in text-sm">battery_charging_full</span>
-                    <span className="font-body-sm text-body-sm font-semibold text-on-surface">
-                      60h Quick Charge
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Trust Strip directly below Hero */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        {/* Trust Strip directly below Full-Width Hero Slider */}
+        <section className="max-w-7xl mx-auto px-6 lg:px-12 pt-8 pb-4 w-full">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <TrustCard
               icon={<span className="material-symbols-outlined text-xl">local_shipping</span>}
               title="Free 2-Day Shipping"
