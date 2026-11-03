@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { CheckCircle2 } from 'lucide-react'
+import { ConfirmationModal, type ConfirmationModalProps } from '@/components/ui'
 import type { ProductFormData, VariantOptionItem, VariantCombination } from '../types/productForm'
 import type { ProductStatus } from '../types/catalog'
 import { mockCatalogProducts } from '../data/mockCatalogData'
@@ -8,6 +10,8 @@ import {
   sampleAeroSoundFormData,
   buildFormDataFromCatalog,
 } from '../data/defaultProductFormData'
+
+type ConfirmModalState = Omit<ConfirmationModalProps, 'isOpen' | 'onClose'> | null
 
 import { ProductFormHeader } from '../components/product-form/ProductFormHeader'
 import { GeneralInfoSection } from '../components/product-form/GeneralInfoSection'
@@ -116,6 +120,7 @@ export function ProductEditPage() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isPdpModalOpen, setIsPdpModalOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmModalState>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [lastSavedText, setLastSavedText] = useState('Last autosaved 1 minute ago')
 
@@ -155,32 +160,112 @@ export function ProductEditPage() {
     }, 400)
   }, [updateForm])
 
-  // Publish / Save Changes
+  // Publish / Save Changes with Mandatory Confirmation
   const handleSaveAndPublish = () => {
     if (!formData.title.trim()) {
       showToast('Please provide a Product Title before publishing.')
       return
     }
 
-    setIsSaving(true)
-    setTimeout(() => {
-      updateForm((prev) => ({ ...prev, productStatus: 'published' }))
-      setHasUnsavedChanges(false)
-      setIsSaving(false)
-      showToast(isEditMode ? 'Product changes saved successfully!' : 'Product published to store!')
-      setTimeout(() => {
-        navigate('/admin/products')
-      }, 1200)
-    }, 500)
+    setConfirmDialog({
+      title: isEditMode ? 'Confirm Product Update' : 'Publish Product to Live Store',
+      description: isEditMode
+        ? `Are you sure you want to commit these updates to "${formData.title}"? Changes will be immediately reflected in storefront listings.`
+        : `Publish "${formData.title}" to the live catalog? It will become active and purchasable across all assigned sales channels.`,
+      confirmText: isEditMode ? 'Save & Update Product' : 'Publish to Storefront',
+      variant: 'primary',
+      icon: 'check',
+      badgeText: 'Publishing Gate',
+      itemDetails: [
+        { label: 'Product Title', value: formData.title },
+        { label: 'SKU Identifier', value: formData.sku || 'Auto-generated' },
+        { label: 'Category', value: formData.category },
+        { label: 'Base MSRP', value: `$${formData.basePrice.toFixed(2)}` },
+        { label: 'Target State', value: 'Active / Published' },
+      ],
+      onConfirm: () => {
+        setConfirmDialog(null)
+        setIsSaving(true)
+        setTimeout(() => {
+          updateForm((prev) => ({ ...prev, productStatus: 'published' }))
+          setHasUnsavedChanges(false)
+          setIsSaving(false)
+          showToast(isEditMode ? 'Product changes saved successfully!' : 'Product published to store!')
+          setTimeout(() => {
+            navigate('/admin/products')
+          }, 1000)
+        }, 400)
+      },
+    })
   }
 
-  // Discard action
+  // Discard action with Confirmation
   const handleDiscard = () => {
     if (hasUnsavedChanges) {
-      const confirmed = window.confirm('You have unsaved changes. Are you sure you want to discard?')
-      if (!confirmed) return
+      setConfirmDialog({
+        title: 'Discard Unsaved Changes?',
+        description: 'You have unsaved edits in this product. Leaving now will discard all your recent modifications.',
+        confirmText: 'Discard Changes',
+        cancelText: 'Continue Editing',
+        variant: 'warning',
+        icon: 'alert',
+        badgeText: 'Unsaved Edits',
+        onConfirm: () => {
+          setConfirmDialog(null)
+          navigate('/admin/products')
+        },
+      })
+      return
     }
     navigate('/admin/products')
+  }
+
+  // Lifecycle status change confirmation
+  const handleStatusChange = (newStatus: ProductStatus) => {
+    if (newStatus === 'archived') {
+      setConfirmDialog({
+        title: 'Archive This Product?',
+        description: `Moving "${formData.title}" to Archived will delist it from all active storefronts and search results. You can restore it anytime.`,
+        confirmText: 'Archive Product',
+        variant: 'warning',
+        icon: 'archive',
+        badgeText: 'Lifecycle Change',
+        itemDetails: [
+          { label: 'Product Title', value: formData.title },
+          { label: 'Current State', value: formData.productStatus },
+          { label: 'Target State', value: 'Archived' },
+        ],
+        onConfirm: () => {
+          updateForm((prev) => ({ ...prev, productStatus: 'archived' }))
+          setConfirmDialog(null)
+          showToast('Product status updated to Archived.')
+        },
+      })
+      return
+    }
+
+    if (newStatus === 'unpublished') {
+      setConfirmDialog({
+        title: 'Unpublish Product?',
+        description: `Delist "${formData.title}" from storefronts? Customers will no longer be able to view or purchase this item.`,
+        confirmText: 'Unpublish Product',
+        variant: 'warning',
+        icon: 'pause',
+        badgeText: 'Visibility Change',
+        itemDetails: [
+          { label: 'Product Title', value: formData.title },
+          { label: 'Target State', value: 'Unpublished' },
+        ],
+        onConfirm: () => {
+          updateForm((prev) => ({ ...prev, productStatus: 'unpublished' }))
+          setConfirmDialog(null)
+          showToast('Product status updated to Unpublished.')
+        },
+      })
+      return
+    }
+
+    updateForm((prev) => ({ ...prev, productStatus: newStatus }))
   }
 
   // Keyboard shortcut listener (Cmd+S / Ctrl+S)
@@ -199,10 +284,8 @@ export function ProductEditPage() {
     <div className="flex flex-col w-full pb-space-2xl">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-14 right-6 z-50 px-space-md py-space-sm rounded-xl bg-on-surface text-surface shadow-2xl flex items-center gap-2 font-body-sm text-body-sm animate-fade-in border border-outline-variant/30">
-          <span className="material-symbols-outlined text-[18px] text-primary-fixed">
-            check_circle
-          </span>
+        <div className="fixed bottom-16 right-6 z-50 px-4 py-3 rounded-xl bg-stone-900 text-white shadow-2xl flex items-center gap-2 text-sm animate-fade-in border border-stone-800">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -484,9 +567,7 @@ export function ProductEditPage() {
           <PublishingStatusSidebar
             productStatus={formData.productStatus}
             cornerRibbon={formData.cornerRibbon}
-            onStatusChange={(status: ProductStatus) =>
-              updateForm((prev) => ({ ...prev, productStatus: status }))
-            }
+            onStatusChange={handleStatusChange}
             onRibbonChange={(ribbon) => updateForm((prev) => ({ ...prev, cornerRibbon: ribbon }))}
           />
 
@@ -568,6 +649,15 @@ export function ProductEditPage() {
         onClose={() => setIsPdpModalOpen(false)}
         formData={formData}
       />
+
+      {/* Confirmation Modal for Destructive / State Changes */}
+      {confirmDialog && (
+        <ConfirmationModal
+          isOpen={Boolean(confirmDialog)}
+          onClose={() => setConfirmDialog(null)}
+          {...confirmDialog}
+        />
+      )}
     </div>
   )
 }

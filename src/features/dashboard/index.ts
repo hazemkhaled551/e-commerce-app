@@ -1,4 +1,6 @@
 export { DashboardOverviewPage } from './pages/DashboardOverviewPage'
+export { OrdersPage } from './pages/OrdersPage'
+export { OrderDetailPage } from './pages/OrderDetailPage'
 export { ProductsCatalogPage } from './pages/ProductsCatalogPage'
 export { ProductEditPage } from './pages/ProductEditPage'
 export { CategoriesPage } from './pages/CategoriesPage'

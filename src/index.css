@@ -87,6 +87,12 @@
   --color-error-container: #fcf1f0;
   --color-on-error-container: #7f1d1d;
 
+  /* Architectural Elevation Shadows */
+  --shadow-card: 0 4px 20px rgba(36, 51, 49, 0.03);
+  --shadow-card-hover: 0 12px 32px rgba(36, 51, 49, 0.08);
+  --shadow-modal: 0 20px 48px rgba(36, 51, 49, 0.12);
+  --shadow-dropdown: 0 8px 24px rgba(36, 51, 49, 0.08);
+
   /* Spacing system from template */
   --spacing-space-xs: 0.25rem;
   --spacing-space-sm: 0.5rem;
@@ -153,13 +159,79 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Global Brand Scrollbar (Teal & Ivory Identity - Matches Primary Color #087F83) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(8, 127, 131, 0.5) transparent;
+  }
+
+  /* WebKit & Chromium-based browsers (Chrome, Edge, Safari, Opera) */
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-track:hover {
+    background: rgba(8, 127, 131, 0.04);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(8, 127, 131, 0.42);
+    border-radius: 9999px;
+    border: 1.5px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #087f83;
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background-color: #075b60;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
 }
 
 @layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
+  /* Utility for explicit custom scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(8, 127, 131, 0.5) transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(8, 127, 131, 0.42);
+    border-radius: 9999px;
+    border: 1.5px solid transparent;
+    background-clip: padding-box;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #087f83;
+  }
+
+  .no-scrollbar::-webkit-scrollbar,
+  .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
-  .no-scrollbar {
+  .no-scrollbar,
+  .scrollbar-none {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }

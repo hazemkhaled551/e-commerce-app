@@ -1,4 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import {
+  FolderTree,
+  X,
+  AlertCircle,
+  Upload,
+  Trash2,
+  Image as ImageIcon,
+} from 'lucide-react'
 import type { CategoryFormData, CategoryItem } from '../../types/category'
 import { defaultCategoryFormData } from '../../data/mockCategoryData'
 
@@ -11,6 +19,38 @@ interface CategoryFormModalProps {
   existingRootCategories: CategoryItem[]
 }
 
+function getInitialFormData(
+  editItem?: CategoryItem | null,
+  parentItem?: CategoryItem | null
+): CategoryFormData {
+  if (editItem) {
+    return {
+      id: editItem.id,
+      name: editItem.name,
+      slug: editItem.slug,
+      description: editItem.description,
+      parentId: editItem.parentId || '',
+      imageUrl: editItem.imageUrl,
+      imageFileName: editItem.imageFileName || 'category-cover.webp',
+      imageSizeText: editItem.imageSizeText || '1080 x 1080px (142 KB)',
+      showInNav: editItem.showInNav,
+      featureOnHome: editItem.featureOnHome,
+      displayOrder: parseInt(editItem.displayOrder.replace(/[^0-9]/g, ''), 10) || 5,
+      seoTitle: editItem.seoTitle,
+      seoDescription: editItem.seoDescription,
+      status: editItem.status,
+    }
+  }
+  if (parentItem) {
+    return {
+      ...defaultCategoryFormData,
+      parentId: parentItem.id,
+      displayOrder: 1,
+    }
+  }
+  return defaultCategoryFormData
+}
+
 export function CategoryFormModal({
   isOpen,
   onClose,
@@ -19,38 +59,33 @@ export function CategoryFormModal({
   parentItem,
   existingRootCategories,
 }: CategoryFormModalProps) {
-  const [formData, setFormData] = useState<CategoryFormData>(defaultCategoryFormData)
+  const [prevTarget, setPrevTarget] = useState<{
+    editId?: string
+    parentId?: string
+    isOpen: boolean
+  }>({
+    editId: editItem?.id,
+    parentId: parentItem?.id,
+    isOpen,
+  })
+  const [formData, setFormData] = useState<CategoryFormData>(() =>
+    getInitialFormData(editItem, parentItem)
+  )
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (editItem) {
-      setFormData({
-        id: editItem.id,
-        name: editItem.name,
-        slug: editItem.slug,
-        description: editItem.description,
-        parentId: editItem.parentId || '',
-        imageUrl: editItem.imageUrl,
-        imageFileName: editItem.imageFileName || 'category-cover.webp',
-        imageSizeText: editItem.imageSizeText || '1080 x 1080px (142 KB)',
-        showInNav: editItem.showInNav,
-        featureOnHome: editItem.featureOnHome,
-        displayOrder: parseInt(editItem.displayOrder.replace(/[^0-9]/g, ''), 10) || 5,
-        seoTitle: editItem.seoTitle,
-        seoDescription: editItem.seoDescription,
-        status: editItem.status,
-      })
-    } else if (parentItem) {
-      setFormData({
-        ...defaultCategoryFormData,
-        parentId: parentItem.id,
-        displayOrder: 1,
-      })
-    } else {
-      setFormData(defaultCategoryFormData)
-    }
+  if (
+    isOpen !== prevTarget.isOpen ||
+    editItem?.id !== prevTarget.editId ||
+    parentItem?.id !== prevTarget.parentId
+  ) {
+    setPrevTarget({
+      editId: editItem?.id,
+      parentId: parentItem?.id,
+      isOpen,
+    })
+    setFormData(getInitialFormData(editItem, parentItem))
     setError(null)
-  }, [editItem, parentItem, isOpen])
+  }
 
   if (!isOpen) return null
 
@@ -83,18 +118,18 @@ export function CategoryFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-space-md md:p-space-lg bg-on-surface/40 backdrop-blur-xs animate-fade-in">
-      <div className="bg-surface-container-lowest w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-outline-variant/30">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-black/40 backdrop-blur-xs animate-fade-in">
+      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-outline-variant/60">
         {/* Modal Header */}
-        <div className="px-space-lg py-space-md bg-surface-container-low flex items-center justify-between flex-shrink-0 border-b border-outline-variant/15">
+        <div className="px-6 py-4 bg-surface-container-low flex items-center justify-between shrink-0 border-b border-outline-variant/60">
           <div>
-            <div className="flex items-center gap-space-xs">
-              <span className="material-symbols-outlined text-primary text-[22px]">category</span>
-              <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+            <div className="flex items-center gap-2">
+              <FolderTree className="text-primary w-5 h-5" />
+              <h2 className="text-lg font-semibold text-on-surface">
                 {editItem ? 'Edit Category' : 'Add New Category'}
               </h2>
             </div>
-            <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            <p className="text-xs text-on-surface-variant mt-0.5">
               Create a root category or sub-category to organize store products and power taxonomy filters.
             </p>
           </div>
@@ -103,42 +138,42 @@ export function CategoryFormModal({
             onClick={onClose}
             className="w-9 h-9 rounded-lg hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-all cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-space-lg overflow-y-auto flex flex-col gap-space-lg">
+        <div className="p-6 overflow-y-auto flex flex-col gap-5">
           {error && (
-            <div className="p-space-sm rounded-lg bg-error-container text-on-error-container font-body-sm text-body-sm flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">error</span>
+            <div className="p-3 rounded-lg bg-red-50 text-red-800 text-sm flex items-center gap-2 border border-red-200">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {/* General Identity */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="font-label-caps text-label-caps uppercase tracking-wider text-on-surface font-semibold">
-                Category Name <span className="text-error">*</span>
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
+                Category Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="e.g. Smart Wearables"
-                className="h-10 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container border border-outline-variant/20"
+                className="h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-xs"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="font-label-caps text-label-caps uppercase tracking-wider text-on-surface font-semibold">
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
                 Parent Category (Level)
               </label>
               <select
                 value={formData.parentId}
                 onChange={(e) => setFormData((prev) => ({ ...prev, parentId: e.target.value }))}
-                className="h-10 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container border border-outline-variant/20 cursor-pointer"
+                className="h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-xs"
               >
                 <option value="">None (Root Parent Level)</option>
                 {existingRootCategories.map((root) => (
@@ -153,34 +188,34 @@ export function CategoryFormModal({
           {/* URL Slug Generator */}
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <label className="font-label-caps text-label-caps uppercase tracking-wider text-on-surface font-semibold">
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
                 Storefront URL Slug
               </label>
               <button
                 type="button"
                 onClick={handleAutoSlug}
-                className="text-secondary hover:underline cursor-pointer lowercase font-body-sm text-xs font-semibold"
+                className="text-primary hover:underline cursor-pointer text-xs font-semibold"
               >
                 Auto-generate
               </button>
             </div>
-            <div className="flex items-center rounded-lg bg-surface-container-low px-3 py-2 text-on-surface font-body-sm text-body-sm border border-outline-variant/20">
+            <div className="flex items-center rounded-lg bg-surface-container-low px-3 py-2 text-on-surface text-sm border border-outline-variant/60">
               <span className="text-on-surface-variant select-none">nexa-store.com/category/</span>
               <input
                 type="text"
                 value={formData.slug}
                 onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))}
-                className="bg-transparent text-primary font-semibold focus:outline-none flex-1 ml-0.5 font-mono"
+                className="bg-transparent text-primary font-semibold focus:outline-none flex-1 ml-1 font-mono text-sm"
               />
             </div>
-            <span className="font-body-sm text-body-sm text-on-surface-variant text-xs">
+            <span className="text-xs text-on-surface-variant">
               Used in breadcrumb routing, canonical links, and storefront SEO indexation.
             </span>
           </div>
 
           {/* Description */}
           <div className="flex flex-col gap-1.5">
-            <label className="font-label-caps text-label-caps uppercase tracking-wider text-on-surface font-semibold">
+            <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
               Category Description (Rich &amp; SEO)
             </label>
             <textarea
@@ -188,17 +223,17 @@ export function CategoryFormModal({
               value={formData.description}
               onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
               placeholder="Provide a concise description..."
-              className="p-3 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container border border-outline-variant/20"
+              className="p-3 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-xs resize-none"
             />
           </div>
 
           {/* Media Uploader */}
           <div className="flex flex-col gap-1.5">
-            <label className="font-label-caps text-label-caps uppercase tracking-wider text-on-surface font-semibold">
+            <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
               Category Icon &amp; Merchandising Banner
             </label>
-            <div className="rounded-xl bg-surface-container-low p-space-md flex flex-col sm:flex-row items-center gap-space-md border border-outline-variant/20">
-              <div className="w-20 h-20 rounded-xl overflow-hidden bg-surface-container-high flex-shrink-0 flex items-center justify-center border border-outline-variant/20 shadow-xs">
+            <div className="rounded-xl bg-surface-container-low p-4 flex flex-col sm:flex-row items-center gap-4 border border-outline-variant/60">
+              <div className="w-20 h-20 rounded-xl overflow-hidden bg-white shrink-0 flex items-center justify-center border border-outline-variant/60 shadow-xs">
                 {formData.imageUrl ? (
                   <img
                     src={formData.imageUrl}
@@ -206,19 +241,20 @@ export function CategoryFormModal({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="material-symbols-outlined text-[32px] text-primary">image</span>
+                  <ImageIcon className="w-8 h-8 text-primary/40" />
                 )}
               </div>
               <div className="flex-1 text-center sm:text-left">
-                <p className="font-body-sm text-body-sm font-semibold text-on-surface">
+                <p className="text-sm font-semibold text-on-surface">
                   {formData.imageFileName}
                 </p>
-                <p className="font-body-sm text-body-sm text-on-surface-variant mb-space-xs text-xs">
+                <p className="text-xs text-on-surface-variant mb-2">
                   {formData.imageSizeText}
                 </p>
-                <div className="flex items-center justify-center sm:justify-start gap-space-xs">
-                  <label className="px-space-sm py-1 rounded bg-surface-container-lowest text-on-surface font-body-sm text-body-sm shadow-xs hover:bg-surface-container cursor-pointer border border-outline-variant/20">
-                    Replace Asset
+                <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <label className="px-3 py-1.5 rounded-lg bg-white text-on-surface text-xs font-semibold shadow-xs hover:bg-surface-container cursor-pointer border border-outline-variant/60 inline-flex items-center gap-1.5 transition-colors">
+                    <Upload className="w-3.5 h-3.5 text-primary" />
+                    <span>Replace Asset</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -245,9 +281,10 @@ export function CategoryFormModal({
                         imageFileName: 'No image uploaded',
                       }))
                     }
-                    className="px-space-sm py-1 rounded text-error hover:bg-error-container/20 font-body-sm text-body-sm cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg text-red-600 hover:bg-red-50 text-xs font-semibold cursor-pointer border border-transparent hover:border-red-200 inline-flex items-center gap-1 transition-colors"
                   >
-                    Remove
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Remove</span>
                   </button>
                 </div>
               </div>
@@ -256,26 +293,26 @@ export function CategoryFormModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-space-lg py-space-md bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-sm flex-shrink-0 border-t border-outline-variant/15">
+        <div className="px-6 py-4 bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 border-t border-outline-variant/60">
           <button
             type="button"
             onClick={onClose}
-            className="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface px-space-md py-2 rounded-lg cursor-pointer transition-colors"
+            className="text-xs font-semibold text-on-surface-variant hover:text-on-surface px-4 py-2 rounded-lg cursor-pointer transition-colors"
           >
             Cancel
           </button>
-          <div className="flex items-center gap-space-xs w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
             <button
               type="button"
               onClick={() => handleSubmit('draft')}
-              className="h-10 px-space-md rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md font-semibold hover:bg-surface-container transition-all shadow-xs cursor-pointer border border-outline-variant/20"
+              className="h-10 px-4 rounded-lg bg-white text-on-surface text-sm font-semibold hover:bg-surface-container transition-all shadow-xs cursor-pointer border border-outline-variant/60"
             >
               Save as Draft
             </button>
             <button
               type="button"
               onClick={() => handleSubmit('active')}
-              className="h-10 px-space-md rounded-lg bg-primary-container text-on-primary font-body-md text-body-md font-semibold hover:bg-secondary transition-all shadow-sm cursor-pointer active:scale-95"
+              className="h-10 px-5 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-all shadow-sm cursor-pointer active:scale-95"
             >
               {editItem ? 'Save Changes' : 'Create & Publish Category'}
             </button>
@@ -285,4 +322,3 @@ export function CategoryFormModal({
     </div>
   )
 }
-

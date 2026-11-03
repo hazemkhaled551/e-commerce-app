@@ -1,3 +1,4 @@
+import { ShieldCheck } from 'lucide-react'
 import type { ProductStatus } from '../../types/catalog'
 import type { ProductFormData } from '../../types/productForm'
 
@@ -15,25 +16,28 @@ export function PublishingStatusSidebar({
   onRibbonChange,
 }: PublishingStatusSidebarProps) {
   return (
-    <section className="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm border border-outline-variant/15">
-      <div className="flex items-center justify-between">
-        <h2 className="font-headline-sm text-headline-sm text-on-surface">Publishing Status</h2>
+    <section className="bg-white rounded-xl p-5 shadow-sm flex flex-col gap-4 border border-outline-variant/60">
+      <div className="flex items-center justify-between pb-3 border-b border-outline-variant/60">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-primary" />
+          <h2 className="text-base font-semibold text-on-surface">Publishing Status</h2>
+        </div>
         <span
           className={`w-2.5 h-2.5 rounded-full ${
-            productStatus === 'published' ? 'bg-secondary' : 'bg-outline'
+            productStatus === 'published' ? 'bg-emerald-500' : 'bg-stone-300'
           }`}
         />
       </div>
 
       {/* Product State */}
-      <div className="flex flex-col gap-space-xs">
-        <label className="font-body-sm text-body-sm font-semibold text-on-surface">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
           Product State
         </label>
         <select
           value={productStatus}
           onChange={(e) => onStatusChange(e.target.value as ProductStatus)}
-          className="w-full h-10 px-space-sm rounded-lg bg-surface-container text-on-surface font-body-md text-body-md font-semibold focus:outline-none border border-outline-variant/20 cursor-pointer"
+          className="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-on-surface text-sm font-medium border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-xs"
         >
           <option value="draft">Draft (Invisible to buyers)</option>
           <option value="published">Active / Published</option>
@@ -43,15 +47,15 @@ export function PublishingStatusSidebar({
       </div>
 
       {/* Storefront Corner Ribbon */}
-      <div className="flex flex-col gap-space-xs pt-space-xs">
-        <label className="font-body-sm text-body-sm font-semibold text-on-surface">
+      <div className="flex flex-col gap-1.5 pt-1">
+        <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
           Storefront Corner Ribbon
         </label>
-        <div className="flex items-center gap-space-xs">
+        <div className="flex items-center gap-2">
           <select
             value={cornerRibbon}
             onChange={(e) => onRibbonChange(e.target.value as ProductFormData['cornerRibbon'])}
-            className="w-full h-9 px-space-xs rounded-lg bg-surface-container text-on-surface font-body-sm text-body-sm focus:outline-none border border-outline-variant/20 cursor-pointer font-medium"
+            className="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer font-medium shadow-xs"
           >
             <option value="BESTSELLER">BESTSELLER</option>
             <option value="NEW ARRIVAL">NEW ARRIVAL</option>
@@ -61,7 +65,7 @@ export function PublishingStatusSidebar({
           </select>
 
           {cornerRibbon !== 'None' && (
-            <span className="px-2 py-1 rounded bg-secondary text-on-secondary font-label-caps text-label-caps font-bold shrink-0 shadow-xs">
+            <span className="px-2.5 py-1.5 rounded-lg bg-primary text-white text-xs font-bold shrink-0 shadow-xs">
               {cornerRibbon}
             </span>
           )}

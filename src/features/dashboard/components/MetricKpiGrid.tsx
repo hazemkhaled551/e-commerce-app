@@ -8,11 +8,10 @@ interface MetricKpiGridProps {
 
 export function MetricKpiGrid({ kpis, onActionClick }: MetricKpiGridProps) {
   return (
-    <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md mb-space-lg">
+    <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
       {kpis.map((kpi) => (
         <KpiCard key={kpi.id} kpi={kpi} onActionClick={onActionClick} />
       ))}
     </section>
   )
 }
-

@@ -5,6 +5,7 @@ export type OrderFulfillmentStatus =
   | 'delivered'
   | 'on_hold'
   | 'cancelled'
+  | 'returned'
 
 export type OrderPaymentStatus =
   | 'paid'
@@ -43,6 +44,11 @@ export interface DashboardOrder {
   itemsSummary: string
   totalPrice: number
   isRefunded?: boolean
+  trackingNumber?: string
+  slaRemainingText?: string
+  paymentMethodText?: string
+  rmaReason?: string
+  failureReason?: string
   items: OrderLineItem[]
   financials: {
     subtotal: number
@@ -66,5 +72,22 @@ export interface DashboardKpi {
   actionLabel?: string
 }
 
-export type OrderFilterTab = 'all' | 'unfulfilled' | 'in_transit' | 'delivered' | 'on_hold'
+export type OrderFilterTab =
+  | 'all'
+  | 'unfulfilled'
+  | 'in_transit'
+  | 'delivered'
+  | 'on_hold'
+  | 'returned'
+  | 'cancelled'
+
+export type DateRangePeriod = 'today' | '7d' | '30d' | '90d' | 'ytd' | '12m'
+
+export interface DateRangeFilter {
+  period: DateRangePeriod
+  label: string
+  dateRangeText: string
+  startDate: string
+  endDate: string
+}
 

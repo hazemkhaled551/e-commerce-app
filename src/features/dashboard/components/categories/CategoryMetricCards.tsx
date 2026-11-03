@@ -1,3 +1,4 @@
+import { Folder, Eye, Tag, Sparkles } from 'lucide-react'
 import type { CategoryKpis } from '../../types/category'
 
 interface CategoryMetricCardsProps {
@@ -6,107 +7,106 @@ interface CategoryMetricCardsProps {
 
 export function CategoryMetricCards({ kpis }: CategoryMetricCardsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md mb-space-xl">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6 text-left">
       {/* Card 1: Total Categories */}
-      <div className="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between border border-outline-variant/15">
-        <div className="flex items-center justify-between mb-space-md">
-          <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+      <div className="p-5 rounded-2xl bg-white shadow-xs border border-outline-variant/60 flex flex-col transition-all hover:shadow-sm">
+        {/* 1. Header: Title on Left & Icon on Right */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
             Total Categories
           </span>
-          <span className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary shadow-xs">
-            <span className="material-symbols-outlined text-[18px]">folder_copy</span>
-          </span>
-        </div>
-        <div>
-          <div className="flex items-baseline gap-space-xs mb-1">
-            <span className="font-headline-lg text-headline-lg text-on-surface">
-              {kpis.totalCategories}
-            </span>
-            <span className="font-label-caps text-label-caps px-1.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-semibold">
-              +{kpis.newThisQuarter} this quarter
-            </span>
+          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
+            <Folder className="w-4 h-4" />
           </div>
-          <p className="font-body-sm text-body-sm text-on-surface-variant">
-            Spread across 2 taxonomic tiers
-          </p>
+        </div>
+
+        {/* 2. Number below them */}
+        <div className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-on-surface font-mono">
+          {kpis.totalCategories}
+        </div>
+
+        {/* 3. Insight below the number */}
+        <div className="mt-2.5 flex items-center">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+            +{kpis.newThisQuarter} Qtr
+          </span>
         </div>
       </div>
 
       {/* Card 2: Active Display */}
-      <div className="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between border border-outline-variant/15">
-        <div className="flex items-center justify-between mb-space-md">
-          <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+      <div className="p-5 rounded-2xl bg-white shadow-xs border border-outline-variant/60 flex flex-col transition-all hover:shadow-sm">
+        {/* 1. Header: Title on Left & Icon on Right */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
             Active Display
           </span>
-          <span className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary shadow-xs">
-            <span className="material-symbols-outlined text-[18px]">visibility</span>
-          </span>
-        </div>
-        <div>
-          <div className="flex items-baseline gap-space-xs mb-1">
-            <span className="font-headline-lg text-headline-lg text-on-surface">
-              {kpis.activeDisplay}
-            </span>
-            <span className="font-label-caps text-label-caps px-1.5 py-0.5 rounded-full bg-surface-container-high text-on-surface font-semibold">
-              {kpis.activePercentText}
-            </span>
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200">
+            <Eye className="w-4 h-4" />
           </div>
-          <p className="font-body-sm text-body-sm text-on-surface-variant">
-            Published &amp; indexed on storefront
-          </p>
+        </div>
+
+        {/* 2. Number below them */}
+        <div className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-on-surface font-mono">
+          {kpis.activeDisplay}
+        </div>
+
+        {/* 3. Insight below the number */}
+        <div className="mt-2.5 flex items-center">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+            {kpis.activePercentText}
+          </span>
         </div>
       </div>
 
       {/* Card 3: Avg Products / Category */}
-      <div className="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between border border-outline-variant/15">
-        <div className="flex items-center justify-between mb-space-md">
-          <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+      <div className="p-5 rounded-2xl bg-white shadow-xs border border-outline-variant/60 flex flex-col transition-all hover:shadow-sm">
+        {/* 1. Header: Title on Left & Icon on Right */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
             Avg Products / Category
           </span>
-          <span className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary shadow-xs">
-            <span className="material-symbols-outlined text-[18px]">sell</span>
-          </span>
-        </div>
-        <div>
-          <div className="flex items-baseline gap-space-xs mb-1">
-            <span className="font-headline-lg text-headline-lg text-on-surface">
-              {kpis.avgProductsPerCategory}
-            </span>
-            <span className="font-label-caps text-label-caps px-1.5 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant font-semibold">
-              Balanced
-            </span>
+          <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200">
+            <Tag className="w-4 h-4" />
           </div>
-          <p className="font-body-sm text-body-sm text-on-surface-variant">
-            SKU distribution healthy; min 8 / max 215
-          </p>
+        </div>
+
+        {/* 2. Number below them */}
+        <div className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-on-surface font-mono">
+          {kpis.avgProductsPerCategory}
+        </div>
+
+        {/* 3. Insight below the number */}
+        <div className="mt-2.5 flex items-center">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+            Balanced
+          </span>
         </div>
       </div>
 
       {/* Card 4: Featured Collections */}
-      <div className="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between border border-outline-variant/15">
-        <div className="flex items-center justify-between mb-space-md">
-          <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+      <div className="p-5 rounded-2xl bg-white shadow-xs border border-outline-variant/60 flex flex-col transition-all hover:shadow-sm">
+        {/* 1. Header: Title on Left & Icon on Right */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
             Featured Collections
           </span>
-          <span className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-container shadow-xs">
-            <span className="material-symbols-outlined text-[18px]">star</span>
-          </span>
-        </div>
-        <div>
-          <div className="flex items-baseline gap-space-xs mb-1">
-            <span className="font-headline-lg text-headline-lg text-on-surface">
-              {kpis.featuredCollectionsCount}
-            </span>
-            <span className="font-label-caps text-label-caps px-1.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-semibold">
-              Home &amp; Hero
-            </span>
+          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
+            <Sparkles className="w-4 h-4" />
           </div>
-          <p className="font-body-sm text-body-sm text-on-surface-variant">
-            Promoted with rich merchandising graphics
-          </p>
+        </div>
+
+        {/* 2. Number below them */}
+        <div className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-on-surface font-mono">
+          {kpis.featuredCollectionsCount}
+        </div>
+
+        {/* 3. Insight below the number */}
+        <div className="mt-2.5 flex items-center">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+            Hero Slots
+          </span>
         </div>
       </div>
     </div>
   )
 }
-

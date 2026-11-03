@@ -1,3 +1,5 @@
+import { Truck } from 'lucide-react'
+
 interface ShippingSectionProps {
   weight: number
   weightUnit: 'g' | 'oz' | 'lb'
@@ -34,35 +36,35 @@ export function ShippingSection({
   onShippingProfileChange,
 }: ShippingSectionProps) {
   return (
-    <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/15">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-space-xs">
-          <span className="material-symbols-outlined text-primary text-[22px]">local_shipping</span>
-          <h2 className="font-headline-sm text-headline-sm text-on-surface">
+    <section className="bg-white rounded-xl p-6 shadow-sm flex flex-col gap-5 border border-outline-variant/60">
+      <div className="flex items-center justify-between pb-3 border-b border-outline-variant/60">
+        <div className="flex items-center gap-2">
+          <Truck className="w-5 h-5 text-primary" />
+          <h2 className="text-base font-semibold text-on-surface">
             Shipping &amp; Physical Fulfillment
           </h2>
         </div>
-        <span className="font-label-caps text-label-caps text-on-surface-variant font-medium">
+        <span className="text-xs text-on-surface-variant font-mono font-medium">
           Parcel Standard
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-space-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         {/* Weight */}
-        <div className="flex flex-col gap-space-xs">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface">Weight</label>
-          <div className="flex">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">Weight</label>
+          <div className="flex shadow-xs rounded-lg overflow-hidden border border-outline-variant/60 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
             <input
               type="number"
               min="0"
               value={weight}
               onChange={(e) => onWeightChange(parseFloat(e.target.value) || 0)}
-              className="w-full h-10 px-space-xs rounded-l-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-mono border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary-container"
+              className="w-full h-10 px-3 bg-surface-container-lowest text-on-surface text-sm font-mono focus:outline-none"
             />
             <select
               value={weightUnit}
               onChange={(e) => onWeightUnitChange(e.target.value as 'g' | 'oz' | 'lb')}
-              className="h-10 px-space-xs rounded-r-lg bg-surface-container text-on-surface font-body-sm text-body-sm font-semibold focus:outline-none border border-l-0 border-outline-variant/30 cursor-pointer"
+              className="h-10 px-2.5 bg-surface-container-low text-on-surface text-xs font-semibold focus:outline-none border-l border-outline-variant/60 cursor-pointer"
             >
               <option value="g">g</option>
               <option value="oz">oz</option>
@@ -72,80 +74,80 @@ export function ShippingSection({
         </div>
 
         {/* Length */}
-        <div className="flex flex-col gap-space-xs">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface">Length</label>
-          <div className="flex">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">Length</label>
+          <div className="flex shadow-xs rounded-lg overflow-hidden border border-outline-variant/60 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
             <input
               type="number"
               min="0"
               value={length}
               onChange={(e) => onLengthChange(parseFloat(e.target.value) || 0)}
-              className="w-full h-10 px-space-xs rounded-l-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-mono border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary-container"
+              className="w-full h-10 px-3 bg-surface-container-lowest text-on-surface text-sm font-mono focus:outline-none"
             />
-            <span className="h-10 px-2.5 rounded-r-lg bg-surface-container text-on-surface-variant font-label-caps text-label-caps flex items-center font-semibold border border-l-0 border-outline-variant/30">
+            <span className="h-10 px-3 bg-surface-container-low text-on-surface-variant text-xs flex items-center font-semibold border-l border-outline-variant/60">
               {dimensionUnit}
             </span>
           </div>
         </div>
 
         {/* Width */}
-        <div className="flex flex-col gap-space-xs">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface">Width</label>
-          <div className="flex">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">Width</label>
+          <div className="flex shadow-xs rounded-lg overflow-hidden border border-outline-variant/60 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
             <input
               type="number"
               min="0"
               value={width}
               onChange={(e) => onWidthChange(parseFloat(e.target.value) || 0)}
-              className="w-full h-10 px-space-xs rounded-l-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-mono border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary-container"
+              className="w-full h-10 px-3 bg-surface-container-lowest text-on-surface text-sm font-mono focus:outline-none"
             />
-            <span className="h-10 px-2.5 rounded-r-lg bg-surface-container text-on-surface-variant font-label-caps text-label-caps flex items-center font-semibold border border-l-0 border-outline-variant/30">
+            <span className="h-10 px-3 bg-surface-container-low text-on-surface-variant text-xs flex items-center font-semibold border-l border-outline-variant/60">
               {dimensionUnit}
             </span>
           </div>
         </div>
 
         {/* Height */}
-        <div className="flex flex-col gap-space-xs">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface">Height</label>
-          <div className="flex">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">Height</label>
+          <div className="flex shadow-xs rounded-lg overflow-hidden border border-outline-variant/60 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
             <input
               type="number"
               min="0"
               value={height}
               onChange={(e) => onHeightChange(parseFloat(e.target.value) || 0)}
-              className="w-full h-10 px-space-xs rounded-l-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-mono border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary-container"
+              className="w-full h-10 px-3 bg-surface-container-lowest text-on-surface text-sm font-mono focus:outline-none"
             />
-            <span className="h-10 px-2.5 rounded-r-lg bg-surface-container text-on-surface-variant font-label-caps text-label-caps flex items-center font-semibold border border-l-0 border-outline-variant/30">
+            <span className="h-10 px-3 bg-surface-container-low text-on-surface-variant text-xs flex items-center font-semibold border-l border-outline-variant/60">
               {dimensionUnit}
             </span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md pt-space-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-outline-variant/60">
         {/* HS Code */}
-        <div className="flex flex-col gap-space-xs">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
             Harmonized Tariff (HS Code)
           </label>
           <input
             type="text"
             value={hsCode}
             onChange={(e) => onHsCodeChange(e.target.value)}
-            className="w-full h-10 px-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-mono font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary-container"
+            className="w-full h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-mono text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
           />
         </div>
 
         {/* Shipping Profile */}
-        <div className="flex flex-col gap-space-xs">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
             Shipping Profile
           </label>
           <select
             value={shippingProfile}
             onChange={(e) => onShippingProfileChange(e.target.value)}
-            className="w-full h-10 px-space-sm rounded-lg bg-surface-container text-on-surface font-body-sm text-body-sm focus:outline-none font-medium border border-outline-variant/20 cursor-pointer"
+            className="w-full h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-xs"
           >
             <option>Standard Fragile Electronics (Insured 2-Day)</option>
             <option>Heavy Freight / Oversized</option>
@@ -156,4 +158,3 @@ export function ShippingSection({
     </section>
   )
 }
-

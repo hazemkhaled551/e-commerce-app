@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { CheckCircle2 } from 'lucide-react'
 import type { CategoryItem, CategoryFilters, CategoryFormData } from '../types/category'
 import { mockCategories, mockCategoryKpis } from '../data/mockCategoryData'
 import { CategoryTopBanner } from '../components/categories/CategoryTopBanner'
@@ -192,10 +193,8 @@ export function CategoriesPage() {
     <div className="flex flex-col w-full pb-space-2xl">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 px-space-md py-space-sm rounded-xl bg-on-surface text-surface shadow-2xl flex items-center gap-2 font-body-sm text-body-sm animate-fade-in border border-outline-variant/30">
-          <span className="material-symbols-outlined text-[18px] text-primary-fixed">
-            check_circle
-          </span>
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-stone-900 text-white shadow-2xl flex items-center gap-2 text-sm animate-fade-in border border-stone-800">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
       )}

@@ -1,3 +1,5 @@
+import { Globe, EyeOff, DollarSign, Archive, Trash2, X, Info } from 'lucide-react'
+
 interface CatalogBulkActionsProps {
   selectedCount: number
   onBulkPublish: () => void
@@ -21,80 +23,74 @@ export function CatalogBulkActions({
 
   return (
     <div
-      className="p-space-sm px-space-md rounded-xl bg-surface-container-high shadow-sm flex flex-wrap items-center justify-between gap-space-sm animate-fade-in border border-outline-variant/30"
+      className="p-3 px-4 rounded-2xl bg-primary/10 border border-primary/20 shadow-xs flex flex-wrap items-center justify-between gap-3 animate-fade-in text-left"
       id="bulk-selection-bar"
     >
-      <div className="flex items-center gap-space-md flex-wrap">
-        <div className="flex items-center gap-space-xs font-body-sm text-body-sm font-bold text-on-surface">
-          <span className="w-5 h-5 rounded bg-primary-container text-on-primary flex items-center justify-center text-[12px] font-bold">
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-2 text-xs font-bold text-on-surface">
+          <span className="w-5 h-5 rounded-md bg-primary text-on-primary flex items-center justify-center text-[11px] font-bold">
             {selectedCount}
           </span>
-          <span>products selected</span>
+          <span className="text-primary font-semibold">{selectedCount} products selected</span>
         </div>
 
-        <div className="h-4 w-px bg-surface-container-highest hidden sm:block" />
+        <div className="h-4 w-px bg-primary/20 hidden sm:block" />
 
-        <div className="flex items-center gap-space-xs flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
             onClick={onBulkPublish}
-            className="h-8 px-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-semibold shadow-xs hover:bg-surface-container transition-all flex items-center gap-1 cursor-pointer border border-outline-variant/20"
+            className="h-8 px-2.5 rounded-lg bg-surface-container-lowest text-on-surface text-xs font-semibold shadow-xs hover:bg-surface-container transition-all flex items-center gap-1.5 cursor-pointer border border-outline-variant/60"
           >
-            <span className="material-symbols-outlined text-[16px] text-secondary">publish</span>
-            <span>Bulk Publish</span>
+            <Globe className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Publish</span>
           </button>
 
           <button
             type="button"
             onClick={onBulkUnpublish}
-            className="h-8 px-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-semibold shadow-xs hover:bg-surface-container transition-all flex items-center gap-1 cursor-pointer border border-outline-variant/20"
+            className="h-8 px-2.5 rounded-lg bg-surface-container-lowest text-on-surface text-xs font-semibold shadow-xs hover:bg-surface-container transition-all flex items-center gap-1.5 cursor-pointer border border-outline-variant/60"
           >
-            <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
-              visibility_off
-            </span>
+            <EyeOff className="w-3.5 h-3.5 text-outline" />
             <span>Unpublish</span>
           </button>
 
           <button
             type="button"
             onClick={onBulkUpdatePrice}
-            className="h-8 px-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-semibold shadow-xs hover:bg-surface-container transition-all flex items-center gap-1 cursor-pointer border border-outline-variant/20"
+            className="h-8 px-2.5 rounded-lg bg-surface-container-lowest text-on-surface text-xs font-semibold shadow-xs hover:bg-surface-container transition-all flex items-center gap-1.5 cursor-pointer border border-outline-variant/60"
           >
-            <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
-              price_change
-            </span>
-            <span>Update Price</span>
+            <DollarSign className="w-3.5 h-3.5 text-primary" />
+            <span>Adjust Price (+5%)</span>
           </button>
 
           <button
             type="button"
             onClick={onBulkArchive}
-            className="h-8 px-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-semibold shadow-xs hover:bg-surface-container transition-all flex items-center gap-1 cursor-pointer border border-outline-variant/20"
+            className="h-8 px-2.5 rounded-lg bg-surface-container-lowest text-on-surface text-xs font-semibold shadow-xs hover:bg-surface-container transition-all flex items-center gap-1.5 cursor-pointer border border-outline-variant/60"
           >
-            <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
-              archive
-            </span>
+            <Archive className="w-3.5 h-3.5 text-outline" />
             <span>Archive</span>
           </button>
 
-          {/* Destructive Delete Action with Dependency Warning Tooltip */}
+          {/* Delete Action with Dependency Warning Tooltip */}
           <div className="relative group">
             <button
               type="button"
               onClick={onBulkDelete}
-              className="h-8 px-space-sm rounded-lg bg-error-container text-on-error-container font-body-sm text-body-sm font-semibold shadow-xs hover:bg-error hover:text-on-error transition-all flex items-center gap-1 cursor-pointer"
+              className="h-8 px-2.5 rounded-lg bg-error/10 text-error text-xs font-semibold shadow-xs hover:bg-error hover:text-on-error transition-all flex items-center gap-1.5 cursor-pointer border border-error/20"
             >
-              <span className="material-symbols-outlined text-[16px]">delete_forever</span>
+              <Trash2 className="w-3.5 h-3.5" />
               <span>Delete</span>
             </button>
 
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:flex flex-col w-64 p-space-sm rounded-xl bg-inverse-surface text-inverse-on-surface font-body-sm text-body-sm shadow-xl z-30 pointer-events-none text-left">
-              <div className="font-bold flex items-center gap-1 text-primary-fixed-dim">
-                <span className="material-symbols-outlined text-[14px]">info</span>
-                <span>Deletion Dependency Check</span>
+            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:flex flex-col w-60 p-2.5 rounded-xl bg-on-surface text-surface text-xs shadow-xl z-30 pointer-events-none text-left">
+              <div className="font-bold flex items-center gap-1 text-primary">
+                <Info className="w-3.5 h-3.5" />
+                <span>Deletion Safety Rule</span>
               </div>
-              <span className="text-[11px] leading-tight mt-1 opacity-90">
-                Cannot delete products active in pending orders across stores.
+              <span className="text-[11px] mt-0.5 opacity-90 leading-tight">
+                Products currently assigned to pending orders cannot be permanently removed.
               </span>
             </div>
           </div>
@@ -104,12 +100,11 @@ export function CatalogBulkActions({
       <button
         type="button"
         onClick={onClearSelection}
-        className="font-body-sm text-body-sm text-primary hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+        className="text-xs text-primary hover:underline font-semibold flex items-center gap-1 cursor-pointer"
       >
-        <span>Clear selection</span>
-        <span className="material-symbols-outlined text-[14px]">close</span>
+        <span>Clear</span>
+        <X className="w-3.5 h-3.5" />
       </button>
     </div>
   )
 }
-

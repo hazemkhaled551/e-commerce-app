@@ -1,3 +1,5 @@
+import { Check, Send } from 'lucide-react'
+
 interface StickySaveBarProps {
   isEditMode: boolean
   hasUnsavedChanges: boolean
@@ -16,29 +18,29 @@ export function StickySaveBar({
   isSaving = false,
 }: StickySaveBarProps) {
   return (
-    <div className="fixed bottom-0 left-0 lg:left-72 right-0 bg-surface-container-lowest/95 backdrop-blur-md px-space-lg py-space-xs shadow-lg z-30 flex items-center justify-between border-t border-outline-variant/20">
-      <div className="flex items-center gap-space-sm">
-        <span className="flex items-center gap-1.5 text-on-surface font-body-sm text-body-sm">
+    <div className="fixed bottom-0 left-0 lg:left-64 right-0 bg-white/95 backdrop-blur-md px-6 py-3 shadow-lg z-30 flex items-center justify-between border-t border-outline-variant/60">
+      <div className="flex items-center gap-3">
+        <span className="flex items-center gap-2 text-on-surface text-xs font-medium">
           <span
             className={`w-2 h-2 rounded-full ${
-              hasUnsavedChanges ? 'bg-secondary animate-pulse' : 'bg-stock-in'
+              hasUnsavedChanges ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'
             }`}
           />
-          <span className="font-semibold">
+          <span className="font-semibold text-sm">
             {hasUnsavedChanges ? 'Unsaved edits' : 'All changes saved'}
           </span>
         </span>
-        <span className="hidden md:inline font-body-sm text-body-sm text-on-surface-variant">
+        <span className="hidden md:inline text-xs text-on-surface-variant font-mono">
           {lastSavedText}
         </span>
       </div>
 
-      <div className="flex items-center gap-space-xs">
+      <div className="flex items-center gap-2.5">
         <button
           type="button"
           onClick={onSaveDraft}
           disabled={isSaving}
-          className="h-8 px-space-sm rounded-lg bg-surface-container text-on-surface font-body-sm text-body-sm font-semibold hover:bg-surface-container-high transition-all cursor-pointer border border-outline-variant/20 disabled:opacity-50"
+          className="h-9 px-4 rounded-lg bg-surface-container-low text-on-surface text-xs font-semibold hover:bg-surface-container transition-all cursor-pointer border border-outline-variant/60 disabled:opacity-50 shadow-xs"
         >
           Save Draft
         </button>
@@ -46,15 +48,12 @@ export function StickySaveBar({
           type="button"
           onClick={onSave}
           disabled={isSaving}
-          className="h-8 px-space-md rounded-lg bg-primary hover:bg-secondary text-on-primary font-body-sm text-body-sm font-semibold shadow-sm transition-all flex items-center gap-1 cursor-pointer active:scale-95 disabled:opacity-50"
+          className="h-9 px-5 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-50"
         >
-          <span className="material-symbols-outlined text-[16px]">
-            {isEditMode ? 'cloud_done' : 'send'}
-          </span>
+          {isEditMode ? <Check className="w-4 h-4" /> : <Send className="w-3.5 h-3.5" />}
           <span>{isEditMode ? 'Save Changes' : 'Publish Product'}</span>
         </button>
       </div>
     </div>
   )
 }
-

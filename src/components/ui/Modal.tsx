@@ -55,19 +55,19 @@ export function Modal({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-on-surface/50 backdrop-blur-xs transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-neutral-950/60 backdrop-blur-xs transition-opacity animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Modal Dialog Content (Level 3 Elevation) */}
       <div
-        className={`relative w-full ${maxWidthMap[maxWidth]} bg-surface-card rounded-xl shadow-2xl border border-border-divider overflow-hidden z-10 animate-fade-in max-h-[90vh] flex flex-col`}
+        className={`relative w-full ${maxWidthMap[maxWidth]} bg-surface-container-lowest rounded-2xl shadow-[0_20px_48px_rgba(36,51,49,0.14)] border border-outline-variant/60 overflow-hidden z-10 animate-fade-in max-h-[90vh] flex flex-col`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-divider">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/60 bg-surface-container-lowest">
           {title ? (
-            <h3 id="modal-title" className="text-lg font-semibold text-neutral-core">
+            <h3 id="modal-title" className="text-lg font-bold text-on-surface tracking-tight">
               {title}
             </h3>
           ) : (
@@ -77,7 +77,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="rounded-lg p-1.5 text-neutral-subdued hover:text-neutral-core hover:bg-neutral-slate transition-colors cursor-pointer"
+            className="rounded-xl p-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -88,7 +88,7 @@ export function Modal({
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-3.5 bg-canvas border-t border-border-divider flex items-center justify-end gap-3">
+          <div className="px-6 py-4 bg-surface-container-low/50 border-t border-outline-variant/60 flex items-center justify-end gap-3">
             {footer}
           </div>
         )}

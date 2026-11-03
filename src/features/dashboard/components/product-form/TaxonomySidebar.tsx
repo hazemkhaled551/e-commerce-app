@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { FolderTree, X, Tag, Plus } from 'lucide-react'
 
 interface TaxonomySidebarProps {
   category: string
@@ -48,24 +49,27 @@ export function TaxonomySidebar({
   }
 
   return (
-    <section className="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm border border-outline-variant/15">
-      <h2 className="font-headline-sm text-headline-sm text-on-surface">
-        Taxonomy &amp; Classification
-      </h2>
+    <section className="bg-white rounded-xl p-5 shadow-sm flex flex-col gap-4 border border-outline-variant/60">
+      <div className="flex items-center gap-2 pb-3 border-b border-outline-variant/60">
+        <FolderTree className="w-5 h-5 text-primary" />
+        <h2 className="text-base font-semibold text-on-surface">
+          Taxonomy &amp; Classification
+        </h2>
+      </div>
 
       {/* Product Category */}
-      <div className="flex flex-col gap-space-xs">
-        <label className="font-body-sm text-body-sm font-semibold text-on-surface">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
           Product Category
         </label>
-        <div className="p-space-xs rounded-lg bg-surface-container flex items-center justify-between border border-outline-variant/15">
-          <span className="font-body-sm text-body-sm text-on-surface font-medium truncate">
+        <div className="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between border border-outline-variant/60 shadow-xs">
+          <span className="text-xs text-on-surface font-medium truncate">
             {category}
           </span>
           <button
             type="button"
             onClick={handleChangeCategoryPrompt}
-            className="text-primary hover:text-secondary text-xs font-semibold shrink-0 cursor-pointer ml-2"
+            className="text-primary hover:underline text-xs font-semibold shrink-0 cursor-pointer ml-2"
           >
             Change
           </button>
@@ -73,8 +77,8 @@ export function TaxonomySidebar({
       </div>
 
       {/* Brand / Manufacturer */}
-      <div className="flex flex-col gap-space-xs">
-        <label className="font-body-sm text-body-sm font-semibold text-on-surface">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
           Brand / Manufacturer
         </label>
         <select
@@ -87,7 +91,7 @@ export function TaxonomySidebar({
               onBrandChange(e.target.value)
             }
           }}
-          className="w-full h-9 px-space-xs rounded-lg bg-surface-container text-on-surface font-body-sm text-body-sm focus:outline-none border border-outline-variant/20 cursor-pointer"
+          className="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-xs"
         >
           <option value="Nexa Audio Labs (Internal)">Nexa Audio Labs (Internal)</option>
           <option value="AeroSound">AeroSound</option>
@@ -101,23 +105,27 @@ export function TaxonomySidebar({
       </div>
 
       {/* Collections */}
-      <div className="flex flex-col gap-space-xs">
-        <label className="font-body-sm text-body-sm font-semibold text-on-surface">Collections</label>
-        <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
+          Collections
+        </label>
+        <div className="flex flex-col gap-2">
           {AVAILABLE_COLLECTIONS.map((c) => {
             const isChecked = collections.includes(c)
             return (
-              <label key={c} className="flex items-center gap-space-xs cursor-pointer">
+              <label key={c} className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="checkbox"
                   checked={isChecked}
                   onChange={() => onToggleCollection(c)}
-                  className="rounded text-primary cursor-pointer"
+                  className="rounded text-primary border-outline-variant/80 focus:ring-primary/30 cursor-pointer w-4 h-4"
                 />
                 <span
-                  className={`font-body-sm text-body-sm ${
-                    isChecked ? 'text-on-surface' : 'text-on-surface-variant'
-                  }`}
+                  className={`text-xs ${
+                    isChecked
+                      ? 'text-on-surface font-semibold'
+                      : 'text-on-surface-variant group-hover:text-on-surface'
+                  } transition-colors`}
                 >
                   {c}
                 </span>
@@ -128,29 +136,30 @@ export function TaxonomySidebar({
       </div>
 
       {/* Search & Filter Tags */}
-      <div className="flex flex-col gap-space-xs pt-space-xs">
-        <label className="font-body-sm text-body-sm font-semibold text-on-surface">
-          Search &amp; Filter Tags
+      <div className="flex flex-col gap-2 pt-2 border-t border-outline-variant/60">
+        <label className="text-xs font-semibold uppercase tracking-wider text-on-surface flex items-center gap-1.5">
+          <Tag className="w-3.5 h-3.5 text-primary" />
+          <span>Search &amp; Filter Tags</span>
         </label>
-        <div className="flex flex-wrap gap-1 mb-1">
+        <div className="flex flex-wrap gap-1.5 mb-1">
           {tags.map((tag) => (
             <span
               key={tag}
-              className="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-body-sm text-[11px] flex items-center gap-1 border border-outline-variant/15"
+              className="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface text-xs font-medium flex items-center gap-1 border border-outline-variant/60"
             >
               <span>{tag}</span>
               <button
                 type="button"
                 onClick={() => onRemoveTag(tag)}
-                className="material-symbols-outlined text-[12px] cursor-pointer hover:text-error"
+                className="text-on-surface-variant cursor-pointer hover:text-red-600 transition-colors"
               >
-                close
+                <X className="w-3 h-3" />
               </button>
             </span>
           ))}
         </div>
 
-        <div className="flex gap-1">
+        <div className="flex gap-1.5">
           <input
             type="text"
             value={tagInput}
@@ -162,18 +171,18 @@ export function TaxonomySidebar({
               }
             }}
             placeholder="Add tag (press Enter)..."
-            className="flex-1 h-8 px-space-xs rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none border border-outline-variant/20"
+            className="flex-1 h-9 px-3 rounded-lg bg-surface-container-lowest text-on-surface text-xs border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
           />
           <button
             type="button"
             onClick={handleAddTagSubmit}
-            className="h-8 px-space-xs rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-body-sm text-body-sm font-semibold transition-all cursor-pointer border border-outline-variant/20"
+            className="h-9 px-3 rounded-lg bg-surface-container-high hover:bg-surface-container text-on-surface text-xs font-semibold transition-all cursor-pointer border border-outline-variant/60 shadow-xs flex items-center gap-1"
           >
-            Add
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add</span>
           </button>
         </div>
       </div>
     </section>
   )
 }
-

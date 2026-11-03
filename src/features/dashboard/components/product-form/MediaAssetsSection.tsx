@@ -1,4 +1,12 @@
 import { useState } from 'react'
+import {
+  Image as ImageIcon,
+  UploadCloud,
+  Star,
+  Trash2,
+  Box,
+  Video,
+} from 'lucide-react'
 import type { ProductMediaItem } from '../../types/productForm'
 
 interface MediaAssetsSectionProps {
@@ -41,69 +49,69 @@ export function MediaAssetsSection({
   }
 
   return (
-    <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/15">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-space-xs">
-          <span className="material-symbols-outlined text-primary text-[22px]">photo_library</span>
-          <h2 className="font-headline-sm text-headline-sm text-on-surface">Media &amp; Visual Assets</h2>
+    <section className="bg-white rounded-xl p-6 shadow-sm flex flex-col gap-5 border border-outline-variant/60">
+      <div className="flex items-center justify-between pb-3 border-b border-outline-variant/60">
+        <div className="flex items-center gap-2">
+          <ImageIcon className="w-5 h-5 text-primary" />
+          <h2 className="text-base font-semibold text-on-surface">Media &amp; Visual Assets</h2>
         </div>
-        <span className="font-body-sm text-body-sm text-on-surface-variant">
+        <span className="text-xs text-on-surface-variant font-medium">
           {mediaItems.length} of 12 uploaded
         </span>
       </div>
 
       {/* Upload Dropzone */}
-      <label className="p-space-lg rounded-xl bg-surface-container-low hover:bg-surface-container flex flex-col items-center justify-center text-center cursor-pointer transition-all border border-dashed border-outline-variant/40">
+      <label className="p-6 rounded-xl bg-surface-container-low hover:bg-surface-container flex flex-col items-center justify-center text-center cursor-pointer transition-all border-2 border-dashed border-outline-variant/60 group">
         <input
           type="file"
           accept="image/*,video/*,.glb"
           className="hidden"
           onChange={handleFileUpload}
         />
-        <div className="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-primary mb-space-xs shadow-xs">
-          <span className="material-symbols-outlined text-[26px]">cloud_upload</span>
+        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary mb-2 shadow-xs border border-outline-variant/60 group-hover:scale-105 transition-transform">
+          <UploadCloud className="w-6 h-6" />
         </div>
-        <span className="font-body-md text-body-md font-semibold text-on-surface">
+        <span className="text-sm font-semibold text-on-surface">
           Drag high-resolution product assets here, or <span className="text-primary underline">browse</span>
         </span>
-        <span className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+        <span className="text-xs text-on-surface-variant mt-1">
           Supports JPG, PNG, WEBP, MP4, and 3D .GLB files up to 50MB
         </span>
       </label>
 
       {/* Media Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-space-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
         {mediaItems.map((item) => (
           <div
             key={item.id}
-            className="group relative rounded-lg overflow-hidden bg-surface-container aspect-square shadow-sm flex flex-col justify-between border border-outline-variant/20"
+            className="group relative rounded-xl overflow-hidden bg-surface-container aspect-square shadow-xs flex flex-col justify-between border border-outline-variant/60"
           >
             <img src={item.url} alt={item.alt} className="w-full h-full object-cover" />
 
             {item.isPrimary && (
-              <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-primary text-on-primary font-label-caps text-[9px] font-bold tracking-wider">
+              <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-primary text-white text-[10px] font-bold tracking-wider shadow-xs">
                 PRIMARY COVER
               </span>
             )}
 
-            <div className="absolute inset-0 bg-on-surface/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               {!item.isPrimary && (
                 <button
                   type="button"
                   onClick={() => onSetPrimary(item.id)}
-                  className="w-7 h-7 rounded-full bg-surface-container-lowest text-on-surface flex items-center justify-center shadow-sm hover:text-primary cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-white text-on-surface flex items-center justify-center shadow-sm hover:text-primary cursor-pointer transition-transform hover:scale-110"
                   title="Set as primary"
                 >
-                  <span className="material-symbols-outlined text-[15px]">star</span>
+                  <Star className="w-4 h-4" />
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => onRemoveMedia(item.id)}
-                className="w-7 h-7 rounded-full bg-surface-container-lowest text-error flex items-center justify-center shadow-sm hover:bg-error-container cursor-pointer"
+                className="w-8 h-8 rounded-full bg-white text-red-600 flex items-center justify-center shadow-sm hover:bg-red-50 cursor-pointer transition-transform hover:scale-110"
                 title="Remove image"
               >
-                <span className="material-symbols-outlined text-[15px]">delete</span>
+                <Trash2 className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -111,13 +119,13 @@ export function MediaAssetsSection({
 
         {/* 3D / AR Asset Tile */}
         {has3dAsset && (
-          <div className="relative rounded-lg overflow-hidden bg-surface-container-high aspect-square flex flex-col items-center justify-center p-2 text-center group cursor-pointer border border-outline-variant/30">
-            <span className="material-symbols-outlined text-primary text-[28px]">view_in_ar</span>
-            <span className="font-label-caps text-label-caps font-bold text-on-surface mt-1">
+          <div className="relative rounded-xl overflow-hidden bg-surface-container-high aspect-square flex flex-col items-center justify-center p-3 text-center group cursor-pointer border border-outline-variant/60">
+            <Box className="w-7 h-7 text-primary" />
+            <span className="text-xs font-bold text-on-surface mt-1.5">
               aero_pro.glb
             </span>
             <span className="text-[10px] text-on-surface-variant font-mono">14.8 MB • 3D</span>
-            <div className="absolute top-1.5 right-1.5 px-1 py-0.5 rounded bg-primary-container text-on-primary font-label-caps text-[8px] font-semibold">
+            <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-primary text-white text-[9px] font-bold shadow-xs">
               AR READY
             </div>
           </div>
@@ -125,21 +133,19 @@ export function MediaAssetsSection({
       </div>
 
       {/* Video showcase link */}
-      <div className="flex items-center gap-space-xs pt-space-xs">
-        <span className="material-symbols-outlined text-on-surface-variant text-[18px]">
-          videocam
-        </span>
+      <div className="flex items-center gap-2 pt-2 border-t border-outline-variant/60">
+        <Video className="w-5 h-5 text-on-surface-variant shrink-0" />
         <input
           type="text"
           value={videoInput}
           onChange={(e) => setVideoInput(e.target.value)}
           placeholder="Add YouTube or Vimeo product video URL (e.g., https://youtube.com/watch?v=...)"
-          className="flex-1 h-9 px-space-sm rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm placeholder:text-on-surface-variant border border-outline-variant/20 focus:outline-none focus:ring-1 focus:ring-primary-container"
+          className="flex-1 h-9 px-3 rounded-lg bg-surface-container-lowest text-on-surface text-xs placeholder:text-on-surface-variant border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
         />
         <button
           type="button"
           onClick={handleAddVideo}
-          className="h-9 px-space-sm rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-body-sm text-body-sm font-semibold transition-all cursor-pointer border border-outline-variant/20"
+          className="h-9 px-3.5 rounded-lg bg-surface-container-high hover:bg-surface-container text-on-surface text-xs font-semibold transition-all cursor-pointer border border-outline-variant/60 shadow-xs"
         >
           Add Video
         </button>
@@ -147,4 +153,3 @@ export function MediaAssetsSection({
     </section>
   )
 }
-

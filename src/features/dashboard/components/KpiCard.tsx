@@ -1,3 +1,4 @@
+import { DollarSign, ShoppingBag, TrendingUp, AlertTriangle } from 'lucide-react'
 import type { DashboardKpi } from '../types/dashboard'
 
 interface KpiCardProps {
@@ -5,108 +6,93 @@ interface KpiCardProps {
   onActionClick?: (kpiId: string) => void
 }
 
-export function KpiCard({ kpi, onActionClick }: KpiCardProps) {
+export function KpiCard({ kpi }: KpiCardProps) {
+  // 1. Icon matching the KPI category
+  const renderIcon = () => {
+    switch (kpi.icon) {
+      case 'payments':
+        return <DollarSign className="w-4 h-4 text-primary" />
+      case 'shopping_cart_checkout':
+        return <ShoppingBag className="w-4 h-4 text-primary" />
+      case 'insights':
+        return <TrendingUp className="w-4 h-4 text-primary" />
+      case 'priority_high':
+        return <AlertTriangle className="w-4 h-4 text-amber-600" />
+      default:
+        return <TrendingUp className="w-4 h-4 text-primary" />
+    }
+  }
+
+  // 2. Insight badge section below the number
+  const renderInsight = () => {
+    if (kpi.type === 'sparkline_revenue') {
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+          <TrendingUp className="w-3 h-3 text-emerald-600" />
+          <span>+14.2%</span>
+        </span>
+      )
+    }
+
+    if (kpi.type === 'sparkline_orders') {
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+          <TrendingUp className="w-3 h-3 text-emerald-600" />
+          <span>+12.4%</span>
+        </span>
+      )
+    }
+
+    if (kpi.type === 'progress_aov') {
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+          <TrendingUp className="w-3 h-3 text-emerald-600" />
+          <span>+$4.73</span>
+        </span>
+      )
+    }
+
+    if (kpi.type === 'action_dispatch') {
+      return (
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+          <span>6 Urgent</span>
+        </span>
+      )
+    }
+
+    return null
+  }
+
+  const isWarning = kpi.type === 'action_dispatch'
+
   return (
-    <div className="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-      {/* Top Header */}
+    <div className="p-5 rounded-2xl bg-white shadow-xs border border-outline-variant/60 flex flex-col transition-all hover:shadow-sm">
+      {/* 1. Header: Title on Left & Icon on Right */}
       <div className="flex items-center justify-between">
-        <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+        <span className="text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
           {kpi.title}
         </span>
         <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-            kpi.type === 'action_dispatch'
-              ? 'bg-error-container text-on-error-container'
-              : 'bg-surface-container-low ' + kpi.iconColorClass
+          className={`w-9 h-9 rounded-xl flex items-center justify-center border ${
+            isWarning
+              ? 'bg-amber-50 text-amber-700 border-amber-200'
+              : 'bg-primary/10 text-primary border-primary/20'
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">{kpi.icon}</span>
+          {renderIcon()}
         </div>
       </div>
 
-      {/* Primary Metric Value & Subtext */}
-      <div className="mt-space-md">
-        <div className="flex items-baseline gap-space-sm">
-          <span className="font-price-lg text-price-lg text-on-surface">{kpi.value}</span>
-        </div>
-
-        <div className="flex items-center justify-between mt-space-xs text-on-surface-variant font-body-sm text-body-sm">
-          <span className={kpi.type === 'action_dispatch' ? 'font-medium text-error' : ''}>
-            {kpi.subtextPrimary}
-          </span>
-          {kpi.subtextSecondary && (
-            <span
-              className={
-                kpi.type === 'progress_aov'
-                  ? 'text-secondary font-medium'
-                  : 'text-outline-variant'
-              }
-            >
-              {kpi.subtextSecondary}
-            </span>
-          )}
-        </div>
+      {/* 2. Number below them */}
+      <div className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-on-surface font-mono">
+        {kpi.value}
       </div>
 
-      {/* Visual Graphical Additions (Sparkline, Progress, Action Button) */}
-      <div className="mt-space-sm pt-space-xs">
-        {kpi.type === 'sparkline_revenue' && (
-          <svg className="w-full h-7 text-primary" fill="none" preserveAspectRatio="none" viewBox="0 0 200 32">
-            <path
-              d="M0 24 L20 22 L40 26 L60 18 L80 20 L100 12 L120 15 L140 8 L160 11 L180 4 L200 2"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeWidth="2"
-              vectorEffect="non-scaling-stroke"
-            />
-            <path
-              d="M0 24 L20 22 L40 26 L60 18 L80 20 L100 12 L120 15 L140 8 L160 11 L180 4 L200 2 L200 32 L0 32 Z"
-              fill="currentColor"
-              fillOpacity="0.08"
-            />
-          </svg>
-        )}
-
-        {kpi.type === 'sparkline_orders' && (
-          <svg className="w-full h-7 text-secondary" fill="none" preserveAspectRatio="none" viewBox="0 0 200 32">
-            <path
-              d="M0 26 L25 24 L50 20 L75 22 L100 16 L125 18 L150 10 L175 14 L200 6"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeWidth="2"
-              vectorEffect="non-scaling-stroke"
-            />
-            <path
-              d="M0 26 L25 24 L50 20 L75 22 L100 16 L125 18 L150 10 L175 14 L200 6 L200 32 L0 32 Z"
-              fill="currentColor"
-              fillOpacity="0.08"
-            />
-          </svg>
-        )}
-
-        {kpi.type === 'progress_aov' && (
-          <div>
-            <div className="w-full bg-surface-container-high h-2 rounded-full overflow-hidden flex">
-              <div className="bg-secondary h-full rounded-full" style={{ width: '82%' }} />
-            </div>
-            <div className="flex justify-between items-center mt-1 text-[11px] text-on-surface-variant font-label-caps">
-              <span>Tier 1 ($50)</span>
-              <span className="text-on-surface font-semibold">Tier 2: $70+ Max</span>
-            </div>
-          </div>
-        )}
-
-        {kpi.type === 'action_dispatch' && (
-          <button
-            type="button"
-            onClick={() => onActionClick?.(kpi.id)}
-            className="w-full py-1.5 px-space-sm bg-surface-container-high text-on-surface hover:bg-surface-container-highest rounded-lg font-label-caps text-label-caps font-semibold text-center transition-colors cursor-pointer"
-          >
-            {kpi.actionLabel || 'Open Queue'}
-          </button>
-        )}
+      {/* 3. Insight below the number */}
+      <div className="mt-2.5 flex items-center">
+        {renderInsight()}
       </div>
     </div>
   )
 }
-

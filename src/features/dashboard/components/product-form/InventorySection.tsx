@@ -1,3 +1,5 @@
+import { Warehouse } from 'lucide-react'
+
 interface InventorySectionProps {
   sku: string
   barcode: string
@@ -26,34 +28,34 @@ export function InventorySection({
   onAutoGenerateSku,
 }: InventorySectionProps) {
   return (
-    <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/15">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-space-xs">
-          <span className="material-symbols-outlined text-primary text-[22px]">warehouse</span>
-          <h2 className="font-headline-sm text-headline-sm text-on-surface">Inventory &amp; Stock</h2>
+    <section className="bg-white rounded-xl p-6 shadow-sm flex flex-col gap-5 border border-outline-variant/60">
+      <div className="flex items-center justify-between pb-3 border-b border-outline-variant/60">
+        <div className="flex items-center gap-2">
+          <Warehouse className="w-5 h-5 text-primary" />
+          <h2 className="text-base font-semibold text-on-surface">Inventory &amp; Stock</h2>
         </div>
         <span
-          className={`px-space-xs py-0.5 rounded-full font-label-caps text-label-caps font-semibold ${
+          className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
             stockCount > 0
-              ? 'bg-secondary-fixed text-on-secondary-fixed'
-              : 'bg-error-container text-on-error-container'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              : 'bg-red-50 text-red-800 border-red-200'
           }`}
         >
           {stockCount > 0 ? `${stockCount} In Stock` : 'Out of Stock'}
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* SKU */}
-        <div className="flex flex-col gap-space-xs">
+        <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <label className="font-body-sm text-body-sm font-semibold text-on-surface" htmlFor="sku-input">
+            <label className="text-xs font-semibold uppercase tracking-wider text-on-surface" htmlFor="sku-input">
               SKU (Stock Keeping Unit)
             </label>
             <button
               type="button"
               onClick={onAutoGenerateSku}
-              className="font-label-caps text-label-caps text-primary hover:underline font-semibold cursor-pointer"
+              className="text-xs font-semibold text-primary hover:underline cursor-pointer"
             >
               Auto-Generate
             </button>
@@ -63,13 +65,13 @@ export function InventorySection({
             type="text"
             value={sku}
             onChange={(e) => onSkuChange(e.target.value)}
-            className="w-full h-10 px-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-mono font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+            className="w-full h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-mono text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
           />
         </div>
 
         {/* Barcode */}
-        <div className="flex flex-col gap-space-xs">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface" htmlFor="barcode-input">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface" htmlFor="barcode-input">
             Barcode (GTIN / UPC / EAN)
           </label>
           <input
@@ -77,17 +79,17 @@ export function InventorySection({
             type="text"
             value={barcode}
             onChange={(e) => onBarcodeChange(e.target.value)}
-            className="w-full h-10 px-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-mono font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+            className="w-full h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-mono text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
           />
         </div>
       </div>
 
       {/* Stock Quantity & Threshold */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Available Stock Quantity */}
-        <div className="flex flex-col gap-space-xs">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface" htmlFor="stock-count-input">
-            Available Stock Quantity *
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface" htmlFor="stock-count-input">
+            Available Stock Quantity <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
@@ -96,17 +98,17 @@ export function InventorySection({
               min="0"
               value={stockCount}
               onChange={(e) => onStockCountChange(parseInt(e.target.value, 10) || 0)}
-              className="w-full h-10 px-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md font-semibold border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+              className="w-full h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface text-sm font-semibold border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-body-sm text-body-sm pointer-events-none">
+            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none">
               units
             </span>
           </div>
         </div>
 
         {/* Low Stock Alert Threshold */}
-        <div className="flex flex-col gap-space-xs">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface" htmlFor="threshold-input">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface" htmlFor="threshold-input">
             Low Stock Alert Threshold
           </label>
           <div className="relative">
@@ -116,9 +118,9 @@ export function InventorySection({
               min="0"
               value={lowStockThreshold}
               onChange={(e) => onThresholdChange(parseInt(e.target.value, 10) || 0)}
-              className="w-full h-10 px-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+              className="w-full h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-body-sm text-body-sm pointer-events-none">
+            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none">
               units triggers alert
             </span>
           </div>
@@ -126,33 +128,33 @@ export function InventorySection({
       </div>
 
       {/* Out-of-Stock Policy */}
-      <div className="pt-space-xs border-t border-outline-variant/15 flex flex-col gap-space-xs">
-        <span className="font-body-sm text-body-sm font-semibold text-on-surface">
+      <div className="pt-2 border-t border-outline-variant/60 flex flex-col gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-on-surface">
           Out-of-Stock Policy
         </span>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-space-md mt-1">
-          <label className="flex items-center gap-space-xs cursor-pointer">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-0.5">
+          <label className="flex items-center gap-2 cursor-pointer group">
             <input
               type="radio"
               name="oos-policy"
               checked={outOfStockPolicy === 'stop_selling'}
               onChange={() => onPolicyChange('stop_selling')}
-              className="text-primary focus:ring-primary-container cursor-pointer"
+              className="text-primary border-outline-variant/80 focus:ring-primary/30 cursor-pointer w-4 h-4"
             />
-            <span className="font-body-sm text-body-sm text-on-surface">
+            <span className="text-xs text-on-surface group-hover:text-primary transition-colors">
               Stop selling when inventory reaches zero
             </span>
           </label>
 
-          <label className="flex items-center gap-space-xs cursor-pointer">
+          <label className="flex items-center gap-2 cursor-pointer group">
             <input
               type="radio"
               name="oos-policy"
               checked={outOfStockPolicy === 'accept_backorders'}
               onChange={() => onPolicyChange('accept_backorders')}
-              className="text-primary focus:ring-primary-container cursor-pointer"
+              className="text-primary border-outline-variant/80 focus:ring-primary/30 cursor-pointer w-4 h-4"
             />
-            <span className="font-body-sm text-body-sm text-on-surface">
+            <span className="text-xs text-on-surface group-hover:text-primary transition-colors">
               Continue selling / Accept backorders
             </span>
           </label>

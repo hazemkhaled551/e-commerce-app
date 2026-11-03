@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { X, PlusCircle, AlertCircle } from 'lucide-react'
 import type { CatalogProduct, ProductStatus, ProductStockState } from '../../types/catalog'
 
 interface AddProductModalProps {
@@ -7,12 +8,16 @@ interface AddProductModalProps {
   onAddProduct: (product: CatalogProduct) => void
 }
 
+function generateDefaultSku(): string {
+  return `SKU-${Math.floor(10000 + Math.random() * 90000)}`
+}
+
 export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductModalProps) {
   const [name, setName] = useState('')
   const [variantLabel, setVariantLabel] = useState('Standard Edition')
   const [category, setCategory] = useState('Electronics & Audio')
   const [brand, setBrand] = useState('AeroSound')
-  const [sku, setSku] = useState(`SKU-${Math.floor(10000 + Math.random() * 90000)}`)
+  const [sku, setSku] = useState(generateDefaultSku)
   const [price, setPrice] = useState('199.00')
   const [costPrice, setCostPrice] = useState('89.00')
   const [stockCount, setStockCount] = useState('50')
@@ -74,39 +79,39 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-2xl bg-surface-container-lowest rounded-2xl shadow-xl border border-outline-variant/30 flex flex-col max-h-[90vh] overflow-hidden animate-fade-in">
+      <div className="relative w-full max-w-2xl bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant/60 flex flex-col max-h-[90vh] overflow-hidden animate-fade-in text-left">
         {/* Modal Header */}
-        <div className="p-space-lg border-b border-outline-variant/20 flex items-center justify-between bg-surface-container-low/50">
+        <div className="p-5 border-b border-outline-variant/50 flex items-center justify-between bg-surface-container-low/60">
           <div>
-            <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+            <h2 className="text-base font-bold text-on-surface">
               Add New Product SKU
             </h2>
-            <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            <p className="text-xs text-on-surface-variant mt-0.5">
               Configure master SKU metadata, pricing margins, and warehouse allocation.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-outline hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-space-lg space-y-space-md">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
           {error && (
-            <div className="p-space-sm rounded-lg bg-error-container text-on-error-container font-body-sm text-body-sm flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">error</span>
+            <div className="p-3 rounded-xl bg-error/10 text-error border border-error/20 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Name & Variant */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">
+              <label className="block text-[11px] font-bold text-on-surface-variant uppercase mb-1">
                 Product Title *
               </label>
               <input
@@ -118,12 +123,12 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
                 }}
                 placeholder="e.g. AeroSound ANC Pro"
                 required
-                className="w-full h-10 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+                className="w-full h-10 px-3 rounded-xl bg-surface-container-low/70 text-on-surface text-xs border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
               />
             </div>
 
             <div>
-              <label className="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">
+              <label className="block text-[11px] font-bold text-on-surface-variant uppercase mb-1">
                 Variant Label
               </label>
               <input
@@ -131,21 +136,21 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
                 value={variantLabel}
                 onChange={(e) => setVariantLabel(e.target.value)}
                 placeholder="e.g. Midnight Black / 64GB"
-                className="w-full h-10 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+                className="w-full h-10 px-3 rounded-xl bg-surface-container-low/70 text-on-surface text-xs border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
               />
             </div>
           </div>
 
           {/* Category & Brand */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">
+              <label className="block text-[11px] font-bold text-on-surface-variant uppercase mb-1">
                 Category
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container cursor-pointer"
+                className="w-full h-10 px-3 rounded-xl bg-surface-container-low/70 text-on-surface text-xs border border-outline-variant/60 focus:outline-none focus:border-primary cursor-pointer"
               >
                 <option value="Electronics & Audio">Electronics &amp; Audio</option>
                 <option value="Kitchen & Culinary">Kitchen &amp; Culinary</option>
@@ -155,13 +160,13 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
             </div>
 
             <div>
-              <label className="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">
+              <label className="block text-[11px] font-bold text-on-surface-variant uppercase mb-1">
                 Brand
               </label>
               <select
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container cursor-pointer"
+                className="w-full h-10 px-3 rounded-xl bg-surface-container-low/70 text-on-surface text-xs border border-outline-variant/60 focus:outline-none focus:border-primary cursor-pointer"
               >
                 <option value="AeroSound">AeroSound</option>
                 <option value="DeskPower">DeskPower</option>
@@ -172,9 +177,9 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
           </div>
 
           {/* SKU & Initial Stock */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">
+              <label className="block text-[11px] font-bold text-on-surface-variant uppercase mb-1">
                 Master SKU
               </label>
               <input
@@ -182,12 +187,12 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
                 placeholder="SKU-..."
-                className="w-full h-10 px-3 rounded-lg bg-surface-container-low font-mono text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+                className="w-full h-10 px-3 rounded-xl bg-surface-container-low/70 font-mono text-on-surface text-xs border border-outline-variant/60 focus:outline-none focus:border-primary"
               />
             </div>
 
             <div>
-              <label className="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">
+              <label className="block text-[11px] font-bold text-on-surface-variant uppercase mb-1">
                 Initial Stock
               </label>
               <input
@@ -195,15 +200,15 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
                 min="0"
                 value={stockCount}
                 onChange={(e) => setStockCount(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+                className="w-full h-10 px-3 rounded-xl bg-surface-container-low/70 text-on-surface text-xs border border-outline-variant/60 focus:outline-none focus:border-primary"
               />
             </div>
           </div>
 
           {/* Pricing & Cost */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">
+              <label className="block text-[11px] font-bold text-on-surface-variant uppercase mb-1">
                 Retail Price ($)
               </label>
               <input
@@ -212,12 +217,12 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
                 min="0"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+                className="w-full h-10 px-3 rounded-xl bg-surface-container-low/70 text-on-surface font-mono text-xs border border-outline-variant/60 focus:outline-none focus:border-primary"
               />
             </div>
 
             <div>
-              <label className="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">
+              <label className="block text-[11px] font-bold text-on-surface-variant uppercase mb-1">
                 Cost Price ($)
               </label>
               <input
@@ -226,17 +231,17 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
                 min="0"
                 value={costPrice}
                 onChange={(e) => setCostPrice(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+                className="w-full h-10 px-3 rounded-xl bg-surface-container-low/70 text-on-surface font-mono text-xs border border-outline-variant/60 focus:outline-none focus:border-primary"
               />
             </div>
           </div>
 
           {/* Publishing Status */}
           <div>
-            <label className="block font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">
+            <label className="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">
               Publish Status
             </label>
-            <div className="flex items-center gap-space-md">
+            <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
@@ -246,7 +251,7 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
                   onChange={() => setStatus('published')}
                   className="accent-primary"
                 />
-                <span className="font-body-md text-body-md text-on-surface">Publish Immediately</span>
+                <span className="text-on-surface">Publish Immediately</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -258,25 +263,25 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
                   onChange={() => setStatus('draft')}
                   className="accent-primary"
                 />
-                <span className="font-body-md text-body-md text-on-surface">Save as Draft</span>
+                <span className="text-on-surface">Save as Draft</span>
               </label>
             </div>
           </div>
 
           {/* Modal Footer */}
-          <div className="pt-space-md border-t border-outline-variant/20 flex items-center justify-end gap-space-sm">
+          <div className="pt-4 border-t border-outline-variant/50 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="h-10 px-space-md rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md font-medium hover:bg-surface-container transition-colors cursor-pointer border border-outline-variant/20"
+              className="h-9 px-4 rounded-xl bg-surface-container-low text-on-surface text-xs font-semibold hover:bg-surface-container transition-colors cursor-pointer border border-outline-variant/60"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="h-10 px-space-lg rounded-lg bg-primary-container text-on-primary font-body-md text-body-md font-semibold hover:bg-secondary transition-all cursor-pointer shadow-sm active:scale-95 flex items-center gap-1.5"
+              className="h-9 px-4 rounded-xl bg-primary text-on-primary text-xs font-semibold hover:bg-primary-hover transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[18px]">add_circle</span>
+              <PlusCircle className="w-4 h-4" />
               <span>Create Product</span>
             </button>
           </div>
@@ -285,4 +290,3 @@ export function AddProductModal({ isOpen, onClose, onAddProduct }: AddProductMod
     </div>
   )
 }
-

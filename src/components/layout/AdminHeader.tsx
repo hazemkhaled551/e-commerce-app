@@ -1,5 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import {
+  Menu,
+  Bell,
+  Plus,
+  ChevronRight,
+  Store,
+  Settings,
+  LogOut,
+  ChevronDown,
+} from 'lucide-react'
 import { useAuth } from '@/features/auth'
 
 interface AdminHeaderProps {
@@ -7,12 +17,77 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
+  const location = useLocation()
   const { user, logout } = useAuth()
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement>(null)
 
   const userName = user?.name || 'Alexander Wright'
-  const userEmail = user?.email || 'admin@nexa-store.com'
+  const userEmail = user?.email || 'admin@nexastore.com'
+
+  // Dynamic breadcrumb generation based on path
+  const getBreadcrumbs = () => {
+    const path = location.pathname
+    if (path.startsWith('/admin/orders/') && path !== '/admin/orders') {
+      const orderId = path.split('/admin/orders/')[1]
+      const label = orderId.startsWith('#') ? orderId : `#${orderId.toUpperCase()}`
+      return [
+        { label: 'Admin', to: '/admin' },
+        // { label: 'Commerce', to: '/admin/orders' },
+        { label: 'Orders', to: '/admin/orders' },
+        { label, to: path },
+      ]
+    }
+    if (path.startsWith('/admin/orders/') && path !== '/admin/orders') {
+      const orderId = path.split('/admin/orders/')[1]
+      const label = orderId.startsWith('#') ? orderId : `#${orderId.toUpperCase()}`
+      return [
+        { label: 'Admin', to: '/admin' },
+        { label: 'Commerce', to: '/admin/orders' },
+        { label: 'Orders', to: '/admin/orders' },
+        { label, to: path },
+      ]
+    }
+    if (path.startsWith('/admin/orders')) {
+      return [
+        { label: 'Admin', to: '/admin' },
+        // { label: 'Commerce', to: '/admin/orders' },
+        { label: 'Orders', to: '/admin/orders' },
+      ]
+    }
+    if (path.startsWith('/admin/products/new')) {
+      return [
+        { label: 'Admin', to: '/admin' },
+        { label: 'Products & Catalog', to: '/admin/products' },
+        { label: 'Add Product', to: '/admin/products/new' },
+      ]
+    }
+    if (path.startsWith('/admin/products/') && path !== '/admin/products') {
+      return [
+        { label: 'Admin', to: '/admin' },
+        { label: 'Products & Catalog', to: '/admin/products' },
+        { label: 'Edit Product', to: path },
+      ]
+    }
+    if (path.startsWith('/admin/products')) {
+      return [
+        { label: 'Admin', to: '/admin' },
+        { label: 'Products & Catalog', to: '/admin/products' },
+      ]
+    }
+    if (path.startsWith('/admin/categories')) {
+      return [
+        { label: 'Admin', to: '/admin' },
+        { label: 'Categories & Taxonomy', to: '/admin/categories' },
+      ]
+    }
+    return [
+      { label: 'Admin', to: '/admin' },
+      { label: 'Dashboard Overview', to: '/admin' },
+    ]
+  }
+
+  const breadcrumbs = getBreadcrumbs()
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -26,81 +101,57 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   }, [])
 
   return (
-    <header className="fixed top-0 left-0 lg:left-72 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-space-md sm:px-space-lg flex items-center justify-between gap-space-md border-b border-outline-variant/15">
-      {/* Left Context: Toggle button, Breadcrumb & Production live pill */}
-      <div className="flex items-center gap-space-sm sm:gap-space-md min-w-0">
+    <header className="fixed top-0 left-0 lg:left-64 right-0 h-16 bg-white/95 backdrop-blur-md z-40 px-4 sm:px-6 flex items-center justify-between gap-4 border-b border-outline-variant/60 shadow-[0_1px_8px_rgba(36,51,49,0.03)]">
+      {/* Left: Mobile Toggle & Fixed Top Breadcrumbs */}
+      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
         <button
           type="button"
           onClick={onToggleSidebar}
           aria-label="Toggle navigation menu"
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
+          className="lg:hidden w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer"
         >
-          <span className="material-symbols-outlined text-[20px]">menu</span>
+          <Menu className="w-5 h-5" />
         </button>
 
-        {/* Breadcrumb path */}
-        <div className="hidden md:flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant whitespace-nowrap">
-          <Link to="/admin" className="hover:text-primary transition-colors">
-            Admin
-          </Link>
-          <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-          <span className="text-on-surface-variant">Dashboard</span>
-          <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-          <span className="text-on-surface font-semibold">Operations Overview</span>
-        </div>
-
-        {/* Environment status pill */}
-        <div className="hidden xl:flex items-center gap-space-xs px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-caps text-label-caps">
-          <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-          <span>Production • nexa-store.com</span>
-        </div>
+        {/* Dynamic Breadcrumbs Navigation */}
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs sm:text-sm text-on-surface-variant whitespace-nowrap overflow-x-auto">
+          {breadcrumbs.map((crumb, idx) => {
+            const isLast = idx === breadcrumbs.length - 1
+            return (
+              <div key={crumb.to + idx} className="flex items-center gap-1.5 shrink-0">
+                {idx > 0 && <ChevronRight className="w-3.5 h-3.5 text-outline-variant" />}
+                {isLast ? (
+                  <span className="font-semibold text-on-surface">{crumb.label}</span>
+                ) : (
+                  <Link to={crumb.to} className="hover:text-primary transition-colors font-medium">
+                    {crumb.label}
+                  </Link>
+                )}
+              </div>
+            )
+          })}
+        </nav>
       </div>
 
-      {/* Right Actions: Global Search, Quick Order, Notifications, User Menu */}
-      <div className="flex items-center gap-space-xs sm:gap-space-sm flex-1 max-w-md justify-end">
-        {/* Quick Search with shortcut */}
-        <div className="relative w-full max-w-xs hidden sm:block">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
-            search
-          </span>
-          <input
-            type="text"
-            placeholder="Search catalog, orders..."
-            className="w-full pl-9 pr-14 py-space-xs h-9 rounded-xl bg-surface-container-low text-on-surface placeholder:text-on-surface-variant font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary-container transition-all"
-          />
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 font-label-caps text-label-caps px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant">
-            ⌘K
-          </span>
-        </div>
-
-        {/* New Order Button */}
-        <button
-          type="button"
-          className="h-9 px-space-md rounded-xl bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold flex items-center gap-space-xs hover:bg-secondary transition-all shadow-sm cursor-pointer shrink-0"
+      {/* Right Actions: Quick Add Product CTA, Notifications, User Menu */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Quick Add Product CTA */}
+        <Link
+          to="/admin/products/new"
+          className="h-9 px-3.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors shrink-0 active:scale-95"
         >
-          <span className="material-symbols-outlined text-[18px]">add</span>
-          <span className="hidden lg:inline">New Order</span>
-        </button>
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">Add Product</span>
+        </Link>
 
         {/* Notifications Icon with Counter */}
         <button
           type="button"
-          title="3 Unread Notifications"
-          className="relative w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all cursor-pointer"
+          title="3 Unread Alerts"
+          className="relative w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all cursor-pointer border border-outline-variant/60 shadow-xs"
         >
-          <span className="material-symbols-outlined text-[20px]">notifications</span>
-          <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-error text-on-error font-label-caps text-[9px] flex items-center justify-center leading-none font-bold">
-            3
-          </span>
-        </button>
-
-        {/* Help Icon */}
-        <button
-          type="button"
-          title="System Documentation"
-          className="w-9 h-9 rounded-xl hidden sm:flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[20px]">help</span>
+          <Bell className="w-4 h-4" />
+          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500" />
         </button>
 
         {/* User Profile Menu with Dropdown */}
@@ -108,23 +159,21 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
           <button
             type="button"
             onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-            className="flex items-center gap-space-xs pl-space-xs cursor-pointer p-1 rounded-xl hover:bg-surface-container transition-colors"
+            className="flex items-center gap-1.5 pl-1.5 pr-2 py-1 rounded-xl hover:bg-surface-container transition-colors cursor-pointer border border-outline-variant/60 shadow-xs bg-white"
           >
-            <div className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-xs uppercase">
+            <div className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs">
               {userName[0]}
             </div>
-            <span className="material-symbols-outlined text-[18px] text-on-surface-variant">
-              expand_more
-            </span>
+            <ChevronDown className="w-3.5 h-3.5 text-on-surface-variant" />
           </button>
 
           {isProfileMenuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-56 rounded-xl bg-surface-container-lowest border border-outline-variant/30 shadow-xl py-2 z-50 animate-fade-in text-left">
-              <div className="px-4 py-2 border-b border-outline-variant/15">
-                <p className="font-headline-sm text-body-sm font-semibold text-on-surface truncate">
+            <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white border border-outline-variant/60 shadow-xl py-2 z-50 animate-fade-in text-left">
+              <div className="px-4 py-2.5 border-b border-outline-variant/40">
+                <p className="text-xs font-bold text-on-surface truncate">
                   {userName}
                 </p>
-                <p className="font-body-sm text-[11px] text-on-surface-variant truncate">
+                <p className="text-[11px] text-on-surface-variant truncate">
                   {userEmail}
                 </p>
               </div>
@@ -133,35 +182,31 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
                 <Link
                   to="/"
                   onClick={() => setIsProfileMenuOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-body-sm text-on-surface hover:bg-surface-container transition-colors"
+                  className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-on-surface hover:bg-surface-container-low transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[18px] text-primary">
-                    storefront
-                  </span>
-                  <span>View Customer Store</span>
+                  <Store className="w-4 h-4 text-primary" />
+                  <span>Customer Storefront</span>
                 </Link>
                 <Link
                   to="/admin"
                   onClick={() => setIsProfileMenuOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-body-sm text-on-surface hover:bg-surface-container transition-colors"
+                  className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-on-surface hover:bg-surface-container-low transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[18px] text-on-surface-variant">
-                    settings
-                  </span>
+                  <Settings className="w-4 h-4 text-on-surface-variant" />
                   <span>Console Settings</span>
                 </Link>
               </div>
 
-              <div className="pt-1 border-t border-outline-variant/15">
+              <div className="pt-1 border-t border-outline-variant/40">
                 <button
                   type="button"
                   onClick={() => {
                     setIsProfileMenuOpen(false)
                     logout()
                   }}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-body-sm text-error hover:bg-error-container/40 transition-colors cursor-pointer text-left font-medium"
+                  className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left font-semibold"
                 >
-                  <span className="material-symbols-outlined text-[18px]">logout</span>
+                  <LogOut className="w-4 h-4" />
                   <span>Sign Out</span>
                 </button>
               </div>
@@ -172,4 +217,3 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
     </header>
   )
 }
-

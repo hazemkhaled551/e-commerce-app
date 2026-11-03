@@ -1,4 +1,20 @@
 import { Link, useLocation } from 'react-router-dom'
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  Package,
+  FolderTree,
+  Warehouse,
+  Users,
+  Star,
+  Tag,
+  BarChart3,
+  ShieldCheck,
+  Settings,
+  ExternalLink,
+  X,
+  Store,
+} from 'lucide-react'
 import { useAuth } from '@/features/auth'
 
 interface AdminSidebarProps {
@@ -32,23 +48,23 @@ export function AdminSidebar({ isMobileOpen = false, onCloseMobile }: AdminSideb
 
       {/* Sidebar Aside */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between overflow-y-auto transition-transform duration-300 ease-in-out border-r border-outline-variant/20 ${
+        className={`fixed left-0 top-0 h-screen w-64 bg-surface-container-lowest z-50 flex flex-col justify-between overflow-y-auto transition-transform duration-300 ease-in-out border-r border-outline-variant/60 shadow-[0_1px_8px_rgba(36,51,49,0.03)] ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         <div className="flex flex-col">
           {/* Brand Console Header */}
-          <div className="p-space-lg flex items-center justify-between bg-surface-container-lowest border-b border-outline-variant/10">
-            <Link to="/admin" className="flex items-center gap-space-sm group">
-              <div className="w-9 h-9 rounded-xl bg-primary-container flex items-center justify-center text-on-primary shadow-sm group-hover:scale-105 transition-transform">
-                <span className="material-symbols-outlined text-[20px]">storefront</span>
+          <div className="h-16 px-5 flex items-center justify-between border-b border-outline-variant/50">
+            <Link to="/admin" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center font-bold text-sm shadow-xs group-hover:scale-105 transition-transform">
+                <Store className="w-4 h-4" />
               </div>
-              <div className="flex flex-col flex-1">
-                <span className="font-headline-sm text-headline-sm text-on-surface leading-tight">
-                  Nexa Admin
+              <div className="flex flex-col">
+                <span className="text-sm font-bold tracking-tight text-on-surface leading-tight">
+                  NexaStore
                 </span>
-                <span className="font-body-sm text-body-sm text-on-surface-variant leading-none">
-                  Store Console
+                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider leading-none">
+                  Admin Console
                 </span>
               </div>
             </Link>
@@ -58,207 +74,216 @@ export function AdminSidebar({ isMobileOpen = false, onCloseMobile }: AdminSideb
               type="button"
               onClick={onCloseMobile}
               className="lg:hidden p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface cursor-pointer"
+              aria-label="Close navigation"
             >
-              <span className="material-symbols-outlined text-[20px]">close</span>
+              <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Navigation Structure */}
-          <nav className="flex flex-col gap-space-md px-space-md py-space-md">
+          <nav className="flex flex-col gap-4 p-3.5">
             {/* 1. OVERVIEW */}
-            <div className="flex flex-col gap-space-xs">
-              <span className="px-space-sm font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+            <div className="flex flex-col gap-1">
+              <span className="px-2.5 text-[10px] font-bold uppercase tracking-wider text-outline">
                 Overview
               </span>
               <Link
                 to="/admin"
                 onClick={onCloseMobile}
-                className={`flex items-center justify-between px-space-sm py-space-sm rounded-xl transition-all ${
+                className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                   isCurrent('/admin')
-                    ? 'bg-primary-container text-on-primary font-semibold shadow-sm'
+                    ? 'bg-primary text-on-primary font-semibold shadow-xs'
                     : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                 }`}
               >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px]">dashboard</span>
-                  <span className="font-body-md text-body-md">Dashboard</span>
+                <div className="flex items-center gap-2.5">
+                  <LayoutDashboard className="w-4 h-4 shrink-0" />
+                  <span>Dashboard Overview</span>
                 </div>
               </Link>
             </div>
 
             {/* 2. COMMERCE */}
-            <div className="flex flex-col gap-space-xs">
-              <span className="px-space-sm font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+            <div className="flex flex-col gap-1">
+              <span className="px-2.5 text-[10px] font-bold uppercase tracking-wider text-outline">
                 Commerce
               </span>
               <Link
-                to="/admin"
+                to="/admin/orders"
                 onClick={onCloseMobile}
-                className="flex items-center justify-between px-space-sm py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+                className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                  isCurrent('/admin/orders')
+                    ? 'bg-primary text-on-primary font-semibold shadow-xs'
+                    : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                }`}
               >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px]">shopping_bag</span>
-                  <span className="font-body-md text-body-md">Orders</span>
+                <div className="flex items-center gap-2.5">
+                  <ShoppingBag className="w-4 h-4 shrink-0" />
+                  <span>Orders</span>
                 </div>
-                <span className="font-label-caps text-label-caps px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-semibold">
+                <span
+                  className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                    isCurrent('/admin/orders')
+                      ? 'bg-white/20 text-white'
+                      : 'bg-amber-500/10 text-amber-600'
+                  }`}
+                >
                   14 pending
                 </span>
               </Link>
+
               <Link
                 to="/admin/products"
                 onClick={onCloseMobile}
-                className={`flex items-center justify-between px-space-sm py-space-sm rounded-xl transition-all ${
+                className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                   isCurrent('/admin/products')
-                    ? 'bg-primary-container text-on-primary font-semibold shadow-sm'
+                    ? 'bg-primary text-on-primary font-semibold shadow-xs'
                     : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                 }`}
               >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px]">inventory_2</span>
-                  <span className="font-body-md text-body-md">Products &amp; Catalog</span>
+                <div className="flex items-center gap-2.5">
+                  <Package className="w-4 h-4 shrink-0" />
+                  <span>Products &amp; Catalog</span>
                 </div>
               </Link>
+
               <Link
                 to="/admin/categories"
                 onClick={onCloseMobile}
-                className={`flex items-center justify-between px-space-sm py-space-sm rounded-xl transition-all ${
+                className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                   isCurrent('/admin/categories')
-                    ? 'bg-primary-container text-on-primary font-semibold shadow-sm'
+                    ? 'bg-primary text-on-primary font-semibold shadow-xs'
                     : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                 }`}
               >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px]">category</span>
-                  <span className="font-body-md text-body-md">Categories</span>
+                <div className="flex items-center gap-2.5">
+                  <FolderTree className="w-4 h-4 shrink-0" />
+                  <span>Categories &amp; Taxonomy</span>
                 </div>
               </Link>
+
               <Link
                 to="/admin"
                 onClick={onCloseMobile}
-                className="flex items-center justify-between px-space-sm py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
               >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px]">warehouse</span>
-                  <span className="font-body-md text-body-md">Inventory &amp; Stock</span>
+                <div className="flex items-center gap-2.5">
+                  <Warehouse className="w-4 h-4 shrink-0" />
+                  <span>Inventory &amp; Stock</span>
                 </div>
-                <span className="font-label-caps text-label-caps px-space-xs py-0.5 rounded-full bg-error-container text-on-error-container font-semibold">
+                <span className="px-1.5 py-0.5 rounded-md bg-error/10 text-error text-[10px] font-bold">
                   5 low
                 </span>
               </Link>
             </div>
 
             {/* 3. CUSTOMERS & MARKETING */}
-            <div className="flex flex-col gap-space-xs">
-              <span className="px-space-sm font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
-                Customers &amp; Marketing
+            <div className="flex flex-col gap-1">
+              <span className="px-2.5 text-[10px] font-bold uppercase tracking-wider text-outline">
+                Customers &amp; Growth
               </span>
               <Link
                 to="/admin"
                 onClick={onCloseMobile}
-                className="flex items-center justify-between px-space-sm py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
               >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px]">group</span>
-                  <span className="font-body-md text-body-md">Customers</span>
+                <div className="flex items-center gap-2.5">
+                  <Users className="w-4 h-4 shrink-0" />
+                  <span>Customers</span>
                 </div>
               </Link>
               <Link
                 to="/admin"
                 onClick={onCloseMobile}
-                className="flex items-center justify-between px-space-sm py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
               >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px]">reviews</span>
-                  <span className="font-body-md text-body-md">Reviews &amp; UGC</span>
+                <div className="flex items-center gap-2.5">
+                  <Star className="w-4 h-4 shrink-0" />
+                  <span>Reviews &amp; Ratings</span>
                 </div>
               </Link>
               <Link
                 to="/admin"
                 onClick={onCloseMobile}
-                className="flex items-center justify-between px-space-sm py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
               >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px]">loyalty</span>
-                  <span className="font-body-md text-body-md">Promotions &amp; Coupons</span>
+                <div className="flex items-center gap-2.5">
+                  <Tag className="w-4 h-4 shrink-0" />
+                  <span>Promotions &amp; Codes</span>
                 </div>
               </Link>
             </div>
 
             {/* 4. ANALYTICS & OPS */}
-            <div className="flex flex-col gap-space-xs">
-              <span className="px-space-sm font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
-                Analytics &amp; Ops
+            <div className="flex flex-col gap-1">
+              <span className="px-2.5 text-[10px] font-bold uppercase tracking-wider text-outline">
+                Analytics &amp; System
               </span>
               <Link
                 to="/admin"
                 onClick={onCloseMobile}
-                className="flex items-center justify-between px-space-sm py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
               >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px]">monitoring</span>
-                  <span className="font-body-md text-body-md">Reports &amp; Analytics</span>
+                <div className="flex items-center gap-2.5">
+                  <BarChart3 className="w-4 h-4 shrink-0" />
+                  <span>Reports &amp; Analytics</span>
                 </div>
               </Link>
               <Link
                 to="/admin"
                 onClick={onCloseMobile}
-                className="flex items-center justify-between px-space-sm py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
               >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px]">badge</span>
-                  <span className="font-body-md text-body-md">Employees &amp; Roles</span>
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="w-4 h-4 shrink-0" />
+                  <span>Employees &amp; Roles</span>
                 </div>
               </Link>
               <Link
                 to="/admin"
                 onClick={onCloseMobile}
-                className="flex items-center justify-between px-space-sm py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
               >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px]">settings</span>
-                  <span className="font-body-md text-body-md">Store Settings</span>
+                <div className="flex items-center gap-2.5">
+                  <Settings className="w-4 h-4 shrink-0" />
+                  <span>Store Settings</span>
                 </div>
               </Link>
             </div>
 
-            {/* Quick exit to customer storefront */}
-            <div className="pt-space-xs border-t border-outline-variant/15">
+            {/* Storefront Link */}
+            <div className="pt-2 border-t border-outline-variant/40">
               <Link
                 to="/"
                 onClick={onCloseMobile}
-                className="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-primary hover:bg-surface-container-high transition-colors font-body-sm font-medium"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-primary hover:bg-primary/10 transition-colors text-xs font-semibold"
               >
-                <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-                <span>View Customer Storefront</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>View Customer Store</span>
               </Link>
             </div>
           </nav>
         </div>
 
-        {/* Bottom profile card / system status */}
-        <div className="p-space-md m-space-sm rounded-xl bg-surface-container-low flex flex-col gap-space-sm border border-outline-variant/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-space-xs">
-              <span className="w-2 h-2 rounded-full bg-secondary" />
-              <span className="font-label-caps text-label-caps text-on-surface-variant">API Healthy</span>
+        {/* Bottom Profile & Status Card */}
+        <div className="p-3 m-3 rounded-xl bg-surface-container-low/60 border border-outline-variant/60 flex flex-col gap-2.5">
+          <div className="flex items-center justify-between text-[11px] text-on-surface-variant">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-semibold text-on-surface">API Healthy</span>
             </div>
-            <span className="font-label-caps text-label-caps text-on-surface-variant font-mono">
-              v2.14.0
-            </span>
+            <span className="font-mono text-[10px] text-outline">v2.14.0</span>
           </div>
 
-          <div className="flex items-center gap-space-sm">
-            <div className="relative">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-xs uppercase">
-                {userName[0]}
-              </div>
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-secondary-container ring-2 ring-surface-container-low" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-primary text-on-primary flex items-center justify-center font-bold text-xs">
+              {userName[0]}
             </div>
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="font-body-sm text-body-sm font-semibold text-on-surface truncate">
+              <span className="text-xs font-semibold text-on-surface truncate">
                 {userName}
               </span>
-              <span className="font-label-caps text-label-caps text-on-surface-variant truncate">
+              <span className="text-[10px] text-on-surface-variant truncate">
                 {userRole}
               </span>
             </div>
@@ -268,4 +293,3 @@ export function AdminSidebar({ isMobileOpen = false, onCloseMobile }: AdminSideb
     </>
   )
 }
-

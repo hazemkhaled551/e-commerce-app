@@ -7,11 +7,11 @@ export function SocialAuthButtons({
   onGoogleClick,
 }: SocialAuthButtonsProps) {
   return (
-    <div className="grid grid-cols-1 gap-space-sm mb-space-lg">
+    <div className="grid grid-cols-1 gap-3 mb-6">
       <button
         type="button"
         onClick={onGoogleClick}
-        className="group flex items-center justify-center gap-space-sm h-11 px-space-md bg-surface-container-lowest hover:bg-surface-container-low transition-all duration-200 rounded-lg shadow-xs hover:shadow-sm active:scale-[0.99] border border-outline-variant/30 cursor-pointer"
+        className="group flex items-center justify-center gap-3 h-11 px-4 bg-surface-container-lowest hover:bg-surface-container-low transition-all duration-200 rounded-xl shadow-xs hover:shadow-sm active:scale-[0.99] border border-outline-variant/70 cursor-pointer"
       >
         <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
           <path
@@ -31,12 +31,10 @@ export function SocialAuthButtons({
             fill="#EA4335"
           />
         </svg>
-        <span className="font-body-md text-body-md text-on-surface font-medium group-hover:text-primary transition-colors">
-          Google
+        <span className="text-sm text-on-surface font-medium group-hover:text-primary transition-colors">
+          Continue with Google
         </span>
       </button>
-
-    
     </div>
   )
 }

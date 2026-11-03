@@ -1,11 +1,13 @@
-import { useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProducts } from '../hooks/useProducts'
 import { ProductCard } from '../components/ProductCard'
 import { ProductDetailModal } from '../components/ProductDetailModal'
 import { HeroSlider } from '../components/HeroSlider'
-import { TrustCard } from '@/components/ui/TrustCard'
-import { CategoryCard } from '@/components/ui/CategoryCard'
+import { CuratedCollectionsGrid } from '../components/CuratedCollectionsGrid'
+import { FlagshipSpotlight } from '../components/FlagshipSpotlight'
+import { ProductDiscoveryToolbar } from '../components/ProductDiscoveryToolbar'
+import { CraftManifesto } from '../components/CraftManifesto'
 import { PromoBanner } from '@/components/ui/PromoBanner'
 import { TestimonialCard } from '@/components/ui/TestimonialCard'
 import { NewsletterCard } from '@/components/ui/NewsletterCard'
@@ -21,9 +23,16 @@ export function ProductsPage() {
     changeCategory,
     selectedCategory,
     searchQuery,
+    changeSearch,
+    sortBy,
+    changeSort,
   } = useProducts()
 
   const { addItem, changeQuantity } = useCart()
+
+  // Local discovery interaction states
+  const [inStockOnly, setInStockOnly] = useState(false)
+  const [viewMode, setViewMode] = useState<'grid' | 'detailed'>('grid')
 
   const handleProductClick = useCallback(
     (product: Product) => {
@@ -46,36 +55,45 @@ export function ProductsPage() {
     [addItem, changeQuantity]
   )
 
+  // Filter by inStock status if toggle is active
+  const filteredProducts = useMemo(() => {
+    if (!inStockOnly) return products
+    return products.filter((p) => p.stockStatus !== 'out-of-stock')
+  }, [products, inStockOnly])
+
   // Split products into Featured Highlights and Best Sellers
-  const hasCuratedIds = products.some((p) => p.id >= 100)
+  const hasCuratedIds = filteredProducts.some((p) => p.id >= 100)
   const featuredProducts = hasCuratedIds
-    ? products.filter((p) => p.id >= 100 && p.id < 200)
-    : products.slice(0, Math.ceil(products.length / 2))
+    ? filteredProducts.filter((p) => p.id >= 100 && p.id < 200)
+    : filteredProducts.slice(0, Math.ceil(filteredProducts.length / 2))
   const bestSellers = hasCuratedIds
-    ? products.filter((p) => p.id >= 200)
-    : products.slice(Math.ceil(products.length / 2))
+    ? filteredProducts.filter((p) => p.id >= 200)
+    : filteredProducts.slice(Math.ceil(filteredProducts.length / 2))
+
+  // Find the flagship hero spotlight item (AeroSound Pro or first available product)
+  const spotlightProduct = products.find((p) => p.id === 101) || products[0]
 
   // Curated category collections with high-res Google-hosted images
   const categories = [
     {
-      title: 'Electronics & Audio',
-      subtitle: 'Acoustics & power gear',
-      productCount: 14,
-      imageUrl:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuCyp-SMvxJD6rbwCWVtXzNfLqdGLxqATItUfNQ5_pcrADcpMKznht-ZVXWR_BnDC8TnvfArgZWEzv3Tf8dPiA_R6w9rIrO23jEUUdP9COCxjKcOoNSq_1a6EVjahkdsgkgWego9ndgzTV2RoZJRkwWo7mn8y2aXs_4l236090QJNPvBAYnvedoWb798tKwe5yEZs1en2GAwKttzvvF7UyknniAJ7I_lo8wZOqiEhNWGDfrbdckRc6OIrw',
-      id: 'electronics',
-    },
-    {
       title: 'Workspace & Ergonomics',
-      subtitle: 'Task chairs & desk organizers',
+      subtitle: 'Solid American walnut risers, standing frames & task seating',
       productCount: 8,
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuDchRGwwZYoaJLvCafsmdsQhkIj7Uxy0dYcnnhkT9O1i6-r3pQ-PKuHfcVLel0eoMzpT5g64xMTxG5G3Rj0KT19yZREVX1M6c9wyAsFz6g0SGXy3Zk7vW2or6uGs7E0DseufhUddvFsyqi5lRRvD_os8GcWOcW9lPGBjYU5IrIUhe_L1E5xR2d_7AJ2MUj9OCN5_Skm5Z4YzRiiiLpmdeDyWH-rrYads2V1zENMtY_5aK_oy-AO9Rzojg',
       id: 'workspace',
     },
     {
+      title: 'Electronics & Audio',
+      subtitle: 'Studio acoustic drivers, DAC interfaces & GaN chargers',
+      productCount: 14,
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuCyp-SMvxJD6rbwCWVtXzNfLqdGLxqATItUfNQ5_pcrADcpMKznht-ZVXWR_BnDC8TnvfArgZWEzv3Tf8dPiA_R6w9rIrO23jEUUdP9COCxjKcOoNSq_1a6EVjahkdsgkgWego9ndgzTV2RoZJRkwWo7mn8y2aXs_4l236090QJNPvBAYnvedoWb798tKwe5yEZs1en2GAwKttzvvF7UyknniAJ7I_lo8wZOqiEhNWGDfrbdckRc6OIrw',
+      id: 'electronics',
+    },
+    {
       title: 'Kitchen & Culinary',
-      subtitle: 'Precision Dutch ovens & kettles',
+      subtitle: 'Matte enameled cast iron & induction kettles',
       productCount: 12,
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuDSMUL2K2Cd6SU_3DtVU1LD-JnfUDMO7FmrOcLEgfaGhORYqDfRHTR-kTYnQUJUsnqpWQbDmzNnzZ_3K1Tzt0d122iEx2z7X0YqXLRAXPimU9H13WabhhB5EODmywKugh3ALRFn56GmFoDVnkEQUqinbDnIjU3ve4vSd7pX-BRbxyC_FTBRQBb76KX_vK8jAaMxN6P-Zd-2vknoPgDTRXuA163WJWLs2ejnPnCk22-kJv_iNQaqb7gfHQ',
@@ -83,7 +101,7 @@ export function ProductsPage() {
     },
     {
       title: 'Everyday & Outdoors',
-      subtitle: 'Thermal flasks & travel EDC',
+      subtitle: 'Vacuum-sealed titanium flasks & modular EDC',
       productCount: 6,
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuCtZxgu0kIWHyCB0Ezw14JNb6gOIGFGFDkIAo7S6Jspr9Kjk641DnexgYej7NzU193eA7U2gVczCuESHgY_kOYV7it3xyUo3_dg85jBI-3ZIs_pTnNVZEJKrFw3Fde8mpw-qNdqcUWvWoB03lMy3uvvBi7QOGeOj3GVhJglVQcH-lRlhoQ8APryAea3CDpXUsPv9qaa6svH3lNmGJ4Ai-EQniSJQMdbLTAEZ3fuNITsN9QI-x01nwvRkA',
@@ -91,24 +109,41 @@ export function ProductsPage() {
     },
   ]
 
+  // Category filter tabs for inline discovery toolbar
+  const categoryTabs = [
+    { id: 'electronics', label: 'Audio & Acoustics' },
+    { id: 'workspace', label: 'Desk & Workspace' },
+    { id: 'kitchen', label: 'Kitchen & Culinary' },
+    { id: 'outdoors', label: 'Everyday & EDC' },
+  ]
+
+  const handleResetFilters = useCallback(() => {
+    changeCategory('all')
+    changeSearch('')
+    setInStockOnly(false)
+  }, [changeCategory, changeSearch])
+
   // Testimonials with verified buyer proof
   const testimonials = [
     {
-      quote: 'Exceptional heat distribution and artisanal glaze finish. Heats evenly across my induction stove!',
+      quote:
+        'Exceptional heat distribution and artisanal glaze finish. Heats evenly across my induction stove and cleans like new every time.',
       author: 'Sarah Jenkins',
-      role: 'Gold VIP Member • Cast & Clay Dutch Oven',
+      role: 'VIP Member • Cast & Clay Dutch Oven',
       rating: 5,
     },
     {
-      quote: 'Incredible sound isolation and marathon battery life. The ANC rivaled my $400 over-ear set!',
+      quote:
+        'Incredible acoustic isolation and marathon battery life. The 42dB ANC rivaled my studio over-ear set during cross-country flights.',
       author: 'Marcus Brody',
       role: 'Verified Audiophile • AeroSound Pro',
       rating: 5,
     },
     {
-      quote: 'Comfortable mesh seat, sturdy bracket build, fantastic ergonomics for an 8-hour workday.',
+      quote:
+        'Solid walnut deck, smooth dual-motor action, and exceptional ergonomics. My workspace posture improved on day one.',
       author: 'Liam Patel',
-      role: 'Software Architect • ErgoMesh Chair',
+      role: 'Software Architect • ErgoMesh Chair & Desk',
       rating: 5,
     },
   ]
@@ -122,125 +157,115 @@ export function ProductsPage() {
         <HeroSlider
           onSelectCategory={(category) => {
             changeCategory(category)
+            document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' })
           }}
           onExploreCategories={() => {
-            document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })
+            document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' })
           }}
         />
 
-        {/* Trust Strip directly below Full-Width Hero Slider */}
-        <section className="max-w-7xl mx-auto px-6 lg:px-12 pt-8 pb-4 w-full">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <TrustCard
-              icon={<span className="material-symbols-outlined text-xl">local_shipping</span>}
-              title="Free 2-Day Shipping"
-              description="On domestic orders $99+"
-            />
-            <TrustCard
-              icon={<span className="material-symbols-outlined text-xl">published_with_changes</span>}
-              title="30-Day Risk-Free Trial"
-              description="Easy prepaid return labels"
-            />
-            <TrustCard
-              icon={<span className="material-symbols-outlined text-xl">verified</span>}
-              title="2-Year Warranty"
-              description="Official hardware cover"
-            />
-            <TrustCard
-              icon={<span className="material-symbols-outlined text-xl">security</span>}
-              title="Zero-Spam Checkout"
-              description="Encrypted private details"
-            />
-          </div>
-        </section>
+        {/* ============================================================ */}
+        {/* 2. Curated Pillar Collections (Asymmetric Editorial Grid) */}
+        {/* ============================================================ */}
+        <CuratedCollectionsGrid
+          collections={categories}
+          onSelectCategory={(categoryId) => {
+            changeCategory(categoryId)
+          }}
+        />
 
         {/* ============================================================ */}
-        {/* 2. Shop by Category (Curated Collections) */}
+        {/* 3. The Flagship Spotlight (Industrial Deep-Dive) */}
         {/* ============================================================ */}
-        <section className="max-w-7xl mx-auto px-6 lg:px-12 py-10 w-full" id="categories">
-          <div className="flex flex-col sm:flex-row items-baseline justify-between mb-8 gap-2">
+        <FlagshipSpotlight
+          product={spotlightProduct}
+          onAddToCart={handleAddToCart}
+          onQuickView={handleProductClick}
+        />
+
+        {/* ============================================================ */}
+        {/* 4. Curated Catalog Section with Full Discovery Toolbar */}
+        {/* ============================================================ */}
+        <section
+          className="max-w-7xl mx-auto px-6 lg:px-12 py-12 w-full"
+          id="catalog-section"
+        >
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4 pb-4 border-b border-outline-variant/60">
             <div>
-              <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">
-                Curated Collections
+              <span className="text-xs font-semibold text-primary tracking-wider uppercase">
+                Featured Highlights
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-on-surface tracking-tight mt-1">
+                Precision Hardware &amp; Daily Artifacts
               </h2>
-              <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-                Explore precision-built products by category
+              <p className="text-sm text-on-surface-variant mt-1.5 leading-relaxed">
+                Explore individual equipment engineered with durable craft ({featuredProducts.length} items available)
               </p>
             </div>
+
             <button
               type="button"
-              onClick={() => changeCategory('all')}
-              className="text-primary font-body-sm text-body-sm font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer"
+              onClick={handleResetFilters}
+              className="text-primary hover:text-secondary text-sm font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer self-start md:self-end"
             >
-              <span>Browse Complete Catalog</span>
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              <span>Reset All Filters</span>
+              <span className="material-symbols-outlined text-base">restart_alt</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((cat) => (
-              <CategoryCard
-                key={cat.id}
-                title={cat.title}
-                subtitle={cat.subtitle}
-                productCount={cat.productCount}
-                imageUrl={cat.imageUrl}
-                onClick={() => changeCategory(cat.id)}
-              />
-            ))}
-          </div>
-        </section>
+          {/* Interactive Discovery Toolbar (Categories + In-Stock + Sorting + View Mode) */}
+          <ProductDiscoveryToolbar
+            categories={categoryTabs}
+            activeCategory={selectedCategory}
+            onSelectCategory={(catId) => {
+              changeCategory(catId)
+            }}
+            totalCount={products.length}
+            sortBy={sortBy}
+            onSortChange={changeSort}
+            searchQuery={searchQuery}
+            onSearchChange={changeSearch}
+            inStockOnly={inStockOnly}
+            onToggleInStock={() => setInStockOnly((prev) => !prev)}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            onClearAllFilters={handleResetFilters}
+          />
 
-        {/* ============================================================ */}
-        {/* 3. Featured Highlights */}
-        {/* ============================================================ */}
-        <section className="max-w-7xl mx-auto px-6 lg:px-12 py-10 w-full" id="featured">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">
-                  Featured Highlights
-                </h2>
-                {selectedCategory !== 'all' && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary text-on-primary">
-                    Filtered: {selectedCategory}
-                  </span>
-                )}
-              </div>
-              <p className="font-body-md text-body-md text-on-surface-variant mt-0.5">
-                Top-rated equipment engineered for daily performance ({featuredProducts.length} items)
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => changeCategory('all')}
-              className="text-primary font-body-sm text-body-sm font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer"
-            >
-              <span>View All Products</span>
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
-            </button>
-          </div>
-
+          {/* Products Grid / Empty State */}
           {featuredProducts.length === 0 ? (
-            <div className="bg-surface-container-lowest rounded-2xl p-8 text-center border border-outline-variant/30">
-              <span className="material-symbols-outlined text-4xl text-outline mb-2">search_off</span>
-              <p className="font-body-md text-on-surface font-semibold">
-                No featured products found for current filter &ldquo;{searchQuery || selectedCategory}&rdquo;
+            <div className="bg-surface-container-lowest rounded-3xl p-12 text-center border border-outline-variant/50 max-w-lg mx-auto my-8 shadow-xs">
+              <div className="w-12 h-12 rounded-full bg-surface-container text-primary flex items-center justify-center mx-auto mb-3">
+                <span className="material-symbols-outlined text-2xl">search_off</span>
+              </div>
+              <h3 className="text-base font-bold text-on-surface mb-1">
+                No matching hardware found
+              </h3>
+              <p className="text-xs sm:text-sm text-on-surface-variant mb-4">
+                No items match your active filters &ldquo;{searchQuery || selectedCategory}&rdquo;.
               </p>
               <button
                 type="button"
-                onClick={() => changeCategory('all')}
-                className="mt-3 text-primary text-sm font-bold hover:underline"
+                onClick={handleResetFilters}
+                className="bg-primary hover:bg-secondary text-on-primary font-semibold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm"
               >
-                Reset Filter to All
+                Clear All Filters
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div
+              className={
+                viewMode === 'detailed'
+                  ? 'grid grid-cols-1 md:grid-cols-2 gap-6'
+                  : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'
+              }
+            >
               {featuredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}
+                  viewMode={viewMode}
                   actionType="add-to-cart"
                   onQuickView={handleProductClick}
                   onAddToCart={handleAddToCart}
@@ -251,13 +276,13 @@ export function ProductsPage() {
         </section>
 
         {/* ============================================================ */}
-        {/* 4. Promotional Banner */}
+        {/* 5. Promotional Capsule Section */}
         {/* ============================================================ */}
         <section className="max-w-7xl mx-auto px-6 lg:px-12 py-6 w-full">
           <PromoBanner
-            badge="Seasonal Privilege"
+            badge="Seasonal Capsule"
             headline="Spring Equinox Collection — Up to 25% Off Storewide"
-            description="Upgrade your work-from-home sanctuary with studio-grade sound and ergonomic seating designed for endurance."
+            description="Upgrade your daily sanctuary with studio-grade sound and ergonomic seating designed for endurance."
             couponCode="SPRING25"
             couponRequirement="Min $100 order"
             buttonText="Claim Spring Discount"
@@ -268,47 +293,44 @@ export function ProductsPage() {
         </section>
 
         {/* ============================================================ */}
-        {/* 5. Customer Favorites & Best Sellers */}
+        {/* 6. Customer Favorites & Best Sellers Shelf */}
         {/* ============================================================ */}
-        <section className="max-w-7xl mx-auto px-6 lg:px-12 py-10 w-full" id="bestsellers">
-          <div className="flex items-center justify-between mb-8">
+        <section className="max-w-7xl mx-auto px-6 lg:px-12 py-12 w-full" id="bestsellers">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 pb-4 border-b border-outline-variant/60">
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">
-                  Customer Favorites &amp; Best Sellers
-                </h2>
-                {selectedCategory !== 'all' && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary text-on-primary">
-                    Filtered: {selectedCategory}
-                  </span>
-                )}
-              </div>
-              <p className="font-body-md text-body-md text-on-surface-variant mt-0.5">
-                Reliable essentials verified by thousands of satisfied creators ({bestSellers.length} items)
+              <span className="text-xs font-semibold text-primary tracking-wider uppercase">
+                Proven Classics
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-on-surface tracking-tight mt-1">
+                Customer Favorites &amp; Best Sellers
+              </h2>
+              <p className="text-sm text-on-surface-variant mt-1.5 leading-relaxed">
+                Trusted gear verified by thousands of satisfied creators ({bestSellers.length} items)
               </p>
             </div>
+
             <button
               type="button"
               onClick={() => changeCategory('all')}
-              className="text-primary font-body-sm text-body-sm font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer"
+              className="text-primary hover:text-secondary text-sm font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer self-start sm:self-end"
             >
-              <span>View Best Sellers</span>
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              <span>Explore All Favorites</span>
+              <span className="material-symbols-outlined text-base">arrow_forward</span>
             </button>
           </div>
 
           {bestSellers.length === 0 ? (
-            <div className="bg-surface-container-lowest rounded-2xl p-8 text-center border border-outline-variant/30">
-              <span className="material-symbols-outlined text-4xl text-outline mb-2">search_off</span>
-              <p className="font-body-md text-on-surface font-semibold">
-                No best sellers found for current filter &ldquo;{searchQuery || selectedCategory}&rdquo;
+            <div className="bg-surface-container-lowest rounded-3xl p-12 text-center border border-outline-variant/50 max-w-lg mx-auto my-8 shadow-xs">
+              <span className="material-symbols-outlined text-3xl text-outline mb-2">inventory_2</span>
+              <p className="text-sm text-on-surface font-semibold">
+                No best sellers found for current filter.
               </p>
               <button
                 type="button"
-                onClick={() => changeCategory('all')}
-                className="mt-3 text-primary text-sm font-bold hover:underline"
+                onClick={handleResetFilters}
+                className="mt-3 text-primary text-xs font-bold hover:underline"
               >
-                Reset Filter to All
+                Reset Filters
               </button>
             </div>
           ) : (
@@ -317,6 +339,7 @@ export function ProductsPage() {
                 <ProductCard
                   key={product.id}
                   product={product}
+                  viewMode="grid"
                   actionType="quick-view"
                   onQuickView={handleProductClick}
                   onAddToCart={handleAddToCart}
@@ -327,62 +350,29 @@ export function ProductsPage() {
         </section>
 
         {/* ============================================================ */}
-        {/* 6. Why Shop With Us (4-Column Value Prop) */}
+        {/* 7. Engineering & Materiality Manifesto (The 4 Pillars) */}
         {/* ============================================================ */}
-        <section className="max-w-7xl mx-auto px-6 lg:px-12 py-10 w-full">
-          <div className="text-center max-w-xl mx-auto mb-10">
-            <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">
-              Built on Complete Transparency
-            </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-              Our engineering standards extend to your entire purchasing experience.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <TrustCard
-              variant="vertical"
-              icon={<span className="material-symbols-outlined text-2xl">speed</span>}
-              title="Express Insured Dispatch"
-              description="Orders ship within 4 hours from regional fulfillment hubs, covered by full transport guarantee."
-            />
-            <TrustCard
-              variant="vertical"
-              icon={<span className="material-symbols-outlined text-2xl">autorenew</span>}
-              title="30-Day Zero-Risk Returns"
-              description="Self-service prepaid return labels generated in under 60 seconds with no restocking penalty."
-            />
-            <TrustCard
-              variant="vertical"
-              icon={<span className="material-symbols-outlined text-2xl">verified_user</span>}
-              title="2-Year Hardware Warranty"
-              description="Comprehensive defect replacement and certified direct repair support on all mechanical parts."
-            />
-            <TrustCard
-              variant="vertical"
-              icon={<span className="material-symbols-outlined text-2xl">support_agent</span>}
-              title="24/7 Concierge Support"
-              description="Live human assistance via chat, phone, or verified ticketing with zero automated runaround."
-            />
-          </div>
-        </section>
+        <CraftManifesto />
 
         {/* ============================================================ */}
-        {/* 7. Customer Reviews & Social Proof */}
+        {/* 8. Customer Reviews & Social Proof */}
         {/* ============================================================ */}
-        <section className="max-w-7xl mx-auto px-6 lg:px-12 py-10 w-full">
-          <div className="flex items-center justify-between mb-8">
+        <section className="max-w-7xl mx-auto px-6 lg:px-12 py-12 w-full">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 pb-4 border-b border-outline-variant/60">
             <div>
-              <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">
-                Verified Buyer Experiences
+              <span className="text-xs font-semibold text-primary tracking-wider uppercase">
+                Verified Feedback
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-on-surface tracking-tight mt-1">
+                Authentic Buyer Experiences
               </h2>
-              <p className="font-body-md text-body-md text-on-surface-variant mt-0.5">
-                Authentic feedback from real daily users
+              <p className="text-sm text-on-surface-variant mt-1.5 leading-relaxed">
+                Genuine impressions from daily users across studio and culinary spaces
               </p>
             </div>
-            <div className="flex items-center gap-1 text-sm font-bold text-on-surface">
+            <div className="flex items-center gap-1.5 text-sm font-bold text-on-surface self-start sm:self-end bg-surface-container-lowest px-3 py-1.5 rounded-xl border border-outline-variant/50 shadow-xs">
               <span className="text-stock-low">★★★★★</span>
-              <span>4.9/5 Overall Store Rating</span>
+              <span>4.9 / 5.0 Global Rating</span>
             </div>
           </div>
 
@@ -400,10 +390,14 @@ export function ProductsPage() {
         </section>
 
         {/* ============================================================ */}
-        {/* 8. Newsletter Subscription Section */}
+        {/* 9. Drop Dispatch & Journal Newsletter */}
         {/* ============================================================ */}
-        <section className="max-w-7xl mx-auto px-6 lg:px-12 py-10 w-full">
-          <NewsletterCard />
+        <section className="max-w-7xl mx-auto px-6 lg:px-12 py-12 w-full">
+          <NewsletterCard
+            title="Join the Nexa Store Hardware Dispatch"
+            description="Receive weekly design notes, material deep-dives, firmware updates, and private drop access before general release."
+            disclaimer="No marketing spam. Unsubscribe with one click anytime."
+          />
         </section>
       </div>
 

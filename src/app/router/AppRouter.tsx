@@ -16,6 +16,12 @@ const ProductDetailPage = lazy(() =>
 const DashboardOverviewPage = lazy(() =>
   import('@/features/dashboard').then((m) => ({ default: m.DashboardOverviewPage }))
 )
+const OrdersPage = lazy(() =>
+  import('@/features/dashboard').then((m) => ({ default: m.OrdersPage }))
+)
+const OrderDetailPage = lazy(() =>
+  import('@/features/dashboard').then((m) => ({ default: m.OrderDetailPage }))
+)
 const ProductsCatalogPage = lazy(() =>
   import('@/features/dashboard').then((m) => ({ default: m.ProductsCatalogPage }))
 )
@@ -58,6 +64,8 @@ export function AppRouter() {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<DashboardOverviewPage />} />
         <Route path="dashboard" element={<DashboardOverviewPage />} />
+        <Route path="orders" element={<OrdersPage />} />
+        <Route path="orders/:id" element={<OrderDetailPage />} />
         <Route path="products" element={<ProductsCatalogPage />} />
         <Route path="products/new" element={<ProductEditPage />} />
         <Route path="products/:id/edit" element={<ProductEditPage />} />

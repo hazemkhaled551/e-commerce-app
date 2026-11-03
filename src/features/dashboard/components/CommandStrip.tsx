@@ -1,109 +1,113 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { Calendar, ChevronDown, Check } from 'lucide-react'
+import type { DateRangeFilter } from '../types/dashboard'
+import { DATE_RANGE_OPTIONS } from '../data/mockDashboardData'
 
 interface CommandStripProps {
-  onSync?: () => void
-  onExport?: () => void
-  onDateRangeChange?: () => void
+  currentRange?: DateRangeFilter
+  onDateRangeChange?: (filter: DateRangeFilter) => void
 }
 
-export function CommandStrip({ onSync, onExport, onDateRangeChange }: CommandStripProps) {
-  const [isSyncing, setIsSyncing] = useState(false)
-  const [lastSyncText, setLastSyncText] = useState('1m ago')
+export function CommandStrip({
+  currentRange = DATE_RANGE_OPTIONS[2], // default: 30d
+  onDateRangeChange,
+}: CommandStripProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const handleSyncClick = () => {
-    setIsSyncing(true)
-    if (onSync) onSync()
-    setTimeout(() => {
-      setIsSyncing(false)
-      setLastSyncText('just now')
-    }, 800)
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  const handleSelect = (option: DateRangeFilter) => {
+    onDateRangeChange?.(option)
+    setIsOpen(false)
   }
 
   return (
-    <section className="py-space-md flex flex-col gap-space-md">
+    <section className="py-4 flex flex-col gap-4">
       {/* Top Title Strip & Action Controls */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-space-xs">
-            <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-surface">
               Dashboard Overview
             </h1>
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-caps text-label-caps font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
-              Production Live
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 text-[11px] font-bold uppercase tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live Operations
             </span>
           </div>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-0.5">
-            Real-time store performance, order fulfillment velocity, and critical inventory alerts across all touchpoints.
+          <p className="text-xs sm:text-sm text-on-surface-variant mt-1">
+            Real-time store performance, order fulfillment velocity, and critical inventory alerts across all channels.
           </p>
         </div>
 
-        {/* Action Controls & Date Pickers */}
-        <div className="flex flex-wrap items-center gap-space-xs">
-          {/* Date Selector Preset */}
+        {/* Date Filter Dropdown (Active & API-Ready) */}
+        <div className="relative" ref={dropdownRef}>
           <button
             type="button"
-            onClick={onDateRangeChange}
-            className="h-9 px-space-sm rounded-xl bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container-low transition-colors flex items-center gap-space-xs font-body-sm text-body-sm cursor-pointer"
+            onClick={() => setIsOpen((prev) => !prev)}
+            className="h-10 px-3.5 rounded-xl bg-white text-on-surface border border-outline-variant/60 shadow-xs hover:border-primary/40 hover:bg-surface-container-low transition-all flex items-center gap-2 text-xs cursor-pointer font-medium select-none"
+            aria-expanded={isOpen}
+            aria-haspopup="listbox"
           >
-            <span className="material-symbols-outlined text-[18px] text-on-surface-variant">
-              calendar_today
+            <Calendar className="w-4 h-4 text-primary" />
+            <span className="font-bold text-on-surface">{currentRange.label}</span>
+            <span className="text-on-surface-variant hidden sm:inline font-mono">
+              {currentRange.dateRangeText}
             </span>
-            <span className="font-semibold">Last 30 Days</span>
-            <span className="text-on-surface-variant font-normal">(Mar 17 – Apr 15, 2025)</span>
-            <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
-              arrow_drop_down
-            </span>
+            <ChevronDown
+              className={`w-4 h-4 text-on-surface-variant transition-transform duration-200 ${
+                isOpen ? 'rotate-180 text-primary' : ''
+              }`}
+            />
           </button>
 
-          {/* Export Action */}
-          <button
-            type="button"
-            onClick={onExport}
-            className="h-9 px-space-sm rounded-xl bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container-low transition-colors flex items-center gap-space-xs font-body-sm text-body-sm cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[18px] text-on-surface-variant">
-              file_download
-            </span>
-            <span>Export Report</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Live Status Bar */}
-      <div className="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm px-space-sm py-1 rounded-lg bg-surface-container-low">
-        <div className="flex items-center gap-space-sm flex-wrap">
-          <span className="flex items-center gap-1.5 font-label-caps text-label-caps text-on-surface">
-            <span className="w-2 h-2 rounded-full bg-secondary" />
-            Data synced {lastSyncText}
-          </span>
-          <span className="text-outline-variant">•</span>
-          <span>
-            Auto-refresh interval: <strong className="text-on-surface font-semibold">60s</strong>
-          </span>
-          <span className="text-outline-variant">•</span>
-          <span>
-            Store Currency: <strong className="text-on-surface font-semibold">USD ($)</strong>
-          </span>
-        </div>
-
-        <div className="flex items-center gap-space-xs">
-          <button
-            type="button"
-            onClick={handleSyncClick}
-            disabled={isSyncing}
-            className="text-on-surface-variant hover:text-on-surface flex items-center gap-1 cursor-pointer transition-colors"
-          >
-            <span className={`material-symbols-outlined text-[16px] ${isSyncing ? 'animate-spin' : ''}`}>
-              sync
-            </span>
-            <span className="font-label-caps text-label-caps font-semibold">
-              {isSyncing ? 'Syncing...' : 'Sync Now'}
-            </span>
-          </button>
+          {/* Floating Dropdown Menu */}
+          {isOpen && (
+            <div className="absolute right-0 top-full mt-1.5 w-64 bg-white rounded-2xl shadow-xl border border-outline-variant/60 py-1.5 z-50 animate-fade-in">
+              <div className="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant border-b border-outline-variant/40 mb-1">
+                Filter by Date Range (API)
+              </div>
+              <div className="flex flex-col max-h-72 overflow-y-auto">
+                {DATE_RANGE_OPTIONS.map((option) => {
+                  const isSelected = currentRange.period === option.period
+                  return (
+                    <button
+                      key={option.period}
+                      type="button"
+                      onClick={() => handleSelect(option)}
+                      className={`px-3.5 py-2.5 text-xs text-left flex items-center justify-between transition-colors cursor-pointer ${
+                        isSelected
+                          ? 'bg-primary/10 text-primary font-bold'
+                          : 'text-on-surface hover:bg-surface-container-low'
+                      }`}
+                    >
+                      <div className="flex flex-col min-w-0">
+                        <span>{option.label}</span>
+                        <span className="text-[10px] text-on-surface-variant font-mono">
+                          {option.dateRangeText}
+                        </span>
+                      </div>
+                      {isSelected && <Check className="w-4 h-4 text-primary shrink-0" />}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
   )
 }
-

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useCart } from '@/features/cart'
 import { useProducts } from '../hooks/useProducts'
 import { FALLBACK_PRODUCTS } from '../api/productApi'
+import { Breadcrumbs } from '@/components/ui'
 import type { Product } from '../types/product'
 
 type TabType = 'specs' | 'overview' | 'reviews' | 'shipping'
@@ -137,6 +138,7 @@ export function ProductDetailPage() {
 
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [activeTab, setActiveTab] = useState<TabType>('specs')
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
 
   // Toast notification state
   const [toastMessage, setToastMessage] = useState<string | null>(null)
@@ -208,20 +210,14 @@ export function ProductDetailPage() {
       )}
 
       {/* Breadcrumbs Navigation */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-12 w-full py-space-md">
-        <nav className="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm flex-wrap text-left">
-          <Link to="/" className="hover:text-primary transition-colors flex items-center gap-1">
-            <span className="material-symbols-outlined text-base">home</span> Home
-          </Link>
-          <span className="material-symbols-outlined text-xs text-outline">chevron_right</span>
-          <Link to="/" className="hover:text-primary transition-colors">
-            {product.category || 'Electronics & Audio'}
-          </Link>
-          <span className="material-symbols-outlined text-xs text-outline">chevron_right</span>
-          <span className="text-on-surface font-semibold truncate max-w-xs md:max-w-none">
-            {product.title}
-          </span>
-        </nav>
+      <section className="max-w-7xl mx-auto px-6 lg:px-12 w-full py-4">
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: product.category || 'Electronics & Audio', href: '/' },
+            { label: product.title },
+          ]}
+        />
       </section>
 
       {/* Main Product Section (2-Column Grid) */}
@@ -261,16 +257,21 @@ export function ProductDetailPage() {
               {/* Hero Image */}
               <img
                 id="main-product-img"
+                onClick={() => setIsLightboxOpen(true)}
                 src={galleryImages[selectedImageIndex]?.src || product.image}
                 alt={galleryImages[selectedImageIndex]?.alt || product.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-zoom-in"
               />
 
               {/* Interactive Zoom Indicator Badge */}
-              <div className="absolute bottom-4 right-4 pointer-events-none bg-surface-container-lowest/85 backdrop-blur px-space-sm py-1 rounded-full flex items-center gap-1 text-on-surface font-body-sm text-body-sm shadow-sm">
-                <span className="material-symbols-outlined text-sm">zoom_in</span>
-                <span>Hover to enlarge view</span>
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsLightboxOpen(true)}
+                className="absolute bottom-4 right-4 bg-surface-container-lowest/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-1.5 text-on-surface font-body-sm text-xs shadow-xs hover:bg-surface-container-lowest transition-colors cursor-pointer border border-outline-variant/40"
+              >
+                <span className="material-symbols-outlined text-sm text-primary">zoom_in</span>
+                <span>Click to enlarge view</span>
+              </button>
             </div>
 
             {/* Thumbnail Strip (4-5 Angles) */}
@@ -1121,6 +1122,94 @@ export function ProductDetailPage() {
           ))}
         </div>
       </section>
+
+      {/* ============================================================ */}
+      {/* Sticky Bottom Purchase Bar for Mobile Shoppers */}
+      {/* ============================================================ */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface-container-lowest/95 backdrop-blur-md border-t border-outline-variant/60 px-4 py-3 shadow-[0_-4px_20px_rgba(36,51,49,0.08)] flex items-center justify-between gap-3 animate-fade-in">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <img
+            src={galleryImages[selectedImageIndex]?.src || product.image}
+            alt={product.title}
+            className="w-11 h-11 rounded-lg object-contain bg-surface-container-low p-1 border border-outline-variant/40 shrink-0"
+          />
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs font-bold text-on-surface truncate max-w-[140px] sm:max-w-xs">
+              {product.title}
+            </span>
+            <span className="text-sm font-extrabold text-primary">
+              ${totalPrice.toFixed(2)}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => handleAddToCart(product)}
+          className="bg-primary hover:bg-secondary text-on-primary font-semibold text-xs px-5 py-2.5 rounded-xl transition-all shadow-xs shrink-0 flex items-center gap-1.5 cursor-pointer"
+        >
+          <span className="material-symbols-outlined text-base">shopping_bag</span>
+          <span>Add to Cart</span>
+        </button>
+      </div>
+
+      {/* ============================================================ */}
+      {/* Fullscreen Gallery Lightbox Modal */}
+      {/* ============================================================ */}
+      {isLightboxOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/85 backdrop-blur-md animate-fade-in"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          <div
+            className="relative max-w-4xl max-h-[85vh] w-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsLightboxOpen(false)}
+              aria-label="Close Lightbox"
+              className="absolute -top-12 right-0 text-white hover:text-white/80 p-2 cursor-pointer rounded-full"
+            >
+              <span className="material-symbols-outlined text-3xl">close</span>
+            </button>
+            <img
+              src={galleryImages[selectedImageIndex]?.src || product.image}
+              alt={galleryImages[selectedImageIndex]?.alt || product.title}
+              className="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl"
+            />
+            {galleryImages.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedImageIndex((prev) =>
+                      prev === 0 ? galleryImages.length - 1 : prev - 1
+                    )
+                  }
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-neutral-900/60 hover:bg-neutral-900/90 text-white flex items-center justify-center backdrop-blur cursor-pointer"
+                  aria-label="Previous angle"
+                >
+                  <span className="material-symbols-outlined text-2xl">chevron_left</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedImageIndex((prev) =>
+                      (prev + 1) % galleryImages.length
+                    )
+                  }
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-neutral-900/60 hover:bg-neutral-900/90 text-white flex items-center justify-center backdrop-blur cursor-pointer"
+                  aria-label="Next angle"
+                >
+                  <span className="material-symbols-outlined text-2xl">chevron_right</span>
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

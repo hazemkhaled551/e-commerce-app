@@ -1,3 +1,5 @@
+import { DollarSign } from 'lucide-react'
+
 interface PricingSectionProps {
   basePrice: number
   comparePrice: number
@@ -34,25 +36,25 @@ export function PricingSection({
     basePrice > 0 ? Math.round(((basePrice - costPrice) / basePrice) * 1000) / 10 : 0
 
   return (
-    <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/15">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-space-xs">
-          <span className="material-symbols-outlined text-primary text-[22px]">payments</span>
-          <h2 className="font-headline-sm text-headline-sm text-on-surface">Pricing, Taxes &amp; Margins</h2>
+    <section className="bg-white rounded-xl p-6 shadow-sm flex flex-col gap-5 border border-outline-variant/60">
+      <div className="flex items-center justify-between pb-3 border-b border-outline-variant/60">
+        <div className="flex items-center gap-2">
+          <DollarSign className="w-5 h-5 text-primary" />
+          <h2 className="text-base font-semibold text-on-surface">Pricing, Taxes &amp; Margins</h2>
         </div>
-        <span className="font-label-caps text-label-caps text-on-surface-variant font-medium">
+        <span className="text-xs text-on-surface-variant font-mono font-medium">
           Currency: USD ($)
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-md">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Base Price */}
-        <div className="flex flex-col gap-space-xs">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface" htmlFor="price-base">
-            Base Price *
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface" htmlFor="price-base">
+            Base Price <span className="text-red-500">*</span>
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md text-body-md">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant font-medium text-sm">
               $
             </span>
             <input
@@ -62,25 +64,25 @@ export function PricingSection({
               min="0"
               value={basePrice || ''}
               onChange={(e) => onBasePriceChange(parseFloat(e.target.value) || 0)}
-              className="w-full h-10 pl-7 pr-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-price-md text-price-md border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+              className="w-full h-10 pl-8 pr-3 rounded-lg bg-surface-container-lowest text-on-surface font-semibold text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
             />
           </div>
         </div>
 
         {/* Compare-at Price */}
-        <div className="flex flex-col gap-space-xs">
+        <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <label className="font-body-sm text-body-sm font-semibold text-on-surface" htmlFor="price-compare">
+            <label className="text-xs font-semibold uppercase tracking-wider text-on-surface" htmlFor="price-compare">
               Compare-at Price
             </label>
             {savedPercent > 0 && (
-              <span className="font-label-caps text-label-caps text-secondary font-semibold">
-                Saved {savedPercent}%
+              <span className="text-xs text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                Save {savedPercent}%
               </span>
             )}
           </div>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md text-body-md">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant font-medium text-sm">
               $
             </span>
             <input
@@ -90,18 +92,18 @@ export function PricingSection({
               min="0"
               value={comparePrice || ''}
               onChange={(e) => onComparePriceChange(parseFloat(e.target.value) || 0)}
-              className="w-full h-10 pl-7 pr-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+              className="w-full h-10 pl-8 pr-3 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
             />
           </div>
         </div>
 
         {/* Cost per Item */}
-        <div className="flex flex-col gap-space-xs">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface" htmlFor="cost-item">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface" htmlFor="cost-item">
             Cost per Item (COGS)
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md text-body-md">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant font-medium text-sm">
               $
             </span>
             <input
@@ -111,59 +113,59 @@ export function PricingSection({
               min="0"
               value={costPrice || ''}
               onChange={(e) => onCostPriceChange(parseFloat(e.target.value) || 0)}
-              className="w-full h-10 pl-7 pr-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+              className="w-full h-10 pl-8 pr-3 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
             />
           </div>
         </div>
       </div>
 
       {/* Profit & Margin Calculation Bar */}
-      <div className="p-space-sm rounded-lg bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs border border-outline-variant/20">
-        <div className="flex items-center gap-space-sm flex-wrap">
-          <span className="w-2.5 h-2.5 rounded-full bg-secondary" />
-          <div className="flex items-center gap-space-xs">
-            <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">
+      <div className="p-3 px-4 rounded-lg bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-2 border border-outline-variant/60 shadow-xs">
+        <div className="flex items-center gap-3 flex-wrap text-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-on-surface-variant uppercase tracking-wider">
               Gross Margin:
             </span>
-            <span className="font-price-md text-price-md text-primary font-bold">
+            <span className="text-primary font-bold text-sm">
               {grossMargin}%
             </span>
           </div>
           <span className="text-outline-variant font-mono">|</span>
-          <div className="flex items-center gap-space-xs">
-            <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-on-surface-variant uppercase tracking-wider">
               Net Profit / Unit:
             </span>
-            <span className="font-price-md text-price-md text-on-surface font-bold">
+            <span className="text-on-surface font-bold text-sm font-mono">
               ${netProfit.toFixed(2)}
             </span>
           </div>
         </div>
-        <span className="font-body-sm text-body-sm text-on-surface-variant">
+        <span className="text-xs text-on-surface-variant">
           Automatic calculation active
         </span>
       </div>
 
       {/* Tax Settings */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pt-space-xs">
-        <label className="flex items-center gap-space-xs cursor-pointer">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-outline-variant/60">
+        <label className="flex items-center gap-2 cursor-pointer group">
           <input
             type="checkbox"
             checked={chargeTax}
             onChange={(e) => onChargeTaxChange(e.target.checked)}
-            className="w-4 h-4 rounded text-primary focus:ring-primary-container cursor-pointer"
+            className="w-4 h-4 rounded text-primary border-outline-variant/80 focus:ring-primary/30 cursor-pointer"
           />
-          <span className="font-body-sm text-body-sm font-semibold text-on-surface">
+          <span className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors">
             Charge sales tax on this product
           </span>
         </label>
 
-        <div className="flex items-center gap-space-xs">
-          <span className="font-label-caps text-label-caps text-on-surface-variant">Tax Profile:</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Tax Profile:</span>
           <select
             value={taxProfile}
             onChange={(e) => onTaxProfileChange(e.target.value)}
-            className="h-8 px-space-xs rounded-lg bg-surface-container text-on-surface font-body-sm text-body-sm focus:outline-none border border-outline-variant/20 cursor-pointer"
+            className="h-9 px-3 rounded-lg bg-surface-container-lowest text-on-surface text-xs border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer font-medium shadow-xs"
           >
             <option>Standard Consumer Goods (8.25%)</option>
             <option>Reduced Rate Electronics</option>
@@ -174,4 +176,3 @@ export function PricingSection({
     </section>
   )
 }
-

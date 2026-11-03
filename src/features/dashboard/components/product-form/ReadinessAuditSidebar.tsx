@@ -1,3 +1,4 @@
+import { CheckSquare, CheckCircle2, Circle, AlertCircle } from 'lucide-react'
 import type { ProductFormData } from '../../types/productForm'
 
 interface ReadinessAuditSidebarProps {
@@ -8,7 +9,10 @@ export function ReadinessAuditSidebar({ formData }: ReadinessAuditSidebarProps) 
   // Compute readiness score dynamically
   let score = 0
   const hasCover = formData.mediaItems.length > 0
-  const hasSkuAndStock = Boolean(formData.sku) && (formData.stockCount > 0 || (formData.warehouses?.reduce((acc, curr) => acc + (curr.available || 0), 0) ?? 0) > 0)
+  const hasSkuAndStock =
+    Boolean(formData.sku) &&
+    (formData.stockCount > 0 ||
+      (formData.warehouses?.reduce((acc, curr) => acc + (curr.available || 0), 0) ?? 0) > 0)
   const hasTitleAndSubtitle = Boolean(formData.title.trim()) && Boolean(formData.subtitle.trim())
   const hasPricing = formData.basePrice > 0 && formData.costPrice > 0
   const hasTags = formData.tags.length > 0
@@ -22,62 +26,70 @@ export function ReadinessAuditSidebar({ formData }: ReadinessAuditSidebarProps) 
   const hasMultiplePhotos = formData.mediaItems.length >= 3
 
   return (
-    <section className="bg-surface-container-low rounded-xl p-space-md shadow-xs flex flex-col gap-space-xs border border-outline-variant/20">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-secondary text-[20px]">task_alt</span>
-          <span className="font-body-sm text-body-sm font-bold text-on-surface">
+    <section className="bg-white rounded-xl p-5 shadow-sm flex flex-col gap-3 border border-outline-variant/60">
+      <div className="flex items-center justify-between pb-3 border-b border-outline-variant/60">
+        <div className="flex items-center gap-2">
+          <CheckSquare className="w-5 h-5 text-primary" />
+          <span className="text-base font-semibold text-on-surface">
             Publishing Readiness
           </span>
         </div>
-        <span className="font-mono text-xs font-semibold text-primary">{score}% Ready</span>
+        <span className="font-mono text-xs font-bold text-primary px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+          {score}% Ready
+        </span>
       </div>
 
       {/* Progress Track */}
-      <div className="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden my-1">
+      <div className="w-full bg-stone-100 rounded-full h-2 overflow-hidden border border-outline-variant/40">
         <div
-          className="bg-primary h-1.5 rounded-full transition-all duration-300"
+          className="bg-primary h-2 rounded-full transition-all duration-300"
           style={{ width: `${score}%` }}
         />
       </div>
 
-      <ul className="flex flex-col gap-1 text-[12px] text-on-surface-variant mt-1">
+      <ul className="flex flex-col gap-2 text-xs text-on-surface-variant mt-1">
         <li
-          className={`flex items-center gap-1.5 ${
-            hasCover ? 'text-secondary' : 'text-on-surface-variant'
+          className={`flex items-center gap-2 ${
+            hasCover ? 'text-emerald-700 font-medium' : 'text-on-surface-variant'
           }`}
         >
-          <span className="material-symbols-outlined text-[14px]">
-            {hasCover ? 'check_circle' : 'radio_button_unchecked'}
-          </span>
+          {hasCover ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <Circle className="w-4 h-4 text-stone-400 shrink-0" />
+          )}
           <span>Primary cover asset attached</span>
         </li>
 
         <li
-          className={`flex items-center gap-1.5 ${
-            hasSkuAndStock ? 'text-secondary' : 'text-on-surface-variant'
+          className={`flex items-center gap-2 ${
+            hasSkuAndStock ? 'text-emerald-700 font-medium' : 'text-on-surface-variant'
           }`}
         >
-          <span className="material-symbols-outlined text-[14px]">
-            {hasSkuAndStock ? 'check_circle' : 'radio_button_unchecked'}
-          </span>
+          {hasSkuAndStock ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <Circle className="w-4 h-4 text-stone-400 shrink-0" />
+          )}
           <span>SKU &amp; inventory allocated</span>
         </li>
 
         <li
-          className={`flex items-center gap-1.5 ${
-            hasPricing ? 'text-secondary' : 'text-on-surface-variant'
+          className={`flex items-center gap-2 ${
+            hasPricing ? 'text-emerald-700 font-medium' : 'text-on-surface-variant'
           }`}
         >
-          <span className="material-symbols-outlined text-[14px]">
-            {hasPricing ? 'check_circle' : 'radio_button_unchecked'}
-          </span>
+          {hasPricing ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <Circle className="w-4 h-4 text-stone-400 shrink-0" />
+          )}
           <span>Pricing margins &amp; taxes configured</span>
         </li>
 
         {!hasMultiplePhotos && (
-          <li className="flex items-center gap-1.5 text-error mt-0.5">
-            <span className="material-symbols-outlined text-[14px]">info</span>
+          <li className="flex items-start gap-2 text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-200 mt-1">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <span>Recommendation: Add 2+ lifestyle photos for optimal conversion</span>
           </li>
         )}
@@ -85,4 +97,3 @@ export function ReadinessAuditSidebar({ formData }: ReadinessAuditSidebarProps) 
     </section>
   )
 }
-

@@ -1,6 +1,22 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
+import {
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  AlertCircle,
+  CheckCircle2,
+  Circle,
+  ShieldCheck,
+  Truck,
+  Sparkles,
+  X,
+  Send,
+} from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { AuthHeader } from '../components/AuthHeader'
 import { AuthFooter } from '../components/AuthFooter'
@@ -66,11 +82,11 @@ export function RegisterPage() {
   if (hasSym) strengthScore++
 
   const getStrengthLabel = () => {
-    if (strengthScore === 0) return { text: 'None', color: 'text-on-surface-variant' }
+    if (strengthScore === 0) return { text: 'Awaiting input', color: 'text-outline' }
     if (strengthScore === 1) return { text: 'Weak', color: 'text-error' }
-    if (strengthScore === 2) return { text: 'Fair', color: 'text-stock-low' }
-    if (strengthScore === 3) return { text: 'Strong', color: 'text-primary' }
-    return { text: 'Excellent', color: 'text-tertiary-container' }
+    if (strengthScore === 2) return { text: 'Fair', color: 'text-amber-500' }
+    if (strengthScore === 3) return { text: 'Strong', color: 'text-secondary' }
+    return { text: 'Optimal', color: 'text-primary' }
   }
 
   const strengthInfo = getStrengthLabel()
@@ -123,679 +139,545 @@ export function RegisterPage() {
   const isFormDisabled = isSubmitting || status === 'loading'
 
   return (
-    <div className="bg-background font-body-md text-on-surface min-h-screen flex flex-col justify-between selection:bg-primary-container selection:text-on-primary">
+    <div className="bg-background text-on-surface min-h-screen flex flex-col justify-between selection:bg-primary-container selection:text-on-primary">
       {/* Top persistent header */}
       <AuthHeader />
 
       {/* Main Content Area */}
-      <main className="w-full pt-28 sm:pt-32 pb-16 sm:pb-24 flex-1 flex flex-col justify-center items-center px-margin-mobile md:px-margin-tablet lg:px-margin">
-        <div className="flex flex-col w-full">
-          <div className="w-full max-w-7xl mx-auto py-space-xl px-margin-mobile md:px-margin-tablet lg:px-margin">
-            {/* Breadcrumb & Trust Banner Pill */}
-        
+      <main className="w-full pt-28 sm:pt-32 pb-16 sm:pb-24 flex-1 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-6xl mx-auto">
+          {/* Bento Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left Column: Primary Account Registration Form */}
+            <div className="lg:col-span-7 flex flex-col gap-6">
+              <div className="bg-surface-container-lowest rounded-2xl shadow-[0_4px_24px_rgba(36,51,49,0.05)] p-6 sm:p-8 relative overflow-hidden border border-outline-variant/60">
+                {/* Subtle Teal Ambient Highlight */}
+                <div className="absolute -right-16 -top-16 w-56 h-56 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
-            {/* Main Asymmetric Bento Grid Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
-              {/* Left Column: Primary Account Registration Form */}
-              <div className="lg:col-span-7 flex flex-col gap-space-lg">
-                <div className="bg-surface-container-lowest rounded-xl shadow-md p-space-lg md:p-space-xl relative overflow-hidden border border-outline-variant/30">
-                  {/* Decorative subtle gradient glow */}
-                  <div className="absolute -right-16 -top-16 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+                {/* Header Section */}
+                <div className="flex flex-col gap-1 mb-6 relative z-10 text-left">
+                  <span className="inline-block self-start px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold tracking-wider uppercase mb-1">
+                    Member Onboarding
+                  </span>
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-surface">
+                    Create your Nexa account
+                  </h1>
+                  <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+                    Join NexaStore to track live parcels, save favorite collections, and unlock member privileges.
+                  </p>
+                </div>
 
-                  {/* Header Section */}
-                  <div className="flex flex-col gap-space-xs mb-space-lg relative z-10 text-left">
-                    <span className="font-label-caps text-label-caps text-primary uppercase tracking-wider">
-                      Member Onboarding
-                    </span>
-                    <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
-                      Create your Nexa account
-                    </h1>
-                    <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                      Join Nexa Store to earn reward points, track parcels live, and access exclusive member deals.
-                    </p>
-                  </div>
-
-                  {/* Email Already Registered Banner (Triggered dynamically from Backend) */}
-                  {emailConflict && (
-                    <div
-                      className="mb-space-md p-space-md bg-surface-container-high rounded-lg flex items-start justify-between gap-space-sm transition-all duration-200 animate-fade-in"
-                      id="emailConflictBanner"
+                {/* Email Already Registered Banner */}
+                {emailConflict && (
+                  <div className="mb-4 p-3.5 bg-primary/10 border border-primary/20 rounded-xl flex items-start justify-between gap-3 animate-fade-in">
+                    <div className="flex items-start gap-2.5 text-left">
+                      <AlertCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-on-surface">
+                          Email already registered
+                        </span>
+                        <p className="text-xs text-on-surface-variant mt-0.5">
+                          An account for <span className="font-semibold text-on-surface">{emailConflict}</span> exists.
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      to="/login"
+                      className="px-3 py-1 bg-surface-container-lowest text-primary text-xs font-semibold rounded-lg shadow-xs hover:bg-surface-container transition-colors whitespace-nowrap"
                     >
-                      <div className="flex items-start gap-space-sm text-left">
-                        <span
-                          className="material-symbols-outlined text-error text-[20px] mt-0.5"
-                          style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                          error
-                        </span>
-                        <div className="flex flex-col">
-                          <span className="font-headline-sm text-headline-sm text-on-surface text-[15px]">
-                            Email already in our system
-                          </span>
-                          <p className="font-body-sm text-body-sm text-on-surface-variant">
-                            An account under{' '}
-                            <span className="font-medium text-on-surface">{emailConflict}</span>{' '}
-                            exists.
-                          </p>
-                        </div>
-                      </div>
-                      <Link
-                        to="/login"
-                        className="px-space-sm py-1 bg-surface-container-lowest text-primary font-body-sm text-body-sm rounded-lg shadow-xs hover:bg-surface-container transition-colors whitespace-nowrap"
-                      >
-                        Sign In instead
-                      </Link>
-                    </div>
-                  )}
+                      Sign In
+                    </Link>
+                  </div>
+                )}
 
-                  {/* General Backend Error Banner */}
-                  {generalError && (
-                    <div className="mb-space-md p-space-md bg-error-container text-on-error-container rounded-lg flex items-start justify-between gap-space-sm animate-fade-in text-left">
-                      <div className="flex items-start gap-space-sm">
-                        <span className="material-symbols-outlined text-error text-[20px] mt-0.5">
-                          error
-                        </span>
-                        <div className="flex flex-col">
-                          <span className="font-body-md text-body-md font-semibold">
-                            Registration Failed
-                          </span>
-                          <span className="font-body-sm text-body-sm">{generalError}</span>
-                        </div>
+                {/* General Backend Error Banner */}
+                {generalError && (
+                  <div className="mb-4 p-3.5 bg-error/10 border border-error/20 text-on-surface rounded-xl flex items-start justify-between gap-3 animate-fade-in text-left">
+                    <div className="flex items-start gap-2.5">
+                      <AlertCircle className="w-5 h-5 text-error shrink-0 mt-0.5" />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-error">Registration Failed</span>
+                        <span className="text-xs text-on-surface-variant mt-0.5">{generalError}</span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setGeneralError(null)}
-                        className="text-on-error-container hover:opacity-75 cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">close</span>
-                      </button>
                     </div>
-                  )}
+                    <button
+                      type="button"
+                      onClick={() => setGeneralError(null)}
+                      className="text-on-surface-variant hover:text-on-surface cursor-pointer p-0.5"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
 
-                  {/* The Registration Form (react-hook-form) */}
-                  <form
-                    className="flex flex-col gap-space-md relative z-10"
-                    onSubmit={handleSubmit(onSubmit)}
-                    noValidate
-                  >
-                    {/* Full Name */}
-                    <div className="flex flex-col gap-space-xs text-left">
+                {/* The Registration Form */}
+                <form
+                  className="space-y-4 relative z-10"
+                  onSubmit={handleSubmit(onSubmit)}
+                  noValidate
+                >
+                  {/* Full Name */}
+                  <div className="space-y-1.5 text-left">
+                    <div className="flex items-center justify-between">
                       <label
                         htmlFor="fullName"
-                        className="font-body-md text-body-md font-medium text-on-surface flex items-center justify-between"
+                        className="text-xs font-semibold text-on-surface"
                       >
-                        <span>Full Name</span>
-                        <span className="font-body-sm text-body-sm text-on-surface-variant">
-                          Required
-                        </span>
+                        Full Name
                       </label>
-                      <div className="relative flex items-center">
-                        <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px]">
-                          badge
-                        </span>
-                        <input
-                          id="fullName"
-                          type="text"
-                          autoComplete="name"
-                          placeholder="e.g. Sarah Jenkins"
-                          disabled={isFormDisabled}
-                          {...register('name', {
-                            required: 'Full name is required',
-                            minLength: {
-                              value: 2,
-                              message: 'Full name must be at least 2 characters',
-                            },
-                          })}
-                          className={`w-full h-11 pl-10 pr-3 bg-surface-container-lowest text-on-surface font-body-md text-body-md rounded-lg shadow-xs border transition-all ${
-                            errors.name
-                              ? 'border-error bg-error-container/20 focus:ring-error'
-                              : 'border-outline-variant/40 focus:bg-surface-container-low focus:ring-primary'
-                          } ${isFormDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        />
-                      </div>
-                      {errors.name && (
-                        <span className="text-error font-body-sm text-body-sm flex items-center gap-1 mt-0.5">
-                          <span className="material-symbols-outlined text-[14px]">error</span>
-                          <span>{errors.name.message}</span>
-                        </span>
-                      )}
+                      <span className="text-[11px] text-on-surface-variant">Required</span>
                     </div>
-
-                    {/* Email Address */}
-                    <div className="flex flex-col gap-space-xs text-left">
-                      <label
-                        htmlFor="emailAddress"
-                        className="font-body-md text-body-md font-medium text-on-surface"
-                      >
-                        Email Address
-                      </label>
-                      <div className="relative flex items-center">
-                        <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px]">
-                          mail
-                        </span>
-                        <input
-                          id="emailAddress"
-                          type="email"
-                          autoComplete="email"
-                          placeholder="name@domain.com"
-                          disabled={isFormDisabled}
-                          {...register('email', {
-                            required: 'Email address is required',
-                            pattern: {
-                              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                              message: 'Please provide a valid email format',
-                            },
-                          })}
-                          className={`w-full h-11 pl-10 pr-3 bg-surface-container-lowest text-on-surface font-body-md text-body-md rounded-lg shadow-xs border transition-all ${
-                            errors.email
-                              ? 'border-error bg-error-container/20 focus:ring-error'
-                              : 'border-outline-variant/40 focus:bg-surface-container-low focus:ring-primary'
-                          } ${isFormDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        />
-                      </div>
-                      {errors.email && (
-                        <span className="text-error font-body-sm text-body-sm flex items-center gap-1 mt-0.5">
-                          <span className="material-symbols-outlined text-[14px]">error</span>
-                          <span>{errors.email.message}</span>
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Phone Number with Country Code Picker */}
-                    <div className="flex flex-col gap-space-xs text-left">
-                      <label
-                        htmlFor="phoneInput"
-                        className="font-body-md text-body-md font-medium text-on-surface flex items-center justify-between"
-                      >
-                        <span>Phone Number</span>
-                        <span className="font-body-sm text-body-sm text-on-surface-variant">
-                          Required
-                        </span>
-                      </label>
-                      <PhoneInputField
-                        id="phoneInput"
-                        value={phoneValue}
-                        onChange={(val) => {
-                          setPhoneValue(val)
-                          setValue('phone', val, { shouldValidate: true })
-                        }}
+                    <div className="relative flex items-center">
+                      <User className="w-4 h-4 text-outline absolute left-3.5 pointer-events-none" />
+                      <input
+                        id="fullName"
+                        type="text"
+                        autoComplete="name"
+                        placeholder="e.g. Alex Morgan"
                         disabled={isFormDisabled}
-                        error={errors.phone?.message}
+                        {...register('name', {
+                          required: 'Full name is required',
+                          minLength: {
+                            value: 2,
+                            message: 'Full name must be at least 2 characters',
+                          },
+                        })}
+                        className={`w-full h-11 pl-10 pr-3 bg-surface-container-low/50 focus:bg-surface-container-lowest text-on-surface text-sm rounded-xl border transition-all focus:outline-none focus:ring-2 ${
+                          errors.name
+                            ? 'border-error bg-error/5 focus:ring-error/20'
+                            : 'border-outline-variant/70 focus:border-primary focus:ring-primary/15'
+                        } ${isFormDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
                       />
                     </div>
-
-                    {/* Password Field with Strength Meter */}
-                    <div className="flex flex-col gap-space-xs text-left">
-                      <label
-                        htmlFor="userPassword"
-                        className="font-body-md text-body-md font-medium text-on-surface"
-                      >
-                        Password
-                      </label>
-                      <div className="relative flex items-center">
-                        <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px]">
-                          lock
-                        </span>
-                        <input
-                          id="userPassword"
-                          type={showPassword ? 'text' : 'password'}
-                          autoComplete="new-password"
-                          placeholder="Create a strong password"
-                          disabled={isFormDisabled}
-                          {...register('password', {
-                            required: 'Password is required',
-                            minLength: {
-                              value: 8,
-                              message: 'Password must be at least 8 characters',
-                            },
-                            onChange: (e) => setCurrentPassword(e.target.value),
-                          })}
-                          className={`w-full h-11 pl-10 pr-10 bg-surface-container-lowest text-on-surface font-body-md text-body-md rounded-lg shadow-xs border transition-all ${
-                            errors.password
-                              ? 'border-error bg-error-container/20 focus:ring-error'
-                              : 'border-outline-variant/40 focus:bg-surface-container-low focus:ring-primary'
-                          } ${isFormDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          aria-label="Toggle password visibility"
-                          className="absolute right-3 text-on-surface-variant hover:text-on-surface p-1 rounded-full flex items-center justify-center cursor-pointer"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">
-                            {showPassword ? 'visibility_off' : 'visibility'}
-                          </span>
-                        </button>
+                    {errors.name && (
+                      <div className="flex items-center gap-1 text-xs text-error mt-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{errors.name.message}</span>
                       </div>
+                    )}
+                  </div>
 
-                      {errors.password && (
-                        <span className="text-error font-body-sm text-body-sm flex items-center gap-1 mt-0.5">
-                          <span className="material-symbols-outlined text-[14px]">error</span>
-                          <span>{errors.password.message}</span>
+                  {/* Email Address */}
+                  <div className="space-y-1.5 text-left">
+                    <label
+                      htmlFor="emailAddress"
+                      className="text-xs font-semibold text-on-surface"
+                    >
+                      Email Address
+                    </label>
+                    <div className="relative flex items-center">
+                      <Mail className="w-4 h-4 text-outline absolute left-3.5 pointer-events-none" />
+                      <input
+                        id="emailAddress"
+                        type="email"
+                        autoComplete="email"
+                        placeholder="name@domain.com"
+                        disabled={isFormDisabled}
+                        {...register('email', {
+                          required: 'Email address is required',
+                          pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                            message: 'Please enter a valid email address',
+                          },
+                        })}
+                        className={`w-full h-11 pl-10 pr-3 bg-surface-container-low/50 focus:bg-surface-container-lowest text-on-surface text-sm rounded-xl border transition-all focus:outline-none focus:ring-2 ${
+                          errors.email
+                            ? 'border-error bg-error/5 focus:ring-error/20'
+                            : 'border-outline-variant/70 focus:border-primary focus:ring-primary/15'
+                        } ${isFormDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      />
+                    </div>
+                    {errors.email && (
+                      <div className="flex items-center gap-1 text-xs text-error mt-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{errors.email.message}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Phone Number with Country Code Picker */}
+                  <div className="space-y-1.5 text-left">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="phoneInput"
+                        className="text-xs font-semibold text-on-surface"
+                      >
+                        Phone Number
+                      </label>
+                      <span className="text-[11px] text-on-surface-variant">Required for parcel updates</span>
+                    </div>
+                    <PhoneInputField
+                      id="phoneInput"
+                      value={phoneValue}
+                      onChange={(val) => {
+                        setPhoneValue(val)
+                        setValue('phone', val, { shouldValidate: true })
+                      }}
+                      disabled={isFormDisabled}
+                      error={errors.phone?.message}
+                    />
+                  </div>
+
+                  {/* Password Field with Strength Meter */}
+                  <div className="space-y-1.5 text-left">
+                    <label
+                      htmlFor="userPassword"
+                      className="text-xs font-semibold text-on-surface"
+                    >
+                      Password
+                    </label>
+                    <div className="relative flex items-center">
+                      <Lock className="w-4 h-4 text-outline absolute left-3.5 pointer-events-none" />
+                      <input
+                        id="userPassword"
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        placeholder="Create a strong password"
+                        disabled={isFormDisabled}
+                        {...register('password', {
+                          required: 'Password is required',
+                          minLength: {
+                            value: 8,
+                            message: 'Password must be at least 8 characters',
+                          },
+                          onChange: (e) => setCurrentPassword(e.target.value),
+                        })}
+                        className={`w-full h-11 pl-10 pr-10 bg-surface-container-low/50 focus:bg-surface-container-lowest text-on-surface text-sm rounded-xl border transition-all focus:outline-none focus:ring-2 ${
+                          errors.password
+                            ? 'border-error bg-error/5 focus:ring-error/20'
+                            : 'border-outline-variant/70 focus:border-primary focus:ring-primary/15'
+                        } ${isFormDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label="Toggle password visibility"
+                        className="absolute right-3 p-1 rounded-md text-outline hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+
+                    {errors.password && (
+                      <div className="flex items-center gap-1 text-xs text-error mt-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{errors.password.message}</span>
+                      </div>
+                    )}
+
+                    {/* Password Strength Meter */}
+                    <div className="p-3 bg-surface-container-low/60 rounded-xl space-y-2 mt-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-on-surface-variant font-medium">Password Strength:</span>
+                        <span className={`font-semibold ${strengthInfo.color}`}>
+                          {strengthInfo.text}
                         </span>
-                      )}
-
-                      {/* Real-Time Password Strength Meter */}
-                      <div className="mt-space-xs p-space-sm bg-surface-container rounded-lg flex flex-col gap-space-xs">
-                        <div className="flex items-center justify-between">
-                          <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">
-                            Security Level:
-                          </span>
-                          <span
-                            className={`font-label-caps text-label-caps font-semibold ${strengthInfo.color}`}
-                          >
-                            {strengthInfo.text}
-                          </span>
-                        </div>
-                        {/* Strength Segment Bars */}
-                        <div className="grid grid-cols-4 gap-1.5 h-1.5 w-full">
-                          <div
-                            className={`h-full rounded-full transition-all ${
-                              strengthScore >= 1
-                                ? strengthScore === 1
-                                  ? 'bg-error'
-                                  : strengthScore === 2
-                                    ? 'bg-stock-low'
-                                    : 'bg-primary'
-                                : 'bg-surface-container-highest'
-                            }`}
-                          />
-                          <div
-                            className={`h-full rounded-full transition-all ${
-                              strengthScore >= 2
-                                ? strengthScore === 2
-                                  ? 'bg-stock-low'
+                      </div>
+                      {/* Segment Bars */}
+                      <div className="grid grid-cols-4 gap-1.5 h-1.5 w-full">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            strengthScore >= 1
+                              ? strengthScore === 1
+                                ? 'bg-error'
+                                : strengthScore === 2
+                                  ? 'bg-amber-500'
                                   : 'bg-primary'
-                                : 'bg-surface-container-highest'
-                            }`}
-                          />
-                          <div
-                            className={`h-full rounded-full transition-all ${
-                              strengthScore >= 3 ? 'bg-primary' : 'bg-surface-container-highest'
-                            }`}
-                          />
-                          <div
-                            className={`h-full rounded-full transition-all ${
-                              strengthScore === 4
-                                ? 'bg-tertiary-container'
-                                : 'bg-surface-container-highest'
-                            }`}
-                          />
-                        </div>
+                              : 'bg-surface-container-highest'
+                          }`}
+                        />
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            strengthScore >= 2
+                              ? strengthScore === 2
+                                ? 'bg-amber-500'
+                                : 'bg-primary'
+                              : 'bg-surface-container-highest'
+                          }`}
+                        />
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            strengthScore >= 3 ? 'bg-primary' : 'bg-surface-container-highest'
+                          }`}
+                        />
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            strengthScore === 4 ? 'bg-secondary' : 'bg-surface-container-highest'
+                          }`}
+                        />
                       </div>
 
                       {/* Password Requirements Checklist */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-xs mt-space-xs pt-space-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1 text-[11px]">
                         <div
-                          className={`flex items-center gap-space-xs font-body-sm text-body-sm ${
-                            hasLength ? 'text-on-surface' : 'text-on-surface-variant'
+                          className={`flex items-center gap-1.5 ${
+                            hasLength ? 'text-on-surface font-medium' : 'text-on-surface-variant'
                           }`}
                         >
-                          <span
-                            className={`material-symbols-outlined text-[16px] ${
-                              hasLength ? 'text-tertiary-container' : 'text-outline-variant'
-                            }`}
-                            style={hasLength ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                          >
-                            {hasLength ? 'check_circle' : 'radio_button_unchecked'}
-                          </span>
+                          {hasLength ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                          ) : (
+                            <Circle className="w-3.5 h-3.5 text-outline shrink-0" />
+                          )}
                           <span>At least 8 characters</span>
                         </div>
 
                         <div
-                          className={`flex items-center gap-space-xs font-body-sm text-body-sm ${
-                            hasCase ? 'text-on-surface' : 'text-on-surface-variant'
+                          className={`flex items-center gap-1.5 ${
+                            hasCase ? 'text-on-surface font-medium' : 'text-on-surface-variant'
                           }`}
                         >
-                          <span
-                            className={`material-symbols-outlined text-[16px] ${
-                              hasCase ? 'text-tertiary-container' : 'text-outline-variant'
-                            }`}
-                            style={hasCase ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                          >
-                            {hasCase ? 'check_circle' : 'radio_button_unchecked'}
-                          </span>
-                          <span>Uppercase &amp; lowercase letters</span>
+                          {hasCase ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                          ) : (
+                            <Circle className="w-3.5 h-3.5 text-outline shrink-0" />
+                          )}
+                          <span>Upper &amp; lowercase letters</span>
                         </div>
 
                         <div
-                          className={`flex items-center gap-space-xs font-body-sm text-body-sm ${
-                            hasNum ? 'text-on-surface' : 'text-on-surface-variant'
+                          className={`flex items-center gap-1.5 ${
+                            hasNum ? 'text-on-surface font-medium' : 'text-on-surface-variant'
                           }`}
                         >
-                          <span
-                            className={`material-symbols-outlined text-[16px] ${
-                              hasNum ? 'text-tertiary-container' : 'text-outline-variant'
-                            }`}
-                            style={hasNum ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                          >
-                            {hasNum ? 'check_circle' : 'radio_button_unchecked'}
-                          </span>
-                          <span>At least one number (0-9)</span>
+                          {hasNum ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                          ) : (
+                            <Circle className="w-3.5 h-3.5 text-outline shrink-0" />
+                          )}
+                          <span>At least one number</span>
                         </div>
 
                         <div
-                          className={`flex items-center gap-space-xs font-body-sm text-body-sm ${
-                            hasSym ? 'text-on-surface' : 'text-on-surface-variant'
+                          className={`flex items-center gap-1.5 ${
+                            hasSym ? 'text-on-surface font-medium' : 'text-on-surface-variant'
                           }`}
                         >
-                          <span
-                            className={`material-symbols-outlined text-[16px] ${
-                              hasSym ? 'text-tertiary-container' : 'text-outline-variant'
-                            }`}
-                            style={hasSym ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                          >
-                            {hasSym ? 'check_circle' : 'radio_button_unchecked'}
-                          </span>
-                          <span>Special symbol (!@#$%^&amp;*)</span>
+                          {hasSym ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                          ) : (
+                            <Circle className="w-3.5 h-3.5 text-outline shrink-0" />
+                          )}
+                          <span>Special symbol (!@#$%^&*)</span>
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Confirm Password Field */}
-                    <div className="flex flex-col gap-space-xs text-left">
-                      <label
-                        htmlFor="confirmPassword"
-                        className="font-body-md text-body-md font-medium text-on-surface"
-                      >
-                        Confirm Password
-                      </label>
-                      <div className="relative flex items-center">
-                        <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px]">
-                          verified
-                        </span>
-                        <input
-                          id="confirmPassword"
-                          type={showConfirmPassword ? 'text' : 'password'}
-                          autoComplete="new-password"
-                          placeholder="Repeat your password"
-                          disabled={isFormDisabled}
-                          {...register('confirmPassword', {
-                            required: 'Please confirm your password',
-                            validate: (val) =>
-                              val === getValues('password') || 'Passwords do not match',
-                          })}
-                          className={`w-full h-11 pl-10 pr-10 bg-surface-container-lowest text-on-surface font-body-md text-body-md rounded-lg shadow-xs border transition-all ${
-                            errors.confirmPassword
-                              ? 'border-error bg-error-container/20 focus:ring-error'
-                              : 'border-outline-variant/40 focus:bg-surface-container-low focus:ring-primary'
-                          } ${isFormDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword((prev) => !prev)}
-                          aria-label="Toggle confirm password visibility"
-                          className="absolute right-3 text-on-surface-variant hover:text-on-surface p-1 rounded-full flex items-center justify-center cursor-pointer"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">
-                            {showConfirmPassword ? 'visibility_off' : 'visibility'}
-                          </span>
-                        </button>
-                      </div>
-
-                      {errors.confirmPassword && (
-                        <div className="flex items-center gap-space-xs text-error font-body-sm text-body-sm mt-1">
-                          <span className="material-symbols-outlined text-[16px]">warning</span>
-                          <span>{errors.confirmPassword.message}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Agreements & Consents Checkboxes */}
-                    <div className="flex flex-col gap-space-sm pt-space-xs text-left">
-                      {/* Terms Checkbox */}
-                      <label
-                        htmlFor="termsAgreement"
-                        className="flex items-start gap-space-sm cursor-pointer select-none"
-                      >
-                        <input
-                          type="checkbox"
-                          id="termsAgreement"
-                          disabled={isFormDisabled}
-                          {...register('acceptTerms', {
-                            validate: (val) =>
-                              Boolean(val) || 'You must agree to the Terms of Service to continue',
-                            onChange: (e) => {
-                              if (e.target.checked) {
-                                clearErrors('acceptTerms')
-                              }
-                            },
-                          })}
-                          className="w-4 h-4 mt-1 rounded text-primary focus:ring-primary cursor-pointer border-outline-variant"
-                        />
-                        <span className="font-body-sm text-body-sm text-on-surface-variant leading-normal">
-                          I agree to the Nexa Retail{' '}
-                          <a
-                            href="#terms"
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-primary underline hover:text-secondary font-medium"
-                          >
-                            Terms of Service
-                          </a>{' '}
-                          and acknowledge the{' '}
-                          <a
-                            href="#privacy"
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-primary underline hover:text-secondary font-medium"
-                          >
-                            Privacy Policy
-                          </a>
-                          .
-                        </span>
-                      </label>
-                      {errors.acceptTerms && (
-                        <span className="text-error font-body-sm text-body-sm flex items-center gap-1 mt-0.5">
-                          <span className="material-symbols-outlined text-[14px]">error</span>
-                          <span>{errors.acceptTerms.message}</span>
-                        </span>
-                      )}
-
-                      {/* Marketing Checkbox */}
-                      <label className="flex items-start gap-space-sm cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          id="marketingOptIn"
-                          disabled={isFormDisabled}
-                          {...register('marketingOptIn')}
-                          className="w-4 h-4 mt-1 rounded text-primary-container focus:ring-0 cursor-pointer border-outline-variant"
-                        />
-                        <span className="font-body-sm text-body-sm text-on-surface-variant leading-normal">
-                          Receive personalized discounts, flash-sale early access, and curated lifestyle digests via email. (Optional)
-                        </span>
-                      </label>
-                    </div>
-
-                    {/* Primary Submission CTA Button */}
-                    <div className="flex flex-col gap-space-sm pt-space-xs">
-                      <button
-                        type="submit"
+                  {/* Confirm Password Field */}
+                  <div className="space-y-1.5 text-left">
+                    <label
+                      htmlFor="confirmPassword"
+                      className="text-xs font-semibold text-on-surface"
+                    >
+                      Confirm Password
+                    </label>
+                    <div className="relative flex items-center">
+                      <Lock className="w-4 h-4 text-outline absolute left-3.5 pointer-events-none" />
+                      <input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        placeholder="Repeat your password"
                         disabled={isFormDisabled}
-                        className={`w-full h-12 bg-primary hover:bg-secondary text-on-primary font-body-lg text-body-lg font-semibold rounded-lg shadow-md flex items-center justify-center gap-space-sm active:scale-[0.99] transition-all cursor-pointer ${
-                          isFormDisabled ? 'opacity-80 cursor-wait' : ''
-                        }`}
+                        {...register('confirmPassword', {
+                          required: 'Please confirm your password',
+                          validate: (val) =>
+                            val === getValues('password') || 'Passwords do not match',
+                        })}
+                        className={`w-full h-11 pl-10 pr-10 bg-surface-container-low/50 focus:bg-surface-container-lowest text-on-surface text-sm rounded-xl border transition-all focus:outline-none focus:ring-2 ${
+                          errors.confirmPassword
+                            ? 'border-error bg-error/5 focus:ring-error/20'
+                            : 'border-outline-variant/70 focus:border-primary focus:ring-primary/15'
+                        } ${isFormDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        aria-label="Toggle confirm password visibility"
+                        className="absolute right-3 p-1 rounded-md text-outline hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
                       >
-                        {isSubmitting || status === 'loading' ? (
-                          <>
-                            <span>Verifying &amp; Registering...</span>
-                            <span className="material-symbols-outlined animate-spin text-[20px]">
-                              progress_activity
-                            </span>
-                          </>
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-4 h-4" />
                         ) : (
-                          <>
-                            <span>Create Account</span>
-                            <span className="material-symbols-outlined text-[20px]">
-                              arrow_forward
-                            </span>
-                          </>
+                          <Eye className="w-4 h-4" />
                         )}
                       </button>
                     </div>
-                  </form>
 
-                  {/* Divider & Existing User Direct Link */}
-                  <div className="mt-space-lg pt-space-md flex flex-col items-center gap-space-xs bg-surface-container-low -mx-space-lg -mb-space-lg md:-mx-space-xl md:-mb-space-xl p-space-md">
-                    <p className="font-body-md text-body-md text-on-surface-variant">
-                      Already have an account?{' '}
-                      <Link
-                        to="/login"
-                        className="font-semibold text-primary hover:text-secondary underline underline-offset-4 ml-1"
-                      >
-                        Sign in
-                      </Link>
-                    </p>
+                    {errors.confirmPassword && (
+                      <div className="flex items-center gap-1 text-xs text-error mt-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{errors.confirmPassword.message}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Consents Checkboxes */}
+                  <div className="space-y-2.5 pt-1 text-left">
+                    {/* Terms Checkbox */}
+                    <label
+                      htmlFor="termsAgreement"
+                      className="flex items-start gap-2.5 cursor-pointer select-none"
+                    >
+                      <input
+                        type="checkbox"
+                        id="termsAgreement"
+                        disabled={isFormDisabled}
+                        {...register('acceptTerms', {
+                          validate: (val) =>
+                            Boolean(val) || 'You must agree to the Terms of Service to continue',
+                          onChange: (e) => {
+                            if (e.target.checked) {
+                              clearErrors('acceptTerms')
+                            }
+                          },
+                        })}
+                        className="w-4 h-4 mt-0.5 rounded text-primary focus:ring-primary/20 border-outline-variant/70 cursor-pointer accent-primary"
+                      />
+                      <span className="text-xs text-on-surface-variant leading-relaxed">
+                        I agree to the{' '}
+                        <span className="text-primary hover:underline font-medium">Terms of Service</span>{' '}
+                        and acknowledge the{' '}
+                        <span className="text-primary hover:underline font-medium">Privacy Policy</span>.
+                      </span>
+                    </label>
+                    {errors.acceptTerms && (
+                      <div className="flex items-center gap-1 text-xs text-error mt-0.5">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{errors.acceptTerms.message}</span>
+                      </div>
+                    )}
+
+                    {/* Marketing Checkbox */}
+                    <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        id="marketingOptIn"
+                        disabled={isFormDisabled}
+                        {...register('marketingOptIn')}
+                        className="w-4 h-4 mt-0.5 rounded text-primary focus:ring-primary/20 border-outline-variant/70 cursor-pointer accent-primary"
+                      />
+                      <span className="text-xs text-on-surface-variant leading-relaxed">
+                        Receive personalized product releases and member rewards by email. (Optional)
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Primary CTA Button */}
+                  <button
+                    type="submit"
+                    disabled={isFormDisabled}
+                    className={`w-full h-11 bg-primary hover:bg-primary-hover text-on-primary font-semibold text-sm rounded-xl shadow-xs hover:shadow-md flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer mt-4 ${
+                      isFormDisabled ? 'opacity-60 cursor-wait' : ''
+                    }`}
+                  >
+                    {isSubmitting || status === 'loading' ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Registering...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <span>Create Account</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                {/* Direct Link to Login */}
+                <div className="mt-6 pt-4 text-center border-t border-outline-variant/50">
+                  <p className="text-xs text-on-surface-variant">
+                    Already have an account?{' '}
+                    <Link
+                      to="/login"
+                      className="font-semibold text-primary hover:text-primary-hover hover:underline ml-1"
+                    >
+                      Sign in
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Member Perks Bento Mosaic */}
+            <div className="lg:col-span-5 flex flex-col gap-4">
+              {/* Perk Card 1: Visual Photography + Welcome Privilege */}
+              <div className="relative bg-surface-container-lowest rounded-2xl shadow-[0_4px_20px_rgba(36,51,49,0.04)] overflow-hidden flex flex-col border border-outline-variant/60 text-left">
+                <div className="h-44 w-full relative overflow-hidden bg-surface-container">
+                  <img
+                    className="w-full h-full object-cover"
+                    alt="Artisan workspace"
+                    src="https://images.unsplash.com/photo-1513094735237-8f2714d57c13?auto=format&fit=crop&w=800&q=80"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent" />
+                  <div className="absolute top-3 left-3 bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5 shadow-xs">
+                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-[11px] font-bold text-on-surface tracking-wider uppercase">
+                      Silver Tier Access
+                    </span>
+                  </div>
+                </div>
+                <div className="p-5 flex flex-col gap-1.5">
+                  <h3 className="text-base font-bold text-on-surface">
+                    Instant 100 Reward Points
+                  </h3>
+                  <p className="text-xs text-on-surface-variant leading-relaxed">
+                    Unlock a complimentary 100 reward points upon email confirmation, applicable directly at checkout.
+                  </p>
+                </div>
+              </div>
+
+              {/* Perk Card 2: Interactive Real-Time Delivery Tracker */}
+              <div className="bg-surface-container-lowest rounded-2xl shadow-[0_4px_20px_rgba(36,51,49,0.04)] p-5 flex flex-col gap-3 border border-outline-variant/60 text-left">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                      <Truck className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-on-surface">Live Parcel Tracking</h4>
+                      <p className="text-[11px] text-on-surface-variant">Real-time carrier GPS updates</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] rounded-full font-bold uppercase tracking-wider">
+                    Active Hub
+                  </span>
+                </div>
+
+                {/* Progress bar */}
+                <div className="bg-surface-container-low/60 p-3 rounded-xl flex flex-col gap-2">
+                  <div className="flex justify-between items-center text-xs text-on-surface-variant">
+                    <span className="font-medium text-on-surface">Order #NX-88210</span>
+                    <span className="font-semibold text-primary">Out for Delivery</span>
+                  </div>
+                  <div className="w-full bg-outline-variant/40 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-primary h-full rounded-full w-3/4" />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-on-surface-variant font-medium">
+                    <span>CONFIRMED</span>
+                    <span>PACKED</span>
+                    <span className="text-primary font-bold">DISPATCHED</span>
+                    <span>DELIVERED</span>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column: Member Perks Bento Mosaic & Visual Anchor */}
-              <div className="lg:col-span-5 flex flex-col gap-space-md">
-                {/* Perk Card 1: Visual Photography + Welcome Bonus */}
-                <div className="relative bg-surface-container-lowest rounded-xl shadow-md overflow-hidden flex flex-col border border-outline-variant/30 text-left">
-                  <div className="h-44 w-full relative overflow-hidden bg-surface-container">
-                    <img
-                      className="w-full h-full object-cover"
-                      alt="Modern Scandinavian retail interior"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcfhuSk2ty22G2PNPzG4DqP0ScLMa-uPIDdpCCNTd4hjpRvsE7LkEwcj1WRnHcrzVgrwG-vz_jbuWa_HrZy0o_piqfcZW9aV_WbY-RD1J3wzuGL21j1mB64yOXQkf6imPbx73AhZwHqogupbR62ke4ZoAjL8j2uAgl_nkQh5NKBp9PPJKL912WZa-T3I5o1VIfY9nQd-L1Ci5wKHuAzPR-khtlwGlG2j682U-go_v78DYmnlDElFG-Dg"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent" />
-                    <div className="absolute top-3 left-3 bg-surface-container-lowest/90 backdrop-blur-md px-space-sm py-1 rounded-full flex items-center gap-1 shadow-xs">
-                      <span
-                        className="material-symbols-outlined text-primary text-[16px]"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        stars
-                      </span>
-                      <span className="font-label-caps text-label-caps text-on-surface font-bold tracking-wider">
-                        TIER 1 SILVER MEMBER
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-space-md flex flex-col gap-space-xs">
-                    <h3 className="font-headline-sm text-headline-sm text-on-surface">
-                      Instant Welcome Privilege
-                    </h3>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">
-                      Unlock a complimentary 100 Reward Points immediately upon email confirmation, applicable directly at checkout.
-                    </p>
-                  </div>
+              {/* Perk Card 3: Security & Fraud Defense Guarantee */}
+              <div className="bg-surface-container-lowest rounded-2xl shadow-[0_4px_20px_rgba(36,51,49,0.04)] p-5 flex items-start gap-3 border border-outline-variant/60 text-left">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
                 </div>
-
-                {/* Perk Card 2: Interactive Real-Time Delivery Tracker Preview */}
-                <div className="bg-surface-container-lowest rounded-xl shadow-md p-space-md flex flex-col gap-space-sm border border-outline-variant/30 text-left">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-space-xs">
-                      <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
-                        <span className="material-symbols-outlined text-[18px]">
-                          local_shipping
-                        </span>
-                      </div>
-                      <div>
-                        <h4 className="font-headline-sm text-headline-sm text-on-surface text-[15px]">
-                          Live Parcel Tracking
-                        </h4>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">
-                          Precision GPS updates direct to device
-                        </p>
-                      </div>
-                    </div>
-                    <span className="px-2 py-0.5 bg-surface-container-high text-primary font-label-caps text-label-caps rounded-full font-semibold">
-                      Active Hub
-                    </span>
-                  </div>
-
-                  {/* Micro Progress Diagram Inline SVG */}
-                  <div className="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-space-xs">
-                    <div className="flex justify-between items-center text-on-surface-variant font-body-sm text-body-sm">
-                      <span>Order #NX-88210</span>
-                      <span className="font-medium text-secondary">Out for Delivery</span>
-                    </div>
-                    <svg
-                      className="w-full h-8 text-primary"
-                      fill="none"
-                      viewBox="0 0 320 32"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      {/* Background Bar */}
-                      <line
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeOpacity="0.15"
-                        strokeWidth="4"
-                        x1="16"
-                        x2="304"
-                        y1="16"
-                        y2="16"
-                      />
-                      {/* Active Progress */}
-                      <line
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeWidth="4"
-                        x1="16"
-                        x2="230"
-                        y1="16"
-                        y2="16"
-                      />
-                      {/* Checkpoints */}
-                      <circle cx="16" cy="16" fill="currentColor" r="6" />
-                      <circle cx="110" cy="16" fill="currentColor" r="6" />
-                      <circle
-                        cx="210"
-                        cy="16"
-                        fill="white"
-                        r="7"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <circle cx="304" cy="16" fill="currentColor" fillOpacity="0.2" r="5" />
-                    </svg>
-                    <div className="flex justify-between font-label-caps text-label-caps text-on-surface-variant text-[10px]">
-                      <span>CONFIRMED</span>
-                      <span>PACKED</span>
-                      <span className="text-primary font-bold">DISPATCHED</span>
-                      <span>DELIVERED</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Perk Card 3: Security & Fraud Defense Guarantee */}
-                <div className="bg-surface-container-lowest rounded-xl shadow-md p-space-md flex items-start gap-space-sm border border-outline-variant/30 text-left">
-                  <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-tertiary-container shrink-0">
-                    <span className="material-symbols-outlined text-[22px]">verified_user</span>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <h4 className="font-headline-sm text-headline-sm text-on-surface text-[15px]">
-                      Zero Liability Purchase Shield
-                    </h4>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">
-                      Every checkout under your Nexa profile is covered by automated fraud protection, encrypted tokenized vaults, and hassle-free 30-day returns.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Trust Badges Bar */}
-                <div className="flex items-center justify-around py-space-sm px-space-md bg-surface-container-low rounded-xl border border-outline-variant/20">
-                  <div className="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
-                    <span className="material-symbols-outlined text-[16px] text-primary">
-                      lock_clock
-                    </span>
-                    <span>AES-256</span>
-                  </div>
-                  <div className="h-4 w-px bg-outline-variant/30" />
-                  <div className="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
-                    <span className="material-symbols-outlined text-[16px] text-primary">
-                      credit_card
-                    </span>
-                    <span>PCI-DSS Level 1</span>
-                  </div>
-                  <div className="h-4 w-px bg-outline-variant/30" />
-                  <div className="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
-                    <span className="material-symbols-outlined text-[16px] text-primary">
-                      workspace_premium
-                    </span>
-                    <span>GDPR Ready</span>
-                  </div>
+                <div className="flex flex-col gap-1">
+                  <h4 className="text-sm font-bold text-on-surface">Zero-Liability Buyer Protection</h4>
+                  <p className="text-xs text-on-surface-variant leading-relaxed">
+                    Every checkout under your profile is protected by encrypted tokenized vaults, automated fraud screening, and 30-day hassle-free returns.
+                  </p>
                 </div>
               </div>
             </div>
@@ -803,14 +685,14 @@ export function RegisterPage() {
         </div>
       </main>
 
-      {/* Post-Registration Email Verification Modal Overlay */}
+      {/* Post-Registration Email Verification Modal */}
       {showVerificationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-space-md bg-inverse-surface/40 backdrop-blur-sm animate-fade-in">
-          <div className="bg-surface-container-lowest rounded-xl shadow-xl max-w-md w-full p-space-xl flex flex-col items-center text-center relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-outline-variant/30">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 flex flex-col items-center text-center relative border border-outline-variant/60">
             {/* Close Button */}
             <button
               type="button"
-              className="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface p-1 rounded-full cursor-pointer"
+              className="absolute top-4 right-4 text-outline hover:text-on-surface p-1 rounded-full cursor-pointer"
               onClick={() => {
                 setShowVerificationModal(false)
                 navigate(
@@ -819,46 +701,31 @@ export function RegisterPage() {
               }}
               aria-label="Close modal"
             >
-              <span className="material-symbols-outlined text-[20px]">close</span>
+              <X className="w-4 h-4" />
             </button>
 
             {/* Badge Icon */}
-            <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-primary mb-space-md">
-              <span
-                className="material-symbols-outlined text-[32px]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                mark_email_read
-              </span>
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+              <Mail className="w-7 h-7" />
             </div>
 
             {/* Title & Body */}
-            <span className="font-label-caps text-label-caps text-primary uppercase font-bold tracking-widest mb-1">
+            <span className="text-[11px] font-bold text-primary uppercase tracking-wider mb-1">
               Activation Required
             </span>
-            <h3 className="font-headline-md text-headline-md text-on-surface mb-space-xs">
+            <h3 className="text-xl font-bold text-on-surface mb-2">
               Verify your email address
             </h3>
-            <p className="font-body-md text-body-md text-on-surface-variant mb-space-md">
-              We have transmitted a secure confirmation link to{' '}
+            <p className="text-xs sm:text-sm text-on-surface-variant mb-6 leading-relaxed">
+              We have transmitted a secure verification code to{' '}
               <span className="font-semibold text-on-surface">
                 {getMaskedEmail(registeredEmail)}
               </span>
-              . Please click the link inside within 24 hours to finalize activation.
+              . Please enter it to finalize activation.
             </p>
 
-            {/* Security Notice Card */}
-            <div className="w-full bg-surface-container-low p-space-sm rounded-lg flex items-center gap-space-sm text-left mb-space-lg">
-              <span className="material-symbols-outlined text-primary text-[20px] shrink-0">
-                info
-              </span>
-              <span className="font-body-sm text-body-sm text-on-surface-variant">
-                Didn&apos;t find it? Check your Spam or Promotions folder.
-              </span>
-            </div>
-
             {/* Action Buttons */}
-            <div className="w-full flex flex-col gap-space-xs">
+            <div className="w-full flex flex-col gap-2.5">
               <button
                 type="button"
                 onClick={() => {
@@ -867,10 +734,10 @@ export function RegisterPage() {
                     `/verify?email=${encodeURIComponent(registeredEmail)}&name=${encodeURIComponent(registeredName)}`
                   )
                 }}
-                className="w-full h-11 bg-primary hover:bg-secondary text-on-primary font-body-md text-body-md font-semibold rounded-lg shadow-xs flex items-center justify-center gap-space-xs transition-colors cursor-pointer"
+                className="w-full h-11 bg-primary hover:bg-primary-hover text-on-primary text-sm font-semibold rounded-xl shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <span>Continue</span>
-                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                <span>Enter Verification Code</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
 
               <button
@@ -878,20 +745,20 @@ export function RegisterPage() {
                 id="resendBtn"
                 disabled={resendStatus === 'transmitting'}
                 onClick={handleResendVerification}
-                className="w-full h-10 bg-surface-container hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm rounded-lg transition-colors cursor-pointer"
+                className="w-full h-10 bg-surface-container-low hover:bg-surface-container text-on-surface text-xs font-semibold rounded-xl transition-colors cursor-pointer"
               >
                 {resendStatus === 'transmitting'
                   ? 'Transmitting...'
                   : resendStatus === 'sent'
-                    ? 'Link Dispatched!'
-                    : 'Resend verification email'}
+                    ? 'Code Dispatched!'
+                    : 'Resend verification code'}
               </button>
             </div>
 
             {resendStatus === 'sent' && (
-              <div className="mt-space-sm text-secondary font-body-sm text-body-sm flex items-center gap-1 animate-fade-in">
-                <span className="material-symbols-outlined text-[16px]">check</span>
-                <span>A fresh link was transmitted!</span>
+              <div className="mt-3 text-xs text-primary font-medium flex items-center gap-1.5 animate-fade-in">
+                <Send className="w-3.5 h-3.5" />
+                <span>A fresh code was sent to your email!</span>
               </div>
             )}
           </div>

@@ -14,21 +14,21 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-action-primary text-on-primary hover:bg-action-hover active:scale-[0.98] focus:ring-2 focus:ring-action-focus focus:ring-offset-2 border-transparent shadow-xs',
+    'bg-primary hover:bg-secondary text-on-primary shadow-xs hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 border border-transparent',
   secondary:
-    'bg-surface-card text-neutral-core border border-border-divider hover:bg-canvas hover:border-border-active active:scale-[0.98] focus:ring-2 focus:ring-action-focus focus:ring-offset-2',
+    'bg-surface-container-high hover:bg-surface-container-highest text-primary hover:-translate-y-0.5 active:translate-y-0 border border-primary/20 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 shadow-xs',
   outline:
-    'bg-surface-card text-neutral-core border border-border-divider hover:bg-canvas hover:border-border-active active:scale-[0.98] focus:ring-2 focus:ring-action-focus focus:ring-offset-2',
+    'bg-surface-container-lowest hover:bg-surface-container-low text-on-surface border border-outline-variant/80 hover:border-outline hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 shadow-xs',
   ghost:
-    'bg-transparent text-neutral-subdued hover:bg-neutral-slate hover:text-neutral-core active:scale-[0.98] border-transparent shadow-none',
+    'bg-transparent hover:bg-surface-container-low text-on-surface-variant hover:text-on-surface active:bg-surface-container border border-transparent shadow-none',
   danger:
-    'bg-stock-out text-on-primary hover:bg-error active:scale-[0.98] focus:ring-2 focus:ring-error focus:ring-offset-2 border-transparent shadow-xs',
+    'bg-stock-out hover:bg-stock-out/90 text-white shadow-xs hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-stock-out/25 focus-visible:ring-offset-2 border border-transparent',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-xs font-semibold rounded-lg gap-1.5',
-  md: 'px-4 py-2 text-sm font-semibold rounded-lg gap-2',
-  lg: 'px-5 py-2.5 text-base font-semibold rounded-lg gap-2.5',
+  sm: 'px-3 py-1.5 text-xs font-semibold rounded-lg gap-1.5 min-h-[32px]',
+  md: 'px-4.5 py-2.5 text-sm font-semibold rounded-xl gap-2 min-h-[42px]',
+  lg: 'px-6 py-3.5 text-base font-semibold rounded-xl gap-2.5 min-h-[50px]',
 }
 
 export function Button({
@@ -47,7 +47,7 @@ export function Button({
   return (
     <button
       disabled={isDisabled}
-      className={`inline-flex items-center justify-center transition-all duration-150 cursor-pointer select-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center justify-center font-body-md transition-all duration-200 cursor-pointer select-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
       {...props}
     >
       {isLoading ? (

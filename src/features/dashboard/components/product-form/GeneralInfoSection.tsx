@@ -1,4 +1,16 @@
 import { useState } from 'react'
+import {
+  Info,
+  Link as LinkIcon,
+  Bold,
+  Italic,
+  Strikethrough,
+  List,
+  ListOrdered,
+  Quote,
+  Code,
+  Image as ImageIcon,
+} from 'lucide-react'
 
 interface GeneralInfoSectionProps {
   title: string
@@ -34,30 +46,29 @@ export function GeneralInfoSection({
   }
 
   const applyFormat = (command: string) => {
-    // For demo visual editor helper
     if (activeTab === 'html') return
     document.execCommand(command, false)
   }
 
   return (
-    <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/15">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-space-xs">
-          <span className="material-symbols-outlined text-primary text-[22px]">info</span>
-          <h2 className="font-headline-sm text-headline-sm text-on-surface">General Information</h2>
+    <section className="bg-white rounded-xl p-6 shadow-sm flex flex-col gap-5 border border-outline-variant/60">
+      <div className="flex items-center justify-between pb-3 border-b border-outline-variant/60">
+        <div className="flex items-center gap-2">
+          <Info className="w-5 h-5 text-primary" />
+          <h2 className="text-base font-semibold text-on-surface">General Information</h2>
         </div>
-        <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">
+        <span className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
           Required *
         </span>
       </div>
 
       {/* Product Title */}
-      <div className="flex flex-col gap-space-xs">
+      <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface" htmlFor="prod-title">
-            Product Title *
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface" htmlFor="prod-title">
+            Product Title <span className="text-red-500">*</span>
           </label>
-          <span className="font-label-caps text-label-caps text-on-surface-variant">
+          <span className="text-xs text-on-surface-variant font-mono">
             {title.length} / 100
           </span>
         </div>
@@ -68,17 +79,15 @@ export function GeneralInfoSection({
           value={title}
           onChange={handleTitleInput}
           placeholder="e.g. AeroSound Studio Wireless Headphones Pro"
-          className="w-full h-10 px-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container transition-all"
+          className="w-full h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-xs"
         />
       </div>
 
       {/* Permalink Live Box */}
-      <div className="p-space-xs px-space-sm rounded-lg bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs border border-outline-variant/20">
-        <div className="flex items-center gap-1.5 overflow-hidden flex-1">
-          <span className="material-symbols-outlined text-on-surface-variant text-[16px] shrink-0">
-            link
-          </span>
-          <span className="font-label-caps text-label-caps text-on-surface-variant shrink-0">
+      <div className="p-2.5 px-3 rounded-lg bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-2 border border-outline-variant/60 shadow-xs">
+        <div className="flex items-center gap-2 overflow-hidden flex-1">
+          <LinkIcon className="w-4 h-4 text-primary shrink-0" />
+          <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider shrink-0">
             Permalink:
           </span>
           {isEditingSlug ? (
@@ -86,10 +95,10 @@ export function GeneralInfoSection({
               type="text"
               value={slug}
               onChange={(e) => onSlugChange(e.target.value)}
-              className="h-7 px-2 font-mono text-body-sm bg-surface-container-lowest rounded border border-outline-variant/40 flex-1 max-w-sm text-primary"
+              className="h-7 px-2 font-mono text-xs bg-white rounded border border-outline-variant/60 flex-1 max-w-sm text-primary focus:outline-none focus:border-primary"
             />
           ) : (
-            <span className="font-body-sm text-body-sm text-secondary font-mono truncate">
+            <span className="text-xs text-on-surface-variant font-mono truncate">
               https://nexa-store.com/products/
               <span className="font-semibold text-primary underline">{slug || 'your-product-slug'}</span>
             </span>
@@ -98,15 +107,15 @@ export function GeneralInfoSection({
         <button
           type="button"
           onClick={() => setIsEditingSlug(!isEditingSlug)}
-          className="font-label-caps text-label-caps text-primary hover:text-secondary font-semibold shrink-0 cursor-pointer"
+          className="text-xs font-semibold text-primary hover:underline shrink-0 cursor-pointer"
         >
           {isEditingSlug ? 'Done' : 'Edit Slug'}
         </button>
       </div>
 
       {/* Short Subtitle */}
-      <div className="flex flex-col gap-space-xs">
-        <label className="font-body-sm text-body-sm font-semibold text-on-surface" htmlFor="prod-summary">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-on-surface" htmlFor="prod-summary">
           Short Subtitle / Value Proposition
         </label>
         <input
@@ -115,23 +124,23 @@ export function GeneralInfoSection({
           value={subtitle}
           onChange={(e) => onSubtitleChange(e.target.value)}
           placeholder="e.g. Flagship over-ear hybrid active noise cancelling headphones with 60h battery life"
-          className="w-full h-10 px-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container transition-all"
+          className="w-full h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-xs"
         />
       </div>
 
       {/* Description Rich Editor */}
-      <div className="flex flex-col gap-space-xs">
+      <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <label className="font-body-sm text-body-sm font-semibold text-on-surface">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
             Description &amp; Story
           </label>
-          <div className="flex items-center bg-surface-container-low p-0.5 rounded-lg border border-outline-variant/20">
+          <div className="flex items-center bg-surface-container-low p-1 rounded-lg border border-outline-variant/60">
             <button
               type="button"
               onClick={() => setActiveTab('visual')}
-              className={`px-space-xs py-0.5 rounded font-label-caps text-label-caps transition-all ${
+              className={`px-2.5 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'visual'
-                  ? 'bg-surface-container-lowest text-on-surface font-semibold shadow-xs'
+                  ? 'bg-white text-primary shadow-xs border border-outline-variant/40'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -140,9 +149,9 @@ export function GeneralInfoSection({
             <button
               type="button"
               onClick={() => setActiveTab('html')}
-              className={`px-space-xs py-0.5 rounded font-label-caps text-label-caps transition-all ${
+              className={`px-2.5 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'html'
-                  ? 'bg-surface-container-lowest text-on-surface font-semibold shadow-xs'
+                  ? 'bg-white text-primary shadow-xs border border-outline-variant/40'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
@@ -152,36 +161,36 @@ export function GeneralInfoSection({
         </div>
 
         {/* Formatting Toolbar */}
-        <div className="rounded-t-lg bg-surface-container-low p-1.5 flex flex-wrap items-center gap-1 border border-outline-variant/30 border-b-0">
+        <div className="rounded-t-lg bg-surface-container-low p-2 flex flex-wrap items-center gap-1 border border-outline-variant/60 border-b-0">
           <button
             type="button"
             onClick={() => applyFormat('bold')}
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container text-on-surface cursor-pointer"
+            className="w-7 h-7 rounded flex items-center justify-center hover:bg-white text-on-surface cursor-pointer transition-colors"
             title="Bold"
           >
-            <span className="material-symbols-outlined text-[16px]">format_bold</span>
+            <Bold className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
             onClick={() => applyFormat('italic')}
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container text-on-surface cursor-pointer"
+            className="w-7 h-7 rounded flex items-center justify-center hover:bg-white text-on-surface cursor-pointer transition-colors"
             title="Italic"
           >
-            <span className="material-symbols-outlined text-[16px]">format_italic</span>
+            <Italic className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
             onClick={() => applyFormat('strikeThrough')}
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container text-on-surface cursor-pointer"
+            className="w-7 h-7 rounded flex items-center justify-center hover:bg-white text-on-surface cursor-pointer transition-colors"
             title="Strikethrough"
           >
-            <span className="material-symbols-outlined text-[16px]">strikethrough_s</span>
+            <Strikethrough className="w-3.5 h-3.5" />
           </button>
-          <div className="h-4 w-px bg-outline-variant mx-1" />
+          <div className="h-4 w-px bg-outline-variant/60 mx-1" />
           <button
             type="button"
             onClick={() => applyFormat('formatBlock')}
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container text-on-surface cursor-pointer font-bold text-xs"
+            className="w-7 h-7 rounded flex items-center justify-center hover:bg-white text-on-surface cursor-pointer font-bold text-xs"
             title="H2"
           >
             H2
@@ -189,58 +198,58 @@ export function GeneralInfoSection({
           <button
             type="button"
             onClick={() => applyFormat('formatBlock')}
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container text-on-surface cursor-pointer font-semibold text-xs"
+            className="w-7 h-7 rounded flex items-center justify-center hover:bg-white text-on-surface cursor-pointer font-semibold text-xs"
             title="H3"
           >
             H3
           </button>
-          <div className="h-4 w-px bg-outline-variant mx-1" />
+          <div className="h-4 w-px bg-outline-variant/60 mx-1" />
           <button
             type="button"
             onClick={() => applyFormat('insertUnorderedList')}
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container text-on-surface cursor-pointer"
+            className="w-7 h-7 rounded flex items-center justify-center hover:bg-white text-on-surface cursor-pointer transition-colors"
             title="Bullet List"
           >
-            <span className="material-symbols-outlined text-[16px]">format_list_bulleted</span>
+            <List className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
             onClick={() => applyFormat('insertOrderedList')}
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container text-on-surface cursor-pointer"
+            className="w-7 h-7 rounded flex items-center justify-center hover:bg-white text-on-surface cursor-pointer transition-colors"
             title="Numbered List"
           >
-            <span className="material-symbols-outlined text-[16px]">format_list_numbered</span>
+            <ListOrdered className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
             onClick={() => applyFormat('formatBlock')}
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container text-on-surface cursor-pointer"
+            className="w-7 h-7 rounded flex items-center justify-center hover:bg-white text-on-surface cursor-pointer transition-colors"
             title="Blockquote"
           >
-            <span className="material-symbols-outlined text-[16px]">format_quote</span>
+            <Quote className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
             onClick={() => applyFormat('code')}
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container text-on-surface cursor-pointer"
+            className="w-7 h-7 rounded flex items-center justify-center hover:bg-white text-on-surface cursor-pointer transition-colors"
             title="Code"
           >
-            <span className="material-symbols-outlined text-[16px]">code</span>
+            <Code className="w-3.5 h-3.5" />
           </button>
-          <div className="h-4 w-px bg-outline-variant mx-1" />
+          <div className="h-4 w-px bg-outline-variant/60 mx-1" />
           <button
             type="button"
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container text-on-surface cursor-pointer"
+            className="w-7 h-7 rounded flex items-center justify-center hover:bg-white text-on-surface cursor-pointer transition-colors"
             title="Insert Link"
           >
-            <span className="material-symbols-outlined text-[16px]">link</span>
+            <LinkIcon className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
-            className="w-7 h-7 rounded flex items-center justify-center hover:bg-surface-container text-on-surface cursor-pointer"
+            className="w-7 h-7 rounded flex items-center justify-center hover:bg-white text-on-surface cursor-pointer transition-colors"
             title="Insert Media"
           >
-            <span className="material-symbols-outlined text-[16px]">image</span>
+            <ImageIcon className="w-3.5 h-3.5" />
           </button>
         </div>
 
@@ -250,7 +259,7 @@ export function GeneralInfoSection({
             value={descriptionHtml}
             onChange={(e) => onDescriptionChange(e.target.value)}
             rows={7}
-            className="w-full p-space-md rounded-b-lg bg-surface-container-lowest font-mono text-xs text-on-surface border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+            className="w-full p-4 rounded-b-lg bg-surface-container-lowest font-mono text-xs text-on-surface border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
           />
         ) : (
           <div
@@ -258,11 +267,10 @@ export function GeneralInfoSection({
             suppressContentEditableWarning
             onBlur={(e) => onDescriptionChange(e.currentTarget.innerHTML)}
             dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-            className="p-space-md rounded-b-lg bg-surface-container-lowest min-h-[160px] font-body-md text-body-md text-on-surface flex flex-col gap-space-sm border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container"
+            className="p-4 rounded-b-lg bg-surface-container-lowest min-h-[160px] text-sm text-on-surface flex flex-col gap-2 border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
           />
         )}
       </div>
     </section>
   )
 }
-

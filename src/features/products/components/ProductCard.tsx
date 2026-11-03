@@ -5,6 +5,7 @@ import type { Product } from '../types/product'
 export interface ProductCardProps {
   product: Product
   actionType?: 'add-to-cart' | 'quick-view'
+  viewMode?: 'grid' | 'detailed'
   onQuickView?: (product: Product) => void
   onAddToCart?: (product: Product) => void
 }
@@ -12,6 +13,7 @@ export interface ProductCardProps {
 export const ProductCard = memo(function ProductCard({
   product,
   actionType = 'add-to-cart',
+  viewMode = 'grid',
   onQuickView,
   onAddToCart,
 }: ProductCardProps) {
@@ -20,9 +22,11 @@ export const ProductCard = memo(function ProductCard({
   const [isAdded, setIsAdded] = useState(false)
 
   const {
+    id,
     title,
     price,
     originalPrice,
+    description,
     category,
     image,
     rating,
@@ -38,7 +42,7 @@ export const ProductCard = memo(function ProductCard({
       if (onQuickView) {
         onQuickView(product)
       } else {
-        navigate(`/products/${product.id}`)
+        navigate(`/products/${id}`)
       }
     } else {
       onAddToCart?.(product)
@@ -47,27 +51,29 @@ export const ProductCard = memo(function ProductCard({
     }
   }
 
-  // Best seller style if rankTag is present or actionType is quick-view
-  if (actionType === 'quick-view' || rankTag) {
+  const discountPercent =
+    originalPrice && originalPrice > price
+      ? Math.round(((originalPrice - price) / originalPrice) * 100)
+      : null
+
+  // Detailed Horizontal Card View
+  if (viewMode === 'detailed') {
     return (
       <div
-        onClick={() => navigate(`/products/${product.id}`)}
-        className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/60 shadow-[0_2px_12px_rgba(36,51,49,0.03)] hover:shadow-[0_8px_24px_rgba(36,51,49,0.08)] hover:-translate-y-1 hover:border-border-active/50 transition-all duration-300 flex flex-col group cursor-pointer"
+        onClick={() => navigate(`/products/${id}`)}
+        className="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/60 shadow-[0_4px_20px_rgba(36,51,49,0.03)] hover:shadow-[0_12px_32px_rgba(36,51,49,0.08)] hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-300 flex flex-col sm:flex-row items-center gap-6 group cursor-pointer"
       >
-        <Link
-          to={`/products/${product.id}`}
-          onClick={(e) => e.stopPropagation()}
-          className="aspect-square bg-surface-container-low rounded-xl overflow-hidden relative mb-4 block"
-        >
+        {/* Image Stage */}
+        <div className="w-full sm:w-48 aspect-square bg-surface-container-low rounded-xl overflow-hidden relative shrink-0 p-4 flex items-center justify-center">
           <img
-            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
-            alt={title}
             src={image}
+            alt={title}
             loading="lazy"
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out"
           />
-          {rankTag && (
-            <span className="absolute top-3 left-3 bg-surface-container-lowest font-label-caps text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm text-on-surface">
-              {rankTag}
+          {badge && (
+            <span className="absolute top-2.5 left-2.5 bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
+              {badge}
             </span>
           )}
           <button
@@ -77,58 +83,125 @@ export const ProductCard = memo(function ProductCard({
               e.stopPropagation()
               setIsWishlisted(!isWishlisted)
             }}
-            className={`absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-container-lowest/90 flex items-center justify-center shadow-sm transition-colors cursor-pointer ${
-              isWishlisted ? 'text-error' : 'text-outline hover:text-error'
+            aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            className={`absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-surface-container-lowest/90 backdrop-blur flex items-center justify-center shadow-xs transition-colors cursor-pointer ${
+              isWishlisted ? 'text-stock-out' : 'text-outline hover:text-stock-out'
             }`}
-            title="Wishlist"
           >
-            <span className="material-symbols-outlined text-base">favorite</span>
+            <span
+              className="material-symbols-outlined text-sm"
+              style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
+            >
+              favorite
+            </span>
           </button>
-        </Link>
-        <div className="flex items-center gap-1 text-xs mb-1">
-          <span className="text-stock-low font-bold">★</span>
-          <span className="font-bold text-on-surface">{rating.rate.toFixed(1)}</span>
-          <span className="text-outline">({rating.count} reviews)</span>
         </div>
-        <Link to={`/products/${product.id}`} onClick={(e) => e.stopPropagation()}>
-          <h3
-            className="font-body-md text-body-md font-bold text-on-surface mb-1 line-clamp-1 group-hover:text-primary transition-colors cursor-pointer"
-            title={title}
-          >
-            {title}
-          </h3>
-        </Link>
-        <span className="font-price-md text-price-md font-bold text-on-surface mb-3">
-          ${price.toFixed(2)}
-        </span>
-        <Link
-          to={`/products/${product.id}`}
-          onClick={(e) => e.stopPropagation()}
-          className="mt-auto w-full bg-surface-container-low hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm font-semibold py-2 rounded-xl transition-colors cursor-pointer text-center block"
-        >
-          View Details
-        </Link>
+
+        {/* Content Info */}
+        <div className="flex-1 flex flex-col justify-between w-full h-full">
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                {category}
+              </span>
+              <div className="flex items-center gap-1 text-xs font-bold text-on-surface">
+                <span className="text-stock-low">★</span>
+                <span>{rating.rate.toFixed(1)}</span>
+                <span className="text-on-surface-variant font-normal">
+                  ({rating.count.toLocaleString()})
+                </span>
+              </div>
+            </div>
+
+            <h3 className="text-base sm:text-lg font-bold text-on-surface group-hover:text-primary transition-colors mb-1.5 leading-snug">
+              {title}
+            </h3>
+
+            <p className="text-xs sm:text-sm text-on-surface-variant line-clamp-2 leading-relaxed mb-4">
+              {description}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-outline-variant/40">
+            <div className="flex items-baseline gap-2">
+              <span className="text-xl font-bold text-on-surface">
+                ${price.toFixed(2)}
+              </span>
+              {originalPrice && (
+                <span className="text-xs text-outline line-through">
+                  ${originalPrice.toFixed(2)}
+                </span>
+              )}
+              {discountPercent && (
+                <span className="text-[11px] font-bold text-stock-in bg-stock-in-bg px-2 py-0.5 rounded-full">
+                  {discountPercent}% OFF
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleAction()
+                }}
+                className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer flex items-center gap-1.5 ${
+                  isAdded
+                    ? 'bg-stock-in text-on-primary'
+                    : 'bg-primary hover:bg-secondary text-on-primary'
+                }`}
+              >
+                <span className="material-symbols-outlined text-sm">
+                  {isAdded ? 'check' : 'shopping_bag'}
+                </span>
+                <span>{isAdded ? 'Added ✓' : 'Add to Cart'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
 
-  // Featured highlight style
+  // Standard Grid Card View
   return (
     <div
-      onClick={() => navigate(`/products/${product.id}`)}
-      className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/60 shadow-[0_2px_12px_rgba(36,51,49,0.03)] hover:shadow-[0_8px_24px_rgba(36,51,49,0.08)] hover:-translate-y-1 hover:border-border-active/50 transition-all duration-300 flex flex-col relative group cursor-pointer"
+      onClick={() => navigate(`/products/${id}`)}
+      className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/60 shadow-[0_4px_20px_rgba(36,51,49,0.03)] hover:shadow-[0_12px_32px_rgba(36,51,49,0.08)] hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 flex flex-col group cursor-pointer relative"
     >
+      {/* Product Image Stage */}
       <Link
-        to={`/products/${product.id}`}
+        to={`/products/${id}`}
         onClick={(e) => e.stopPropagation()}
-        className="aspect-square bg-surface-container-low rounded-xl overflow-hidden relative mb-4 block"
+        className="aspect-square bg-surface-container-low rounded-xl overflow-hidden relative mb-4 p-4 flex items-center justify-center block"
       >
         <img
-          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
-          alt={title}
           src={image}
+          alt={title}
           loading="lazy"
+          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out"
         />
+
+        {/* Top Left Rank or Collection Badge */}
+        {rankTag && (
+          <span className="absolute top-3 left-3 bg-surface-container-lowest/95 backdrop-blur font-label-caps text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs text-on-surface">
+            {rankTag}
+          </span>
+        )}
+        {!rankTag && badge && (
+          <span
+            className={`absolute top-3 left-3 font-label-caps text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider ${
+              badge.toLowerCase().includes('limited')
+                ? 'bg-stock-low text-on-primary'
+                : 'bg-primary text-on-primary'
+            }`}
+          >
+            {badge}
+          </span>
+        )}
+
+        {/* Top Right Wishlist Heart */}
         <button
           type="button"
           onClick={(e) => {
@@ -136,83 +209,92 @@ export const ProductCard = memo(function ProductCard({
             e.stopPropagation()
             setIsWishlisted(!isWishlisted)
           }}
-          className={`absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-container-lowest/90 flex items-center justify-center shadow-sm transition-colors cursor-pointer ${
-            isWishlisted ? 'text-error' : 'text-outline hover:text-error'
+          aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          className={`absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-container-lowest/90 backdrop-blur flex items-center justify-center shadow-xs transition-all hover:scale-110 cursor-pointer ${
+            isWishlisted ? 'text-stock-out' : 'text-outline hover:text-stock-out'
           }`}
           title="Wishlist"
         >
-          <span className="material-symbols-outlined text-base">favorite</span>
-        </button>
-        {badge && (
           <span
-            className={`absolute bottom-3 left-3 text-on-primary font-label-caps text-[10px] font-bold px-2 py-0.5 rounded-full ${
-              badge === 'Limited' ? 'bg-stock-low' : 'bg-primary'
-            }`}
+            className="material-symbols-outlined text-base"
+            style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
           >
-            {badge}
+            favorite
           </span>
-        )}
+        </button>
       </Link>
 
-      <div className="flex items-center justify-between text-body-sm mb-1">
-        <span className="font-label-caps text-label-caps uppercase text-outline font-semibold">
+      {/* Category Eyebrow & Star Rating */}
+      <div className="flex items-center justify-between text-xs mb-1.5">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-outline truncate max-w-[130px]">
           {category}
         </span>
-        <span className="inline-flex items-center gap-1 font-bold text-on-surface text-xs">
-          <span className="text-stock-low">★</span> {rating.rate.toFixed(1)}{' '}
+        <div className="inline-flex items-center gap-1 font-bold text-on-surface text-xs">
+          <span className="text-stock-low">★</span>
+          <span>{rating.rate.toFixed(1)}</span>
           <span className="text-outline font-normal">({rating.count.toLocaleString()})</span>
-        </span>
+        </div>
       </div>
 
-      <Link to={`/products/${product.id}`} onClick={(e) => e.stopPropagation()}>
+      {/* Product Title */}
+      <Link to={`/products/${id}`} onClick={(e) => e.stopPropagation()}>
         <h3
-          className="font-body-md text-body-md font-bold text-on-surface mb-2 line-clamp-1 group-hover:text-primary transition-colors cursor-pointer"
+          className="font-body-md text-sm font-bold text-on-surface mb-2 line-clamp-1 group-hover:text-primary transition-colors cursor-pointer"
           title={title}
         >
           {title}
         </h3>
       </Link>
 
-      <div className="flex items-center gap-2 mb-3">
-        <span className="font-price-md text-price-md font-bold text-on-surface">
+      {/* Price & Stock Status Row */}
+      <div className="flex items-center gap-2 mb-3 mt-auto">
+        <span className="text-base font-bold text-on-surface">
           ${price.toFixed(2)}
         </span>
         {originalPrice && (
-          <span className="font-body-sm text-body-sm text-outline line-through">
+          <span className="text-xs text-outline line-through">
             ${originalPrice.toFixed(2)}
           </span>
         )}
         {stockLabel && (
           <span
-            className={`ml-auto font-label-caps text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+            className={`ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-full ${
               stockStatus === 'low-stock'
-                ? 'text-stock-low bg-stock-low-bg'
-                : 'text-stock-in bg-stock-in-bg'
+                ? 'text-stock-low bg-stock-low-bg border border-stock-low/30'
+                : 'text-stock-in bg-stock-in-bg border border-stock-in/30'
             }`}
           >
             {stockLabel}
           </span>
         )}
         {variantLabel && !stockLabel && (
-          <span className="ml-auto font-label-caps text-[11px] font-semibold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">
+          <span className="ml-auto text-[11px] font-semibold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full border border-outline-variant/50">
             {variantLabel}
           </span>
         )}
       </div>
 
+      {/* Action CTA Button */}
       <button
         type="button"
         onClick={(e) => {
           e.stopPropagation()
           handleAction()
         }}
-        className={`mt-auto w-full font-body-sm text-body-sm font-semibold py-2.5 rounded-xl transition-all shadow-sm cursor-pointer ${
+        className={`w-full font-body-sm text-xs font-semibold py-2.5 rounded-xl transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 ${
           isAdded
             ? 'bg-stock-in text-on-primary'
-            : 'bg-surface-container-high hover:bg-primary text-on-surface hover:text-on-primary'
+            : actionType === 'quick-view'
+            ? 'bg-surface-container-low hover:bg-surface-container-high text-on-surface hover:text-primary border border-outline-variant/60'
+            : 'bg-primary hover:bg-secondary text-on-primary'
         }`}
       >
-        {isAdded ? 'Added ✓' : 'Add to Cart'}
+        <span className="material-symbols-outlined text-sm">
+          {isAdded ? 'check' : actionType === 'quick-view' ? 'visibility' : 'shopping_bag'}
+        </span>
+        <span>
+          {isAdded ? 'Added ✓' : actionType === 'quick-view' ? 'View Details' : 'Add to Cart'}
+        </span>
       </button>
     </div>
   )

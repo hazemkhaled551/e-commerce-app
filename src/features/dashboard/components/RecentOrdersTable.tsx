@@ -1,4 +1,20 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  Search,
+  SlidersHorizontal,
+  Printer,
+  XCircle,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Truck,
+  CheckCircle2,
+  PauseCircle,
+  Ban,
+  Download,
+  Package,
+} from 'lucide-react'
 import type { DashboardOrder, OrderFilterTab } from '../types/dashboard'
 
 interface RecentOrdersTableProps {
@@ -7,7 +23,7 @@ interface RecentOrdersTableProps {
   onToggleSelectOrder: (orderId: string) => void
   onToggleSelectAll: () => void
   onSelectOrderForDetails: (order: DashboardOrder) => void
-  onCancelOrderClick: (order: DashboardOrder) => void
+  onRowActionClick?: (order: DashboardOrder, actionType: string) => void
   onPrintSlip?: (order: DashboardOrder) => void
 }
 
@@ -17,7 +33,7 @@ export function RecentOrdersTable({
   onToggleSelectOrder,
   onToggleSelectAll,
   onSelectOrderForDetails,
-  onCancelOrderClick,
+  onRowActionClick,
   onPrintSlip,
 }: RecentOrdersTableProps) {
   const [activeTab, setActiveTab] = useState<OrderFilterTab>('all')
@@ -58,27 +74,38 @@ export function RecentOrdersTable({
     filteredOrders.length > 0 &&
     filteredOrders.every((order) => selectedOrderIds.includes(order.id))
 
+  // Helper for Contextual Row Action
+  const getPrimaryActionLabel = (order: DashboardOrder) => {
+    if (order.fulfillmentStatus.startsWith('unfulfilled')) return 'Fulfill'
+    if (order.fulfillmentStatus === 'in_transit') return 'Track'
+    if (order.fulfillmentStatus === 'delivered') return 'Receipt'
+    if (order.paymentStatus === 'pending_wire') return 'Capture'
+    if (order.paymentStatus === 'failed') return 'Send Recovery Link'
+    if (order.fulfillmentStatus === 'returned') return 'RMA Details'
+    return 'Details'
+  }
+
   // Helpers for Status Badges
   const renderPaymentBadge = (status: DashboardOrder['paymentStatus']) => {
     switch (status) {
       case 'paid':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-variant text-primary font-label-caps text-label-caps font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 text-[11px] font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             Paid
           </span>
         )
       case 'pending_wire':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-caps text-label-caps font-semibold">
-            <span className="material-symbols-outlined text-[13px]">pending</span>
-            Pending (Wire)
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 text-[11px] font-semibold">
+            <Clock className="w-3 h-3" />
+            Pending Wire
           </span>
         )
       case 'refunded':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-caps text-label-caps font-semibold">
-            <span className="material-symbols-outlined text-[13px]">refresh</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error/10 text-error text-[11px] font-semibold">
+            <Ban className="w-3 h-3" />
             Refunded
           </span>
         )
@@ -91,43 +118,43 @@ export function RecentOrdersTable({
     switch (status) {
       case 'unfulfilled_priority':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-caps text-label-caps font-semibold">
-            <span className="material-symbols-outlined text-[13px]">hourglass_top</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 text-[11px] font-bold">
+            <Clock className="w-3 h-3" />
             Unfulfilled (Priority)
           </span>
         )
       case 'unfulfilled':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error-container/60 text-on-error-container font-label-caps text-label-caps font-semibold">
-            <span className="material-symbols-outlined text-[13px]">hourglass_empty</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 text-[11px] font-medium">
+            <Clock className="w-3 h-3" />
             Unfulfilled
           </span>
         )
       case 'in_transit':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-caps text-label-caps font-semibold">
-            <span className="material-symbols-outlined text-[13px]">local_shipping</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-semibold">
+            <Truck className="w-3 h-3" />
             In Transit
           </span>
         )
       case 'on_hold':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-caps text-label-caps font-semibold">
-            <span className="material-symbols-outlined text-[13px]">pause_circle</span>
-            On Hold (Payment)
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold">
+            <PauseCircle className="w-3 h-3" />
+            On Hold
           </span>
         )
       case 'delivered':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-variant text-primary font-label-caps text-label-caps font-semibold">
-            <span className="material-symbols-outlined text-[13px]">check_circle</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 text-[11px] font-semibold">
+            <CheckCircle2 className="w-3 h-3" />
             Delivered
           </span>
         )
       case 'cancelled':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-caps text-label-caps font-semibold">
-            <span className="material-symbols-outlined text-[13px]">cancel</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error/10 text-error text-[11px] font-semibold">
+            <XCircle className="w-3 h-3" />
             Cancelled
           </span>
         )
@@ -137,41 +164,39 @@ export function RecentOrdersTable({
   }
 
   return (
-    <div className="rounded-xl bg-surface-container-lowest shadow-sm flex flex-col overflow-hidden">
+    <div className="rounded-2xl bg-surface-container-lowest border border-outline-variant/60 shadow-[0_2px_12px_rgba(36,51,49,0.03)] flex flex-col overflow-hidden">
       {/* Table Control Bar */}
-      <div className="p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-sm bg-surface-container-lowest">
-        {/* Search & Filter Trigger */}
-        <div className="flex items-center gap-space-sm flex-1 max-w-md">
+      <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-outline-variant/50">
+        {/* Search */}
+        <div className="flex items-center gap-2.5 flex-1 max-w-md">
           <div className="relative w-full">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
-              search
-            </span>
+            <Search className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search orders, customers, SKUs..."
-              className="w-full pl-9 pr-3 py-1.5 h-9 rounded-xl bg-surface-container-low text-on-surface placeholder:text-on-surface-variant font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary-container"
+              placeholder="Search orders by number, customer, SKU..."
+              className="w-full pl-9 pr-3 h-9 rounded-xl bg-surface-container-low/70 text-on-surface placeholder:text-outline text-xs border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
             />
           </div>
           <button
             type="button"
-            className="h-9 px-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface-variant flex items-center gap-1 font-body-sm text-body-sm cursor-pointer transition-colors"
+            className="h-9 px-3 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface-variant flex items-center gap-1.5 text-xs font-semibold cursor-pointer transition-colors shrink-0"
           >
-            <span className="material-symbols-outlined text-[18px]">filter_list</span>
+            <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>Filter</span>
           </button>
         </div>
 
         {/* Status segment filter chips */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
           <button
             type="button"
             onClick={() => setActiveTab('all')}
-            className={`px-2.5 py-1 rounded-lg font-label-caps text-label-caps transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'all'
-                ? 'bg-primary text-on-primary font-semibold'
-                : 'bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium'
+                ? 'bg-primary text-on-primary shadow-xs'
+                : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             }`}
           >
             All (142)
@@ -179,10 +204,10 @@ export function RecentOrdersTable({
           <button
             type="button"
             onClick={() => setActiveTab('unfulfilled')}
-            className={`px-2.5 py-1 rounded-lg font-label-caps text-label-caps transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'unfulfilled'
-                ? 'bg-primary text-on-primary font-semibold'
-                : 'bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium'
+                ? 'bg-primary text-on-primary shadow-xs'
+                : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             }`}
           >
             Unfulfilled (24)
@@ -190,10 +215,10 @@ export function RecentOrdersTable({
           <button
             type="button"
             onClick={() => setActiveTab('in_transit')}
-            className={`px-2.5 py-1 rounded-lg font-label-caps text-label-caps transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'in_transit'
-                ? 'bg-primary text-on-primary font-semibold'
-                : 'bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium'
+                ? 'bg-primary text-on-primary shadow-xs'
+                : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             }`}
           >
             In Transit (38)
@@ -201,10 +226,10 @@ export function RecentOrdersTable({
           <button
             type="button"
             onClick={() => setActiveTab('delivered')}
-            className={`px-2.5 py-1 rounded-lg font-label-caps text-label-caps transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'delivered'
-                ? 'bg-primary text-on-primary font-semibold'
-                : 'bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium'
+                ? 'bg-primary text-on-primary shadow-xs'
+                : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             }`}
           >
             Delivered (75)
@@ -212,10 +237,10 @@ export function RecentOrdersTable({
           <button
             type="button"
             onClick={() => setActiveTab('on_hold')}
-            className={`px-2.5 py-1 rounded-lg font-label-caps text-label-caps transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'on_hold'
-                ? 'bg-primary text-on-primary font-semibold'
-                : 'bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium'
+                ? 'bg-primary text-on-primary shadow-xs'
+                : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             }`}
           >
             On Hold (5)
@@ -223,38 +248,46 @@ export function RecentOrdersTable({
         </div>
       </div>
 
-      {/* Bulk Action Alert Bar (Shown when items are selected) */}
+      {/* Bulk Action Alert Bar */}
       {selectedOrderIds.length > 0 && (
-        <div className="px-space-md py-2 bg-surface-container-high flex flex-wrap items-center justify-between gap-space-sm text-on-surface font-body-sm text-body-sm animate-fade-in">
-          <div className="flex items-center gap-space-sm">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-primary text-on-primary font-label-caps text-label-caps font-bold">
+        <div className="px-4 py-2.5 bg-primary/10 border-b border-primary/20 flex flex-wrap items-center justify-between gap-3 text-on-surface text-xs animate-fade-in">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-primary text-on-primary text-[11px] font-bold">
               {selectedOrderIds.length}
             </span>
-            <span className="font-medium">
-              {selectedOrderIds.length} order{selectedOrderIds.length > 1 ? 's' : ''} selected across this view
+            <span className="font-semibold text-primary">
+              {selectedOrderIds.length} order{selectedOrderIds.length > 1 ? 's' : ''} selected
             </span>
           </div>
 
-          <div className="flex items-center gap-space-xs">
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              className="px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container shadow-xs font-label-caps text-label-caps font-semibold flex items-center gap-1 cursor-pointer"
+              onClick={() => {
+                const first = orders.find((o) => selectedOrderIds.includes(o.id)) || filteredOrders[0]
+                if (first && onPrintSlip) onPrintSlip(first)
+              }}
+              className="px-2.5 py-1 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container shadow-xs text-xs font-semibold flex items-center gap-1.5 cursor-pointer border border-outline-variant/60"
             >
-              <span className="material-symbols-outlined text-[16px]">print</span>
+              <Printer className="w-3.5 h-3.5" />
               <span>Print Packing Slips</span>
             </button>
             <button
               type="button"
-              className="px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container shadow-xs font-label-caps text-label-caps font-semibold flex items-center gap-1 cursor-pointer"
+              onClick={() => {
+                const first = orders.find((o) => selectedOrderIds.includes(o.id)) || filteredOrders[0]
+                if (first && onRowActionClick) onRowActionClick(first, 'Fulfill')
+              }}
+              className="px-2.5 py-1 rounded-lg bg-primary text-on-primary hover:bg-primary-hover shadow-xs text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[16px]">local_shipping</span>
+              <Truck className="w-3.5 h-3.5" />
               <span>Fulfill Items</span>
             </button>
             <button
               type="button"
-              className="px-space-sm py-1 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container shadow-xs font-label-caps text-label-caps font-semibold flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container shadow-xs text-xs font-semibold flex items-center gap-1.5 cursor-pointer border border-outline-variant/60"
             >
-              <span className="material-symbols-outlined text-[16px]">download</span>
+              <Download className="w-3.5 h-3.5" />
               <span>Export Selected</span>
             </button>
           </div>
@@ -265,71 +298,68 @@ export function RecentOrdersTable({
       <div className="overflow-x-auto w-full">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-surface-container-low text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider">
-              <th className="py-space-sm px-space-md w-10">
+            <tr className="bg-surface-container-low/70 text-on-surface-variant text-[11px] font-bold uppercase tracking-wider border-b border-outline-variant/60">
+              <th className="py-3 px-4 w-10">
                 <input
                   type="checkbox"
                   checked={isAllSelected}
                   onChange={onToggleSelectAll}
-                  className="rounded text-primary focus:ring-primary h-4 w-4 cursor-pointer"
+                  className="rounded text-primary focus:ring-primary/20 h-4 w-4 cursor-pointer accent-primary"
                 />
               </th>
-              <th className="py-space-sm px-space-md">Order &amp; Channel</th>
-              <th className="py-space-sm px-space-md">Customer</th>
-              <th className="py-space-sm px-space-md">Date &amp; Time</th>
-              <th className="py-space-sm px-space-md">Payment</th>
-              <th className="py-space-sm px-space-md">Fulfillment</th>
-              <th className="py-space-sm px-space-md">Items</th>
-              <th className="py-space-sm px-space-md text-right">Total</th>
-              <th className="py-space-sm px-space-md text-center">Actions</th>
+              <th className="py-3 px-4">Order &amp; Channel</th>
+              <th className="py-3 px-4">Customer</th>
+              <th className="py-3 px-4">Date &amp; Time</th>
+              <th className="py-3 px-4">Payment</th>
+              <th className="py-3 px-4">Fulfillment</th>
+              <th className="py-3 px-4">Items</th>
+              <th className="py-3 px-4 text-right">Total</th>
+              <th className="py-3 px-4 text-right min-w-[140px]">Actions</th>
             </tr>
           </thead>
 
-          <tbody className="divide-y-0 text-body-sm font-body-sm text-on-surface">
+          <tbody className="divide-y divide-outline-variant/40 text-xs text-on-surface">
             {filteredOrders.map((order) => {
               const isSelected = selectedOrderIds.includes(order.id)
               return (
                 <tr
                   key={order.id}
-                  className={`hover:bg-surface-container-low/60 transition-colors ${
-                    isSelected ? 'bg-surface-container-low/40' : 'bg-surface-container-lowest'
+                  className={`hover:bg-surface-container-low/50 transition-colors ${
+                    isSelected ? 'bg-primary/5' : 'bg-surface-container-lowest'
                   }`}
                 >
                   {/* Select Checkbox */}
-                  <td className="py-space-md px-space-md">
+                  <td className="py-3 px-4">
                     <input
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => onToggleSelectOrder(order.id)}
-                      className="rounded text-primary focus:ring-primary h-4 w-4 cursor-pointer"
+                      className="rounded text-primary focus:ring-primary/20 h-4 w-4 cursor-pointer accent-primary"
                     />
                   </td>
 
                   {/* Order & Channel */}
-                  <td className="py-space-md px-space-md">
+                  <td className="py-3 px-4">
                     <div className="flex flex-col">
-                      <button
-                        type="button"
-                        onClick={() => onSelectOrderForDetails(order)}
-                        className="font-bold text-primary hover:underline cursor-pointer text-left"
+                      <Link
+                        to={`/admin/orders/${order.orderNumber.replace('#', '')}`}
+                        className="font-bold text-primary hover:underline cursor-pointer text-left font-mono"
                       >
                         {order.orderNumber}
-                      </button>
-                      <span className="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[12px]">
-                          {order.channelIcon}
-                        </span>{' '}
-                        {order.channel}
+                      </Link>
+                      <span className="text-[11px] text-on-surface-variant flex items-center gap-1 mt-0.5">
+                        <Package className="w-3 h-3 text-outline" />
+                        <span>{order.channel}</span>
                       </span>
                     </div>
                   </td>
 
                   {/* Customer */}
-                  <td className="py-space-md px-space-md">
-                    <div className="flex items-center gap-space-xs">
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-2">
                       <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[11px] ${
-                          order.customerAvatarBg || 'bg-surface-container-high text-on-surface'
+                        className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-[11px] shrink-0 ${
+                          order.customerAvatarBg || 'bg-primary/10 text-primary'
                         }`}
                       >
                         {order.customerInitials}
@@ -346,33 +376,33 @@ export function RecentOrdersTable({
                   </td>
 
                   {/* Date & Time */}
-                  <td className="py-space-md px-space-md text-on-surface-variant whitespace-nowrap">
+                  <td className="py-3 px-4 text-on-surface-variant whitespace-nowrap">
                     <span>{order.dateTimeText}</span>
                     <div className="text-[11px] text-outline">{order.timeAgoText}</div>
                   </td>
 
                   {/* Payment Status */}
-                  <td className="py-space-md px-space-md whitespace-nowrap">
+                  <td className="py-3 px-4 whitespace-nowrap">
                     {renderPaymentBadge(order.paymentStatus)}
                   </td>
 
                   {/* Fulfillment Status */}
-                  <td className="py-space-md px-space-md whitespace-nowrap">
+                  <td className="py-3 px-4 whitespace-nowrap">
                     {renderFulfillmentBadge(order.fulfillmentStatus)}
                   </td>
 
                   {/* Items */}
-                  <td className="py-space-md px-space-md">
-                    <span className="font-medium">{order.itemCount} items</span>
-                    <div className="text-[11px] text-on-surface-variant truncate max-w-[140px]">
+                  <td className="py-3 px-4">
+                    <span className="font-semibold">{order.itemCount} items</span>
+                    <div className="text-[11px] text-on-surface-variant truncate max-w-[150px]">
                       {order.itemsSummary}
                     </div>
                   </td>
 
                   {/* Total */}
-                  <td className="py-space-md px-space-md text-right whitespace-nowrap">
+                  <td className="py-3 px-4 text-right whitespace-nowrap">
                     <span
-                      className={`font-price-md text-price-md font-bold ${
+                      className={`font-mono font-bold text-sm ${
                         order.isRefunded
                           ? 'text-outline line-through'
                           : 'text-on-surface'
@@ -383,34 +413,19 @@ export function RecentOrdersTable({
                   </td>
 
                   {/* Actions */}
-                  <td className="py-space-md px-space-md text-center">
-                    <div className="flex items-center justify-center gap-1">
+                  <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-1.5">
                       <button
                         type="button"
-                        onClick={() => onPrintSlip?.(order)}
-                        className="w-7 h-7 rounded-lg hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
-                        title="Print Shipping Label"
+                        onClick={() =>
+                          onRowActionClick
+                            ? onRowActionClick(order, getPrimaryActionLabel(order))
+                            : onSelectOrderForDetails(order)
+                        }
+                        className="h-8 px-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold transition-all border border-outline-variant/60 cursor-pointer shadow-xs active:scale-95"
                       >
-                        <span className="material-symbols-outlined text-[18px]">print</span>
+                        {getPrimaryActionLabel(order)}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => onSelectOrderForDetails(order)}
-                        className="w-7 h-7 rounded-lg hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
-                        title="View Order Details"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">more_horiz</span>
-                      </button>
-                      {!order.isRefunded && (
-                        <button
-                          type="button"
-                          onClick={() => onCancelOrderClick(order)}
-                          className="w-7 h-7 rounded-lg hover:bg-error-container/60 flex items-center justify-center text-on-surface-variant hover:text-error transition-colors cursor-pointer"
-                          title="Cancel / Refund Order"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">cancel</span>
-                        </button>
-                      )}
                     </div>
                   </td>
                 </tr>
@@ -421,15 +436,15 @@ export function RecentOrdersTable({
       </div>
 
       {/* Table Pagination Footer */}
-      <div className="p-space-md bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-sm font-body-sm text-body-sm text-on-surface-variant">
-        <div className="flex items-center gap-space-xs flex-wrap">
+      <div className="p-3.5 bg-surface-container-low/70 border-t border-outline-variant/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-on-surface-variant">
+        <div className="flex items-center gap-2 flex-wrap">
           <span>
             Showing <strong className="text-on-surface font-semibold">1 to {filteredOrders.length}</strong> of{' '}
             <strong className="text-on-surface font-semibold">142</strong> orders
           </span>
           <span className="text-outline-variant">•</span>
           <span>Rows per page:</span>
-          <select className="bg-surface-container-lowest text-on-surface font-semibold rounded-lg px-2 py-0.5 text-[12px] focus:outline-none border border-outline-variant/30 cursor-pointer">
+          <select className="bg-surface-container-lowest text-on-surface font-semibold rounded-lg px-2 py-1 text-xs focus:outline-none border border-outline-variant/60 cursor-pointer">
             <option>10</option>
             <option>25</option>
             <option>50</option>
@@ -440,44 +455,37 @@ export function RecentOrdersTable({
           <button
             type="button"
             disabled
-            className="w-8 h-8 rounded-lg bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors disabled:opacity-40 cursor-not-allowed"
+            className="w-7 h-7 rounded-lg bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-center text-outline disabled:opacity-40 cursor-not-allowed"
           >
-            <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+            <ChevronLeft className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-primary text-on-primary font-bold text-[12px] cursor-pointer"
+            className="w-7 h-7 rounded-lg bg-primary text-on-primary font-bold text-xs cursor-pointer shadow-xs"
           >
             1
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-medium text-[12px] cursor-pointer"
+            className="w-7 h-7 rounded-lg bg-surface-container-lowest border border-outline-variant/50 text-on-surface hover:bg-surface-container font-medium text-xs cursor-pointer"
           >
             2
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-medium text-[12px] cursor-pointer"
+            className="w-7 h-7 rounded-lg bg-surface-container-lowest border border-outline-variant/50 text-on-surface hover:bg-surface-container font-medium text-xs cursor-pointer"
           >
             3
           </button>
           <span className="px-1 text-outline">...</span>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-medium text-[12px] cursor-pointer"
+            className="w-7 h-7 rounded-lg bg-surface-container-lowest border border-outline-variant/50 flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
           >
-            15
-          </button>
-          <button
-            type="button"
-            className="w-8 h-8 rounded-lg bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
     </div>
   )
 }
-

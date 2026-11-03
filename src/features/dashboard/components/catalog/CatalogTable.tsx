@@ -1,3 +1,12 @@
+import {
+  Edit3,
+  Eye,
+  RotateCcw,
+  MoreVertical,
+  ChevronLeft,
+  ChevronRight,
+  Package,
+} from 'lucide-react'
 import type { CatalogProduct } from '../../types/catalog'
 
 interface CatalogTableProps {
@@ -26,25 +35,25 @@ export function CatalogTable({
     switch (stockState) {
       case 'in_stock':
         return (
-          <span className="font-label-caps text-label-caps px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-bold">
+          <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700">
             In Stock
           </span>
         )
       case 'low_stock':
         return (
-          <span className="font-label-caps text-label-caps px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-bold">
+          <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700">
             Low Stock
           </span>
         )
       case 'critical_low':
         return (
-          <span className="font-label-caps text-label-caps px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-bold">
-            Critical Low
+          <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200/60">
+            Critical
           </span>
         )
       case 'out_of_stock':
         return (
-          <span className="font-label-caps text-label-caps px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-bold">
+          <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">
             Out of Stock
           </span>
         )
@@ -55,28 +64,28 @@ export function CatalogTable({
     switch (status) {
       case 'published':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-caps text-label-caps font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 text-[11px] font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             Published
           </span>
         )
       case 'draft':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-label-caps text-label-caps font-semibold">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-low text-on-surface text-[11px] font-semibold border border-outline-variant/60">
             <span className="w-1.5 h-1.5 rounded-full bg-outline" />
             Draft
           </span>
         )
       case 'unpublished':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-caps text-label-caps font-semibold">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface text-[11px] font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-outline" />
             Unpublished
           </span>
         )
       case 'archived':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-caps text-label-caps font-semibold">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant text-[11px] font-medium">
             <span className="w-1.5 h-1.5 rounded-full bg-outline-variant" />
             Archived
           </span>
@@ -85,31 +94,31 @@ export function CatalogTable({
   }
 
   return (
-    <div className="w-full rounded-xl bg-surface-container-lowest shadow-sm overflow-hidden flex flex-col border border-outline-variant/15">
+    <div className="w-full rounded-2xl bg-surface-container-lowest shadow-[0_2px_12px_rgba(36,51,49,0.03)] overflow-hidden flex flex-col border border-outline-variant/60">
       <div className="overflow-x-auto w-full">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-surface-container-low text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider select-none">
-              <th className="py-space-md px-space-md w-12 text-center">
+            <tr className="bg-surface-container-low/70 text-on-surface-variant text-[11px] font-bold uppercase tracking-wider select-none border-b border-outline-variant/60">
+              <th className="py-3 px-4 w-12 text-center">
                 <input
                   type="checkbox"
                   checked={isAllSelected}
                   onChange={onToggleSelectAll}
-                  className="w-4 h-4 rounded text-primary-container focus:ring-primary-container cursor-pointer"
+                  className="w-4 h-4 rounded text-primary focus:ring-primary/20 cursor-pointer accent-primary"
                 />
               </th>
-              <th className="py-space-md px-space-md min-w-[320px]">Product Info &amp; Variants</th>
-              <th className="py-space-md px-space-md min-w-[140px]">Category</th>
-              <th className="py-space-md px-space-md min-w-[180px]">Inventory &amp; Stock</th>
-              <th className="py-space-md px-space-md min-w-[170px]">Price &amp; Margin</th>
-              <th className="py-space-md px-space-md min-w-[130px]">Status</th>
-              <th className="py-space-md px-space-md min-w-[130px]">30d Velocity</th>
-              <th className="py-space-md px-space-md min-w-[160px]">Last Updated</th>
-              <th className="py-space-md px-space-md w-28 text-right pr-space-md">Actions</th>
+              <th className="py-3 px-4 min-w-[280px]">Product &amp; SKU</th>
+              <th className="py-3 px-4 min-w-[130px]">Category</th>
+              <th className="py-3 px-4 min-w-[170px]">Inventory &amp; Stock</th>
+              <th className="py-3 px-4 min-w-[160px]">Price &amp; Margin</th>
+              <th className="py-3 px-4 min-w-[120px]">Status</th>
+              <th className="py-3 px-4 min-w-[120px]">30d Sales</th>
+              <th className="py-3 px-4 min-w-[140px]">Last Updated</th>
+              <th className="py-3 px-4 w-24 text-right pr-4">Actions</th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-surface-container font-body-sm text-body-sm text-on-surface">
+          <tbody className="divide-y divide-outline-variant/40 text-xs text-on-surface">
             {products.map((product) => {
               const isSelected = selectedIds.includes(product.id)
               const isArchived = product.status === 'archived'
@@ -117,28 +126,28 @@ export function CatalogTable({
               return (
                 <tr
                   key={product.id}
-                  className={`hover:bg-surface-container-low/60 transition-colors ${
+                  className={`hover:bg-surface-container-low/50 transition-colors ${
                     isArchived
                       ? 'bg-surface-container-lowest opacity-75'
                       : isSelected
-                      ? 'bg-surface-container-low/40'
+                      ? 'bg-primary/5'
                       : 'bg-surface-container-lowest'
                   }`}
                 >
                   {/* Checkbox */}
-                  <td className="py-space-md px-space-md text-center">
+                  <td className="py-3 px-4 text-center">
                     <input
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => onToggleSelect(product.id)}
-                      className="w-4 h-4 rounded text-primary-container focus:ring-primary-container cursor-pointer"
+                      className="w-4 h-4 rounded text-primary focus:ring-primary/20 cursor-pointer accent-primary"
                     />
                   </td>
 
                   {/* Product Info & Variants */}
-                  <td className="py-space-md px-space-md">
-                    <div className="flex items-center gap-space-sm">
-                      <div className="w-14 h-14 rounded-lg bg-surface-container-low overflow-hidden shrink-0 shadow-xs flex items-center justify-center border border-outline-variant/10">
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-surface-container-low overflow-hidden shrink-0 shadow-xs flex items-center justify-center border border-outline-variant/40">
                         {product.imageUrl ? (
                           <img
                             src={product.imageUrl}
@@ -146,26 +155,24 @@ export function CatalogTable({
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="material-symbols-outlined text-[24px] text-on-surface-variant">
-                            inventory_2
-                          </span>
+                          <Package className="w-5 h-5 text-outline" />
                         )}
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <div className="flex items-center gap-space-xs flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <button
                             type="button"
                             onClick={() => onViewProduct(product)}
-                            className="font-body-md text-body-md font-semibold text-on-surface truncate hover:text-primary cursor-pointer text-left"
+                            className="text-xs font-bold text-on-surface truncate hover:text-primary cursor-pointer text-left"
                           >
                             {product.name}
                           </button>
-                          <span className="font-label-caps text-label-caps px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container-low text-on-surface-variant font-medium">
                             {product.variantLabel}
                           </span>
                         </div>
-                        <div className="flex items-center gap-space-xs mt-0.5">
-                          <span className="font-mono text-[11px] font-semibold text-on-surface-variant">
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="font-mono text-[11px] font-semibold text-primary">
                             SKU: {product.sku}
                           </span>
                           <span className="text-outline-variant">•</span>
@@ -178,18 +185,18 @@ export function CatalogTable({
                   </td>
 
                   {/* Category */}
-                  <td className="py-space-md px-space-md font-medium text-on-surface-variant">
+                  <td className="py-3 px-4 font-medium text-on-surface-variant">
                     {product.category}
                   </td>
 
                   {/* Inventory & Stock */}
-                  <td className="py-space-md px-space-md">
+                  <td className="py-3 px-4">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center justify-between">
                         <span
                           className={`font-semibold ${
                             product.stockState === 'critical_low' || product.stockState === 'low_stock'
-                              ? 'text-error'
+                              ? 'text-rose-600'
                               : 'text-on-surface'
                           }`}
                         >
@@ -197,13 +204,13 @@ export function CatalogTable({
                         </span>
                         {renderStockBadge(product.stockState)}
                       </div>
-                      <div className="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
+                      <div className="w-full h-1.5 rounded-full bg-surface-container-low overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
                             product.stockState === 'critical_low' || product.stockState === 'low_stock'
-                              ? 'bg-error'
+                              ? 'bg-rose-500'
                               : product.stockPercentage > 0
-                              ? 'bg-primary-container'
+                              ? 'bg-primary'
                               : 'bg-outline-variant'
                           }`}
                           style={{ width: `${product.stockPercentage}%` }}
@@ -216,22 +223,22 @@ export function CatalogTable({
                   </td>
 
                   {/* Price & Margin */}
-                  <td className="py-space-md px-space-md">
+                  <td className="py-3 px-4">
                     <div className="flex flex-col">
                       <div className="flex items-baseline gap-1.5">
-                        <span className="font-price-md text-price-md text-on-surface font-bold">
+                        <span className="font-mono text-sm text-on-surface font-bold">
                           ${product.price.toFixed(2)}
                         </span>
                         {product.originalPrice && (
-                          <span className="text-on-surface-variant line-through text-[12px]">
+                          <span className="text-on-surface-variant line-through text-[11px] font-mono">
                             ${product.originalPrice.toFixed(2)}
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] text-on-surface-variant">
+                      <span className="text-[11px] text-on-surface-variant font-mono">
                         Cost: ${product.costPrice.toFixed(2)}{' '}
                         {product.marginPercent > 0 && (
-                          <span className="text-secondary font-semibold">
+                          <span className="text-emerald-600 font-semibold">
                             ({product.marginPercent}% margin)
                           </span>
                         )}
@@ -240,10 +247,10 @@ export function CatalogTable({
                   </td>
 
                   {/* Status */}
-                  <td className="py-space-md px-space-md">{renderStatusBadge(product.status)}</td>
+                  <td className="py-3 px-4">{renderStatusBadge(product.status)}</td>
 
                   {/* 30d Velocity */}
-                  <td className="py-space-md px-space-md">
+                  <td className="py-3 px-4">
                     <div className="flex flex-col">
                       {product.unitsSold30d > 0 ? (
                         <>
@@ -255,13 +262,13 @@ export function CatalogTable({
                           </span>
                         </>
                       ) : (
-                        <span className="text-on-surface-variant font-body-sm">—</span>
+                        <span className="text-outline">—</span>
                       )}
                     </div>
                   </td>
 
                   {/* Last Updated */}
-                  <td className="py-space-md px-space-md">
+                  <td className="py-3 px-4">
                     <div className="flex flex-col">
                       <span className="text-on-surface font-medium">
                         {product.lastUpdatedDate}
@@ -273,42 +280,42 @@ export function CatalogTable({
                   </td>
 
                   {/* Actions */}
-                  <td className="py-space-md px-space-md text-right pr-space-md">
+                  <td className="py-3 px-4 text-right pr-4">
                     <div className="flex items-center justify-end gap-1 text-on-surface-variant">
                       <button
                         type="button"
                         onClick={() => onEditProduct(product)}
-                        className="w-8 h-8 rounded-lg hover:bg-surface-container hover:text-on-surface flex items-center justify-center transition-all cursor-pointer"
+                        className="w-7 h-7 rounded-lg hover:bg-surface-container hover:text-primary flex items-center justify-center transition-all cursor-pointer"
                         title="Edit Product"
                       >
-                        <span className="material-symbols-outlined text-[18px]">edit</span>
+                        <Edit3 className="w-3.5 h-3.5" />
                       </button>
 
                       <button
                         type="button"
                         onClick={() => onViewProduct(product)}
-                        className="w-8 h-8 rounded-lg hover:bg-surface-container hover:text-on-surface flex items-center justify-center transition-all cursor-pointer"
+                        className="w-7 h-7 rounded-lg hover:bg-surface-container hover:text-primary flex items-center justify-center transition-all cursor-pointer"
                         title="View Catalog Details"
                       >
-                        <span className="material-symbols-outlined text-[18px]">visibility</span>
+                        <Eye className="w-3.5 h-3.5" />
                       </button>
 
                       {isArchived ? (
                         <button
                           type="button"
                           onClick={() => onUnarchiveProduct?.(product)}
-                          className="w-8 h-8 rounded-lg hover:bg-surface-container hover:text-primary flex items-center justify-center transition-all cursor-pointer"
+                          className="w-7 h-7 rounded-lg hover:bg-surface-container hover:text-primary flex items-center justify-center transition-all cursor-pointer"
                           title="Restore / Unarchive"
                         >
-                          <span className="material-symbols-outlined text-[18px]">unarchive</span>
+                          <RotateCcw className="w-3.5 h-3.5" />
                         </button>
                       ) : (
                         <button
                           type="button"
-                          className="w-8 h-8 rounded-lg hover:bg-surface-container hover:text-on-surface flex items-center justify-center transition-all cursor-pointer"
+                          className="w-7 h-7 rounded-lg hover:bg-surface-container hover:text-on-surface flex items-center justify-center transition-all cursor-pointer"
                           title="More Options"
                         >
-                          <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                          <MoreVertical className="w-3.5 h-3.5" />
                         </button>
                       )}
                     </div>
@@ -321,16 +328,16 @@ export function CatalogTable({
       </div>
 
       {/* Table Footer / Pagination Controls */}
-      <div className="p-space-md bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-md select-none border-t border-outline-variant/15">
-        <div className="flex items-center gap-space-md text-on-surface-variant font-body-sm text-body-sm flex-wrap">
+      <div className="p-3.5 bg-surface-container-low/70 flex flex-col sm:flex-row items-center justify-between gap-3 select-none border-t border-outline-variant/60 text-xs text-on-surface-variant">
+        <div className="flex items-center gap-3 flex-wrap">
           <span>
             Showing <strong className="text-on-surface font-semibold">1 to {products.length}</strong> of{' '}
             <strong className="text-on-surface font-semibold">428</strong> products
           </span>
-          <div className="h-4 w-px bg-surface-container-highest hidden sm:block" />
-          <div className="flex items-center gap-space-xs">
+          <div className="h-3.5 w-px bg-outline-variant/60 hidden sm:block" />
+          <div className="flex items-center gap-1.5">
             <span>Rows per page:</span>
-            <select className="h-8 pl-2 pr-6 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm font-semibold shadow-xs focus:outline-none border border-outline-variant/20 cursor-pointer">
+            <select className="h-7 pl-2 pr-6 rounded-lg bg-surface-container-lowest text-on-surface font-semibold focus:outline-none border border-outline-variant/60 cursor-pointer">
               <option>10</option>
               <option>25</option>
               <option>50</option>
@@ -339,48 +346,47 @@ export function CatalogTable({
           </div>
         </div>
 
-        <div className="flex items-center gap-space-xs">
+        <div className="flex items-center gap-1">
           <button
             type="button"
             disabled
-            className="w-8 h-8 rounded-lg bg-surface-container-lowest text-on-surface-variant opacity-50 cursor-not-allowed flex items-center justify-center shadow-xs border border-outline-variant/15"
+            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-outline opacity-40 cursor-not-allowed flex items-center justify-center border border-outline-variant/50"
           >
-            <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+            <ChevronLeft className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-primary-container text-on-primary font-body-sm text-body-sm font-bold flex items-center justify-center shadow-sm cursor-pointer"
+            className="w-7 h-7 rounded-lg bg-primary text-on-primary font-bold flex items-center justify-center shadow-xs cursor-pointer text-xs"
           >
             1
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-body-sm text-body-sm font-semibold flex items-center justify-center shadow-xs transition-all cursor-pointer border border-outline-variant/15"
+            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-medium flex items-center justify-center transition-all cursor-pointer border border-outline-variant/50 text-xs"
           >
             2
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-body-sm text-body-sm font-semibold flex items-center justify-center shadow-xs transition-all cursor-pointer border border-outline-variant/15"
+            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-medium flex items-center justify-center transition-all cursor-pointer border border-outline-variant/50 text-xs"
           >
             3
           </button>
-          <span className="px-1 text-on-surface-variant text-[12px]">...</span>
+          <span className="px-1 text-outline">...</span>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-body-sm text-body-sm font-semibold flex items-center justify-center shadow-xs transition-all cursor-pointer border border-outline-variant/15"
+            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-medium flex items-center justify-center transition-all cursor-pointer border border-outline-variant/50 text-xs"
           >
             43
           </button>
           <button
             type="button"
-            className="w-8 h-8 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container flex items-center justify-center shadow-xs transition-all cursor-pointer border border-outline-variant/15"
+            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container flex items-center justify-center transition-all cursor-pointer border border-outline-variant/50"
           >
-            <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
     </div>
   )
 }
-

@@ -1,3 +1,4 @@
+import { FlaskConical } from 'lucide-react'
 import type { AuthPreviewState } from '../types/auth'
 
 export interface StatePreviewDashboardProps {
@@ -18,26 +19,24 @@ export function StatePreviewDashboard({
   ]
 
   return (
-    <div className="w-full max-w-3xl mt-space-2xl bg-surface-container-lowest rounded-xl shadow-xs p-space-md flex flex-col gap-space-sm border border-outline-variant/30 text-left">
-      <div className="flex items-center justify-between pb-space-xs">
-        <div className="flex items-center gap-space-xs text-on-surface-variant">
-          <span className="material-symbols-outlined text-[18px] text-primary-container">
-            science
-          </span>
-          <span className="font-headline-sm text-headline-sm text-on-surface">
+    <div className="w-full max-w-3xl mt-8 bg-surface-container-lowest rounded-2xl shadow-xs p-5 flex flex-col gap-3 border border-outline-variant/60 text-left">
+      <div className="flex items-center justify-between pb-1">
+        <div className="flex items-center gap-2 text-on-surface-variant">
+          <FlaskConical className="w-5 h-5 text-primary" />
+          <span className="text-sm font-semibold text-on-surface">
             State Preview Inspector
           </span>
         </div>
-        <span className="px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant font-label-caps text-label-caps">
-          INTERACTIVE DEMO HARNESS
+        <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-semibold tracking-wider uppercase">
+          Interactive Harness
         </span>
       </div>
-      <p className="font-body-sm text-body-sm text-on-surface-variant">
+      <p className="text-xs text-on-surface-variant">
         Toggle production authentication edge states to audit visual feedback, error handling, session warnings, and security locks:
       </p>
 
       {/* State Toggle Buttons */}
-      <div className="flex flex-wrap items-center gap-space-xs pt-space-xs">
+      <div className="flex flex-wrap items-center gap-2 pt-1">
         {states.map((st) => {
           const isActive = currentState === st.id
           return (
@@ -45,10 +44,10 @@ export function StatePreviewDashboard({
               key={st.id}
               type="button"
               onClick={() => onSelectState(st.id)}
-              className={`px-space-sm py-1.5 rounded-lg font-body-sm text-body-sm transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-surface-container-high text-on-surface font-semibold shadow-xs'
-                  : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface'
+                  ? 'bg-primary text-on-primary font-semibold shadow-xs'
+                  : 'bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
               }`}
             >
               {st.label}

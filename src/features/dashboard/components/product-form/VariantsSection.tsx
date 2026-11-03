@@ -1,4 +1,15 @@
 import { useState } from 'react'
+import {
+  SlidersHorizontal,
+  Palette,
+  ShieldCheck,
+  Table,
+  Wand2,
+  Plus,
+  X,
+  Trash2,
+  Layers,
+} from 'lucide-react'
 import type { VariantOptionItem, VariantCombination } from '../../types/productForm'
 
 interface VariantsSectionProps {
@@ -104,20 +115,20 @@ export function VariantsSection({
   }
 
   return (
-    <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/15">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-space-xs">
-          <span className="material-symbols-outlined text-primary text-[22px]">tune</span>
-          <h2 className="font-headline-sm text-headline-sm text-on-surface">Variants &amp; Options</h2>
+    <section className="bg-white rounded-xl p-6 shadow-sm flex flex-col gap-5 border border-outline-variant/60">
+      <div className="flex items-center justify-between pb-3 border-b border-outline-variant/60">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="w-5 h-5 text-primary" />
+          <h2 className="text-base font-semibold text-on-surface">Variants &amp; Options</h2>
         </div>
-        <label className="flex items-center gap-1.5 cursor-pointer">
+        <label className="flex items-center gap-2 cursor-pointer group">
           <input
             type="checkbox"
             checked={hasVariants}
             onChange={(e) => onToggleHasVariants(e.target.checked)}
-            className="w-4 h-4 rounded text-primary cursor-pointer"
+            className="w-4 h-4 rounded text-primary border-outline-variant/80 focus:ring-primary/30 cursor-pointer"
           />
-          <span className="font-body-sm text-body-sm font-semibold text-on-surface">
+          <span className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors">
             Has Variants
           </span>
         </label>
@@ -126,10 +137,10 @@ export function VariantsSection({
       {hasVariants && (
         <>
           {/* Option 1: Colors */}
-          <div className="p-space-sm rounded-xl bg-surface-container-low flex flex-col gap-space-sm border border-outline-variant/20">
+          <div className="p-4 rounded-xl bg-surface-container-low flex flex-col gap-3 border border-outline-variant/60 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="font-body-sm text-body-sm font-semibold text-on-surface flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-primary text-[18px]">palette</span>
+              <span className="text-xs font-semibold text-on-surface flex items-center gap-1.5 uppercase tracking-wider">
+                <Palette className="w-4 h-4 text-primary" />
                 <span>Option 1: Color Variants</span>
               </span>
               <span className="text-xs text-on-surface-variant font-mono">
@@ -139,24 +150,24 @@ export function VariantsSection({
 
             {/* Chips list */}
             {colorOptions.length > 0 && (
-              <div className="flex flex-wrap items-center gap-space-xs">
+              <div className="flex flex-wrap items-center gap-2">
                 {colorOptions.map((opt) => (
                   <span
                     key={opt.id}
-                    className="px- space-xs py-1 px-2.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm flex items-center gap-1.5 shadow-xs border border-outline-variant/20"
+                    className="py-1 px-3 rounded-lg bg-white text-on-surface text-xs font-medium flex items-center gap-2 shadow-xs border border-outline-variant/60"
                   >
                     <span
-                      className="w-3.5 h-3.5 rounded-full border border-outline-variant/30 shrink-0 shadow-inner"
+                      className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0 shadow-inner"
                       style={{ backgroundColor: opt.colorHex || '#1e293b' }}
                     />
-                    <span className="font-medium">{opt.label}</span>
+                    <span>{opt.label}</span>
                     <button
                       type="button"
                       onClick={() => onRemoveColor(opt.id)}
-                      className="material-symbols-outlined text-[15px] text-on-surface-variant cursor-pointer hover:text-error transition-colors ml-1"
+                      className="text-on-surface-variant cursor-pointer hover:text-red-600 transition-colors ml-1"
                       title="Remove color"
                     >
-                      close
+                      <X className="w-3 h-3" />
                     </button>
                   </span>
                 ))}
@@ -165,13 +176,13 @@ export function VariantsSection({
 
             {/* Inline Input Form */}
             <form onSubmit={handleAddColorSubmit} className="flex flex-wrap items-center gap-2 pt-1">
-              <div className="flex items-center gap-1.5 flex-1 min-w-[220px]">
+              <div className="flex items-center gap-2 flex-1 min-w-[220px]">
                 <div className="relative flex items-center">
                   <input
                     type="color"
                     value={colorHexInput}
                     onChange={(e) => setColorHexInput(e.target.value)}
-                    className="w-8 h-8 rounded-lg cursor-pointer border border-outline-variant/30 p-0.5 bg-surface-container-lowest"
+                    className="w-8 h-8 rounded-lg cursor-pointer border border-outline-variant/60 p-0.5 bg-white shadow-xs"
                     title="Choose color shade"
                   />
                 </div>
@@ -180,15 +191,15 @@ export function VariantsSection({
                   value={colorNameInput}
                   onChange={(e) => setColorNameInput(e.target.value)}
                   placeholder="Type color name (e.g. Midnight Black)..."
-                  className="h-8 px-2.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container flex-1"
+                  className="h-9 px-3 rounded-lg bg-white text-on-surface text-xs border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 flex-1 shadow-xs"
                 />
               </div>
 
               <button
                 type="submit"
-                className="h-8 px-3 rounded-lg bg-primary-container hover:bg-secondary text-on-primary font-body-sm text-body-sm font-semibold flex items-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95"
+                className="h-9 px-3.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
               >
-                <span className="material-symbols-outlined text-[16px]">add</span>
+                <Plus className="w-3.5 h-3.5" />
                 <span>Add Color</span>
               </button>
             </form>
@@ -201,10 +212,10 @@ export function VariantsSection({
                   key={p.label}
                   type="button"
                   onClick={() => onAddColor(p.label, p.hex)}
-                  className="px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-body-sm text-[11px] flex items-center gap-1 hover:bg-surface-container-high transition-colors cursor-pointer border border-outline-variant/15"
+                  className="px-2 py-0.5 rounded-full bg-white text-on-surface text-[11px] flex items-center gap-1 hover:bg-surface-container transition-colors cursor-pointer border border-outline-variant/60 shadow-xs"
                 >
                   <span
-                    className="w-2.5 h-2.5 rounded-full border border-outline-variant/30"
+                    className="w-2.5 h-2.5 rounded-full border border-black/10"
                     style={{ backgroundColor: p.hex }}
                   />
                   <span>{p.label}</span>
@@ -214,10 +225,10 @@ export function VariantsSection({
           </div>
 
           {/* Option 2: Care / Tier / Size */}
-          <div className="p-space-sm rounded-xl bg-surface-container-low flex flex-col gap-space-sm border border-outline-variant/20">
+          <div className="p-4 rounded-xl bg-surface-container-low flex flex-col gap-3 border border-outline-variant/60 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="font-body-sm text-body-sm font-semibold text-on-surface flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-primary text-[18px]">verified_user</span>
+              <span className="text-xs font-semibold text-on-surface flex items-center gap-1.5 uppercase tracking-wider">
+                <ShieldCheck className="w-4 h-4 text-primary" />
                 <span>Option 2: Care Plan / Warranty / Tier</span>
               </span>
               <span className="text-xs text-on-surface-variant font-mono">
@@ -227,25 +238,25 @@ export function VariantsSection({
 
             {/* Chips list */}
             {careOptions.length > 0 && (
-              <div className="flex flex-wrap items-center gap-space-xs">
+              <div className="flex flex-wrap items-center gap-2">
                 {careOptions.map((opt) => (
                   <span
                     key={opt.id}
-                    className="px-2.5 py-1 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm flex items-center gap-1.5 shadow-xs border border-outline-variant/20"
+                    className="px-3 py-1 rounded-lg bg-white text-on-surface text-xs font-medium flex items-center gap-2 shadow-xs border border-outline-variant/60"
                   >
-                    <span className="font-medium">{opt.label}</span>
+                    <span>{opt.label}</span>
                     {Boolean(opt.extraPrice && opt.extraPrice > 0) && (
-                      <span className="text-secondary font-mono text-xs font-semibold">
+                      <span className="text-primary font-mono text-xs font-semibold">
                         (+${opt.extraPrice})
                       </span>
                     )}
                     <button
                       type="button"
                       onClick={() => onRemoveCare(opt.id)}
-                      className="material-symbols-outlined text-[15px] text-on-surface-variant cursor-pointer hover:text-error transition-colors ml-1"
+                      className="text-on-surface-variant cursor-pointer hover:text-red-600 transition-colors ml-1"
                       title="Remove tier"
                     >
-                      close
+                      <X className="w-3 h-3" />
                     </button>
                   </span>
                 ))}
@@ -259,10 +270,10 @@ export function VariantsSection({
                 value={careLabelInput}
                 onChange={(e) => setCareLabelInput(e.target.value)}
                 placeholder="Tier label (e.g. NexaCare+ 2-Year)..."
-                className="h-8 px-2.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary-container flex-1 min-w-[200px]"
+                className="h-9 px-3 rounded-lg bg-white text-on-surface text-xs border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 flex-1 min-w-[200px] shadow-xs"
               />
 
-              <div className="flex items-center gap-1 bg-surface-container-lowest rounded-lg border border-outline-variant/30 px-2 h-8">
+              <div className="flex items-center gap-1 bg-white rounded-lg border border-outline-variant/60 px-2.5 h-9 shadow-xs">
                 <span className="text-on-surface-variant text-xs font-mono">+$</span>
                 <input
                   type="number"
@@ -271,15 +282,15 @@ export function VariantsSection({
                   value={careExtraInput}
                   onChange={(e) => setCareExtraInput(e.target.value)}
                   placeholder="Extra $"
-                  className="w-16 bg-transparent text-on-surface font-mono text-xs focus:outline-none"
+                  className="w-16 bg-transparent text-on-surface font-mono text-xs focus:outline-none font-semibold"
                 />
               </div>
 
               <button
                 type="submit"
-                className="h-8 px-3 rounded-lg bg-primary-container hover:bg-secondary text-on-primary font-body-sm text-body-sm font-semibold flex items-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95"
+                className="h-9 px-3.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
               >
-                <span className="material-symbols-outlined text-[16px]">add</span>
+                <Plus className="w-3.5 h-3.5" />
                 <span>Add Tier</span>
               </button>
             </form>
@@ -292,20 +303,20 @@ export function VariantsSection({
                   key={t.label}
                   type="button"
                   onClick={() => onAddCare(t.label, t.extra)}
-                  className="px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-body-sm text-[11px] hover:bg-surface-container-high transition-colors cursor-pointer border border-outline-variant/15"
+                  className="px-2 py-0.5 rounded-full bg-white text-on-surface text-[11px] hover:bg-surface-container transition-colors cursor-pointer border border-outline-variant/60 shadow-xs"
                 >
                   <span>{t.label}</span>
-                  {t.extra > 0 && <span className="text-secondary font-mono ml-0.5">+{t.extra}$</span>}
+                  {t.extra > 0 && <span className="text-primary font-mono ml-0.5 font-semibold">+{t.extra}$</span>}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Generated Matrix Combinations Table */}
-          <div className="flex flex-col gap-space-xs mt-2">
+          <div className="flex flex-col gap-2 mt-2">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <span className="font-body-sm text-body-sm font-semibold text-on-surface flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-primary text-[18px]">table_rows</span>
+              <span className="text-xs font-semibold text-on-surface flex items-center gap-1.5 uppercase tracking-wider">
+                <Table className="w-4 h-4 text-primary" />
                 <span>
                   Generated Variant Combinations (
                   <strong className="text-primary font-bold">
@@ -320,9 +331,9 @@ export function VariantsSection({
                   <button
                     type="button"
                     onClick={onLoadPresetVariants}
-                    className="h-7 px-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-body-sm text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors border border-outline-variant/20"
+                    className="h-8 px-3 rounded-lg bg-white hover:bg-surface-container text-primary text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors border border-outline-variant/60 shadow-xs"
                   >
-                    <span className="material-symbols-outlined text-[14px]">auto_fix_high</span>
+                    <Wand2 className="w-3.5 h-3.5" />
                     <span>Load Recommended Template</span>
                   </button>
                 )}
@@ -330,9 +341,9 @@ export function VariantsSection({
                 <button
                   type="button"
                   onClick={() => setShowAddCustomRow(!showAddCustomRow)}
-                  className="h-7 px-2.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-body-sm text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                  className="h-8 px-3 rounded-lg bg-surface-container-high hover:bg-surface-container text-on-surface text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors border border-outline-variant/60 shadow-xs"
                 >
-                  <span className="material-symbols-outlined text-[14px]">add</span>
+                  <Plus className="w-3.5 h-3.5" />
                   <span>{showAddCustomRow ? 'Hide Custom' : 'Add Custom Row'}</span>
                 </button>
               </div>
@@ -342,23 +353,23 @@ export function VariantsSection({
             {showAddCustomRow && (
               <form
                 onSubmit={handleAddCustomVariantSubmit}
-                className="p-space-sm rounded-lg bg-surface-container-low border border-primary/30 flex flex-wrap items-center gap-2 animate-fade-in"
+                className="p-3 rounded-lg bg-surface-container-low border border-primary/30 flex flex-wrap items-center gap-2 animate-fade-in shadow-xs"
               >
                 <input
                   type="text"
                   value={customTitle}
                   onChange={(e) => setCustomTitle(e.target.value)}
                   placeholder="Variant Title (e.g. Special Edition Gold)..."
-                  className="h-8 px-2.5 rounded bg-surface-container-lowest text-on-surface text-xs border border-outline-variant/30 flex-1 min-w-[180px]"
+                  className="h-8 px-2.5 rounded bg-white text-on-surface text-xs border border-outline-variant/60 flex-1 min-w-[180px]"
                 />
                 <input
                   type="text"
                   value={customSku}
                   onChange={(e) => setCustomSku(e.target.value)}
                   placeholder="Custom SKU"
-                  className="h-8 px-2 rounded bg-surface-container-lowest font-mono text-on-surface text-xs border border-outline-variant/30 w-32"
+                  className="h-8 px-2 rounded bg-white font-mono text-on-surface text-xs border border-outline-variant/60 w-32"
                 />
-                <div className="flex items-center gap-1 bg-surface-container-lowest rounded px-2 h-8 border border-outline-variant/30">
+                <div className="flex items-center gap-1 bg-white rounded px-2 h-8 border border-outline-variant/60">
                   <span className="text-xs text-on-surface-variant">$</span>
                   <input
                     type="number"
@@ -368,7 +379,7 @@ export function VariantsSection({
                     className="w-16 bg-transparent text-xs font-mono text-on-surface focus:outline-none"
                   />
                 </div>
-                <div className="flex items-center gap-1 bg-surface-container-lowest rounded px-2 h-8 border border-outline-variant/30">
+                <div className="flex items-center gap-1 bg-white rounded px-2 h-8 border border-outline-variant/60">
                   <span className="text-xs text-on-surface-variant">Qty</span>
                   <input
                     type="number"
@@ -379,7 +390,7 @@ export function VariantsSection({
                 </div>
                 <button
                   type="submit"
-                  className="h-8 px-3 rounded bg-primary-container text-on-primary text-xs font-semibold hover:bg-secondary cursor-pointer"
+                  className="h-8 px-3 rounded bg-primary text-white text-xs font-semibold hover:bg-primary/90 cursor-pointer shadow-xs"
                 >
                   Save Row
                 </button>
@@ -388,53 +399,53 @@ export function VariantsSection({
 
             {/* Table or Empty State */}
             {variants.length > 0 ? (
-              <div className="overflow-x-auto rounded-xl bg-surface-container-low border border-outline-variant/20 shadow-xs">
-                <table className="w-full text-left font-body-sm text-body-sm">
-                  <thead className="bg-surface-container text-on-surface-variant font-label-caps text-label-caps uppercase border-b border-outline-variant/15">
+              <div className="overflow-x-auto rounded-xl bg-white border border-outline-variant/60 shadow-xs">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-surface-container-low text-on-surface-variant font-semibold uppercase tracking-wider border-b border-outline-variant/60">
                     <tr>
-                      <th className="p-space-xs text-center w-8">
-                        <span className="material-symbols-outlined text-[16px]">tune</span>
+                      <th className="py-2.5 px-3 text-center w-8">
+                        <SlidersHorizontal className="w-3.5 h-3.5 mx-auto" />
                       </th>
-                      <th className="p-space-xs min-w-[200px]">Variant</th>
-                      <th className="p-space-xs min-w-[130px]">SKU</th>
-                      <th className="p-space-xs min-w-[100px]">Price ($)</th>
-                      <th className="p-space-xs min-w-[90px]">Stock</th>
-                      <th className="p-space-xs text-center">Status</th>
-                      <th className="p-space-xs text-right w-12">Actions</th>
+                      <th className="py-2.5 px-3 min-w-[200px]">Variant</th>
+                      <th className="py-2.5 px-3 min-w-[130px]">SKU</th>
+                      <th className="py-2.5 px-3 min-w-[100px]">Price ($)</th>
+                      <th className="py-2.5 px-3 min-w-[90px]">Stock</th>
+                      <th className="py-2.5 px-3 text-center">Status</th>
+                      <th className="py-2.5 px-3 text-right w-12">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-surface-container">
+                  <tbody className="divide-y divide-outline-variant/40">
                     {variants.map((v) => (
                       <tr
                         key={v.id}
                         className={`transition-colors ${
                           v.isActive
-                            ? 'bg-surface-container-lowest hover:bg-surface-container-low'
-                            : 'bg-surface-container-low/60 opacity-60'
+                            ? 'bg-white hover:bg-stone-50/80'
+                            : 'bg-stone-50/50 opacity-60'
                         }`}
                       >
-                        <td className="p-space-xs text-center">
+                        <td className="py-2.5 px-3 text-center">
                           <input
                             type="checkbox"
                             checked={v.isActive}
                             onChange={() => onToggleVariantActive(v.id)}
-                            className="rounded cursor-pointer accent-primary"
+                            className="rounded cursor-pointer text-primary border-outline-variant/80 focus:ring-primary/30 w-4 h-4"
                           />
                         </td>
-                        <td className="p-space-xs font-semibold text-on-surface flex items-center gap-2">
+                        <td className="py-2.5 px-3 font-semibold text-on-surface flex items-center gap-2">
                           {v.colorHex && (
                             <span
-                              className="w-3 h-3 rounded-full border border-outline-variant/40 shrink-0 shadow-xs"
+                              className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0 shadow-xs"
                               style={{ backgroundColor: v.colorHex }}
                             />
                           )}
                           <span>{v.title}</span>
                         </td>
-                        <td className="p-space-xs font-mono text-[11px] text-on-surface-variant">
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-on-surface-variant">
                           {v.sku}
                         </td>
-                        <td className="p-space-xs font-mono">
-                          <div className="flex items-center gap-1 bg-surface-container rounded px-1.5 py-0.5 border border-outline-variant/20 w-24">
+                        <td className="py-2.5 px-3 font-mono">
+                          <div className="flex items-center gap-1 bg-surface-container-low rounded px-2 py-1 border border-outline-variant/60 w-24">
                             <span className="text-on-surface-variant text-xs">$</span>
                             <input
                               type="number"
@@ -447,7 +458,7 @@ export function VariantsSection({
                             />
                           </div>
                         </td>
-                        <td className="p-space-xs">
+                        <td className="py-2.5 px-3">
                           <input
                             type="number"
                             min="0"
@@ -455,28 +466,28 @@ export function VariantsSection({
                             onChange={(e) =>
                               onVariantStockChange(v.id, parseInt(e.target.value, 10) || 0)
                             }
-                            className="w-16 h-7 px-1.5 rounded bg-surface-container text-right font-mono border border-outline-variant/30 text-on-surface font-semibold focus:outline-none focus:ring-1 focus:ring-primary-container"
+                            className="w-16 h-7 px-2 rounded bg-surface-container-low text-right font-mono border border-outline-variant/60 text-on-surface font-semibold focus:outline-none focus:border-primary"
                           />
                         </td>
-                        <td className="p-space-xs text-center">
+                        <td className="py-2.5 px-3 text-center">
                           <span
-                            className={`px-2 py-0.5 rounded-full font-label-caps text-[10px] font-semibold ${
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
                               v.isActive
-                                ? 'bg-secondary-fixed text-on-secondary-fixed'
-                                : 'bg-surface-container-highest text-on-surface-variant'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : 'bg-stone-100 text-stone-600 border-stone-200'
                             }`}
                           >
                             {v.isActive ? 'Active' : 'Disabled'}
                           </span>
                         </td>
-                        <td className="p-space-xs text-right">
+                        <td className="py-2.5 px-3 text-right">
                           <button
                             type="button"
                             onClick={() => onRemoveVariant?.(v.id)}
-                            className="p-1 rounded text-on-surface-variant hover:text-error hover:bg-error-container/20 transition-colors cursor-pointer"
+                            className="p-1 rounded text-on-surface-variant hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                             title="Remove variant"
                           >
-                            <span className="material-symbols-outlined text-[16px]">delete</span>
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </td>
                       </tr>
@@ -485,23 +496,21 @@ export function VariantsSection({
                 </table>
               </div>
             ) : (
-              <div className="p-6 rounded-xl bg-surface-container-low border border-dashed border-outline-variant/30 flex flex-col items-center justify-center text-center">
-                <span className="material-symbols-outlined text-outline text-[32px] mb-1">
-                  layers_clear
-                </span>
-                <p className="font-body-sm text-body-sm font-semibold text-on-surface">
+              <div className="p-8 rounded-xl bg-surface-container-low border border-dashed border-outline-variant/60 flex flex-col items-center justify-center text-center">
+                <Layers className="w-8 h-8 text-on-surface-variant/50 mb-2" />
+                <p className="text-sm font-semibold text-on-surface">
                   No variant combinations generated yet
                 </p>
-                <p className="font-body-sm text-body-sm text-on-surface-variant max-w-sm mt-0.5 mb-3 text-xs">
+                <p className="text-xs text-on-surface-variant max-w-sm mt-1 mb-4">
                   Add color or care options above to automatically generate matrix combinations, or load the default template.
                 </p>
                 {onLoadPresetVariants && (
                   <button
                     type="button"
                     onClick={onLoadPresetVariants}
-                    className="h-8 px-space-md rounded-lg bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold flex items-center gap-1.5 hover:bg-secondary cursor-pointer shadow-xs transition-all"
+                    className="h-9 px-4 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-semibold flex items-center gap-2 cursor-pointer shadow-sm transition-all"
                   >
-                    <span className="material-symbols-outlined text-[16px]">auto_fix_high</span>
+                    <Wand2 className="w-4 h-4" />
                     <span>Load 4 Sample Variations (Ready to Edit)</span>
                   </button>
                 )}
