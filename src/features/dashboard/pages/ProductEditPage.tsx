@@ -4,12 +4,18 @@ import { CheckCircle2 } from 'lucide-react'
 import { ConfirmationModal, type ConfirmationModalProps } from '@/components/ui'
 import type { ProductFormData, VariantOptionItem, VariantCombination } from '../types/productForm'
 import type { ProductStatus } from '../types/catalog'
-import { mockCatalogProducts } from '../data/mockCatalogData'
 import {
   defaultNewProductFormData,
   sampleAeroSoundFormData,
   buildFormDataFromCatalog,
 } from '../data/defaultProductFormData'
+import {
+  getAdminProductById,
+  formatProductFromApi,
+  createAdminProduct,
+} from '../api/adminProductApi'
+import { getAdminCategories } from '../api/adminCategoryApi'
+import type { CategoryItem } from '../types/category'
 
 type ConfirmModalState = Omit<ConfirmationModalProps, 'isOpen' | 'onClose'> | null
 
@@ -107,15 +113,64 @@ export function ProductEditPage() {
 
   // Initialize state based on mode
   const [formData, setFormData] = useState<ProductFormData>(() => {
-    if (isEditMode) {
-      const found = mockCatalogProducts.find((p) => p.id === id)
-      if (found) {
-        return buildFormDataFromCatalog(found)
-      }
-      return sampleAeroSoundFormData
-    }
-    return defaultNewProductFormData
+    return isEditMode ? sampleAeroSoundFormData : defaultNewProductFormData
   })
+
+  // Real categories from API
+  const [categories, setCategories] = useState<CategoryItem[]>([])
+
+  // Load categories from API on mount
+  useEffect(() => {
+    let isMounted = true
+    getAdminCategories({ view: 'flat', limit: 100 })
+      .then((res) => {
+        if (isMounted) {
+          setCategories(res.categories)
+          // If no categoryId is set, default to first category if available
+          setFormData((prev) => {
+            if (!prev.categoryId && res.categories.length > 0) {
+              const matched =
+                res.categories.find(
+                  (c) => c.name.toLowerCase() === prev.category.toLowerCase()
+                ) || res.categories[0]
+              return {
+                ...prev,
+                categoryId: matched.id,
+                category: matched.name,
+              }
+            }
+            return prev
+          })
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not load categories in ProductEditPage:', err)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  // Load product from API if in edit mode
+  useEffect(() => {
+    if (isEditMode && id) {
+      let isMounted = true
+      getAdminProductById(id)
+        .then((productData) => {
+          if (isMounted && productData && Object.keys(productData).length > 0) {
+            const formatted = formatProductFromApi(productData)
+            setFormData(buildFormDataFromCatalog(formatted))
+          }
+        })
+        .catch((err) => {
+          console.warn('Could not fetch product details from API:', err)
+        })
+      return () => {
+        isMounted = false
+      }
+    }
+  }, [isEditMode, id])
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isPdpModalOpen, setIsPdpModalOpen] = useState(false)
@@ -149,23 +204,80 @@ export function ProductEditPage() {
   }
 
   // Save as Draft
-  const handleSaveDraft = useCallback(() => {
+  const handleSaveDraft = useCallback(async () => {
+    if (!formData.title.trim()) {
+      showToast('Product Title is required to save draft.')
+      return
+    }
+    if (!formData.categoryId) {
+      showToast('Please select a Category before saving.')
+      return
+    }
+
     setIsSaving(true)
-    setTimeout(() => {
+    const cleanSlug =
+      formData.slug.trim().toLowerCase() ||
+      formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
+    try {
+      if (!isEditMode) {
+        await createAdminProduct({
+          title: formData.title.trim(),
+          slug: cleanSlug,
+          sku: formData.sku.trim() || `SKU-${Date.now()}`,
+          categoryId: formData.categoryId,
+          basePrice: Number(formData.basePrice) || 0,
+          comparePrice: formData.comparePrice ? Number(formData.comparePrice) : undefined,
+          costPrice: formData.costPrice ? Number(formData.costPrice) : undefined,
+          stockCount: Number(formData.stockCount) || 0,
+          lowStockThreshold: Number(formData.lowStockThreshold) || 10,
+          productStatus: 'DRAFT',
+          subtitle: formData.subtitle,
+          descriptionHtml: formData.descriptionHtml,
+          barcode: formData.barcode,
+          tags: formData.tags,
+          customerHighlights: formData.customerHighlights,
+          images: formData.mediaItems
+            .map((m) => m.file)
+            .filter((f): f is File => f instanceof File),
+        })
+      }
       updateForm((prev) => ({ ...prev, productStatus: 'draft' }))
       setHasUnsavedChanges(false)
       setIsSaving(false)
-      setLastSavedText('Autosaved just now')
+      setLastSavedText('Saved as draft just now')
       showToast('Product draft saved successfully.')
-    }, 400)
-  }, [updateForm])
+    } catch (err: unknown) {
+      setIsSaving(false)
+      const axiosErr = err as {
+        response?: { data?: { message?: string; errors?: string[] } }
+      }
+      const msg =
+        axiosErr.response?.data?.errors?.[0] ||
+        axiosErr.response?.data?.message ||
+        'Failed to save draft.'
+      showToast(msg)
+    }
+  }, [formData, isEditMode, updateForm])
 
-  // Publish / Save Changes with Mandatory Confirmation
+  // Publish / Save Changes with Confirmation
   const handleSaveAndPublish = () => {
-    if (!formData.title.trim()) {
-      showToast('Please provide a Product Title before publishing.')
+    if (!formData.title.trim() || formData.title.trim().length < 2) {
+      showToast('Please provide a Product Title (min 2 characters) before publishing.')
       return
     }
+    if (!formData.categoryId) {
+      showToast('Please select a Category for this product.')
+      return
+    }
+    if (!formData.sku.trim()) {
+      showToast('Please provide a Master SKU.')
+      return
+    }
+
+    const cleanSlug =
+      formData.slug.trim().toLowerCase() ||
+      formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
     setConfirmDialog({
       title: isEditMode ? 'Confirm Product Update' : 'Publish Product to Live Store',
@@ -180,21 +292,69 @@ export function ProductEditPage() {
         { label: 'Product Title', value: formData.title },
         { label: 'SKU Identifier', value: formData.sku || 'Auto-generated' },
         { label: 'Category', value: formData.category },
-        { label: 'Base MSRP', value: `$${formData.basePrice.toFixed(2)}` },
+        { label: 'Base MSRP', value: `$${Number(formData.basePrice || 0).toFixed(2)}` },
         { label: 'Target State', value: 'Active / Published' },
       ],
-      onConfirm: () => {
+      onConfirm: async () => {
         setConfirmDialog(null)
         setIsSaving(true)
-        setTimeout(() => {
-          updateForm((prev) => ({ ...prev, productStatus: 'published' }))
+
+        try {
+          if (!isEditMode) {
+            await createAdminProduct({
+              title: formData.title.trim(),
+              slug: cleanSlug,
+              sku: formData.sku.trim(),
+              categoryId: formData.categoryId!,
+              basePrice: Number(formData.basePrice) || 0,
+              comparePrice: formData.comparePrice ? Number(formData.comparePrice) : undefined,
+              costPrice: formData.costPrice ? Number(formData.costPrice) : undefined,
+              stockCount: Number(formData.stockCount) || 0,
+              lowStockThreshold: Number(formData.lowStockThreshold) || 10,
+              productStatus: 'PUBLISHED',
+              subtitle: formData.subtitle,
+              descriptionHtml: formData.descriptionHtml,
+              barcode: formData.barcode,
+              has3dAsset: formData.has3dAsset,
+              chargeTax: formData.chargeTax,
+              outOfStockPolicy: formData.outOfStockPolicy,
+              hasVariants: formData.hasVariants,
+              colorOptions: formData.colorOptions.map((c) => ({
+                label: c.label,
+                colorHex: c.colorHex,
+              })),
+              careOptions: formData.careOptions.map((w) => ({
+                label: w.label,
+                extraPrice: w.extraPrice,
+              })),
+              tags: formData.tags,
+              customerHighlights: formData.customerHighlights,
+              images: formData.mediaItems
+                .map((m) => m.file)
+                .filter((f): f is File => f instanceof File),
+            })
+            showToast('Product published to store successfully!')
+          } else {
+            updateForm((prev) => ({ ...prev, productStatus: 'published' }))
+            showToast('Product updated successfully!')
+          }
+
           setHasUnsavedChanges(false)
           setIsSaving(false)
-          showToast(isEditMode ? 'Product changes saved successfully!' : 'Product published to store!')
           setTimeout(() => {
             navigate('/admin/products')
-          }, 1000)
-        }, 400)
+          }, 800)
+        } catch (err: unknown) {
+          setIsSaving(false)
+          const axiosErr = err as {
+            response?: { data?: { message?: string; errors?: string[] } }
+          }
+          const msg =
+            axiosErr.response?.data?.errors?.[0] ||
+            axiosErr.response?.data?.message ||
+            'Failed to save product.'
+          showToast(msg)
+        }
       },
     })
   }
@@ -574,10 +734,14 @@ export function ProductEditPage() {
           {/* 2. Taxonomy & Classification */}
           <TaxonomySidebar
             category={formData.category}
+            categoryId={formData.categoryId}
+            categories={categories}
             brand={formData.brand}
             collections={formData.collections}
             tags={formData.tags}
-            onCategoryChange={(cat) => updateForm((prev) => ({ ...prev, category: cat }))}
+            onCategoryChange={(catId, catName) =>
+              updateForm((prev) => ({ ...prev, categoryId: catId, category: catName }))
+            }
             onBrandChange={(brand) => updateForm((prev) => ({ ...prev, brand }))}
             onToggleCollection={(col) =>
               updateForm((prev) => ({

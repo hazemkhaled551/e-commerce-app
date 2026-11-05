@@ -7,17 +7,20 @@ import {
   CornerDownRight,
   PlusCircle,
   Edit2,
+  Eye,
 } from 'lucide-react'
 import type { CategoryItem } from '../../types/category'
 
 interface CategoryTreeVisualProps {
   categories: CategoryItem[]
+  onViewCategory?: (cat: CategoryItem) => void
   onEditCategory: (cat: CategoryItem) => void
   onAddSubcategory: (cat: CategoryItem) => void
 }
 
 export function CategoryTreeVisual({
   categories,
+  onViewCategory,
   onEditCategory,
   onAddSubcategory,
 }: CategoryTreeVisualProps) {
@@ -101,6 +104,16 @@ export function CategoryTreeVisual({
                   <span className="text-xs font-semibold text-on-surface bg-white px-2.5 py-1 rounded border border-outline-variant/60">
                     {root.totalProductsCount} SKUs
                   </span>
+                  {onViewCategory && (
+                    <button
+                      type="button"
+                      onClick={() => onViewCategory(root)}
+                      className="p-1.5 rounded-lg hover:bg-white text-on-surface-variant hover:text-primary cursor-pointer border border-transparent hover:border-outline-variant/40 transition-colors"
+                      title="View Details"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => onAddSubcategory(root)}
@@ -113,6 +126,7 @@ export function CategoryTreeVisual({
                     type="button"
                     onClick={() => onEditCategory(root)}
                     className="p-1.5 rounded-lg hover:bg-white text-on-surface-variant hover:text-on-surface cursor-pointer border border-transparent hover:border-outline-variant/40 transition-colors"
+                    title="Edit Category"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
@@ -154,10 +168,21 @@ export function CategoryTreeVisual({
                         <span className="text-xs text-on-surface-variant font-medium">
                           {sub.totalProductsCount} SKUs
                         </span>
+                        {onViewCategory && (
+                          <button
+                            type="button"
+                            onClick={() => onViewCategory(sub)}
+                            className="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary cursor-pointer transition-colors"
+                            title="View Details"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => onEditCategory(sub)}
                           className="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface cursor-pointer"
+                          title="Edit Category"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>

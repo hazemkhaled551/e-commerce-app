@@ -22,7 +22,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement>(null)
 
-  const userName = user?.name || 'Alexander Wright'
+  const userName = user?.name || 'Administrator'
   const userEmail = user?.email || 'admin@nexastore.com'
 
   // Dynamic breadcrumb generation based on path

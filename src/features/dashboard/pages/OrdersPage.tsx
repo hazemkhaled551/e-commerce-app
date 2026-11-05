@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Download, Plus, CheckCircle2 } from 'lucide-react'
+import { Download, CheckCircle2 } from 'lucide-react'
 import { ConfirmationModal, type ConfirmationModalProps } from '@/components/ui'
 import type { DashboardOrder, OrderFilterTab } from '../types/dashboard'
 import { mockOrdersKpiData, mockOrdersList } from '../data/mockOrdersData'
@@ -11,7 +11,6 @@ import { OrdersTable } from '../components/orders/OrdersTable'
 import { OrdersPagination } from '../components/orders/OrdersPagination'
 import { OrderQuickDrawer } from '../components/OrderQuickDrawer'
 import { CancelOrderModal } from '../components/CancelOrderModal'
-import { CreateDraftOrderModal } from '../components/orders/CreateDraftOrderModal'
 
 type ConfirmModalState = Omit<ConfirmationModalProps, 'isOpen' | 'onClose'> | null
 
@@ -35,7 +34,6 @@ export function OrdersPage() {
   const [selectedOrderForDrawer, setSelectedOrderForDrawer] = useState<DashboardOrder | null>(null)
   const [orderToCancel, setOrderToCancel] = useState<DashboardOrder | null>(null)
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmModalState>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
@@ -321,12 +319,6 @@ export function OrdersPage() {
     }
   }
 
-  // Create order callback
-  const handleCreateOrder = (newOrder: DashboardOrder) => {
-    setOrders((prev) => [newOrder, ...prev])
-    showToast(`Created draft order ${newOrder.orderNumber} for ${newOrder.customerName}.`)
-  }
-
   // Confirm cancel order
   const handleConfirmCancel = (order: DashboardOrder, notifyCustomer: boolean) => {
     setOrders((prev) =>
@@ -383,15 +375,6 @@ export function OrdersPage() {
           >
             <Download className="w-4 h-4 text-on-surface-variant" />
             <span>Export Orders (CSV)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsCreateModalOpen(true)}
-            className="h-9 px-3.5 rounded-xl bg-primary text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-primary/90 transition-all active:scale-95 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create Draft Order</span>
           </button>
         </div>
       </div>
@@ -469,14 +452,7 @@ export function OrdersPage() {
         onConfirmCancel={handleConfirmCancel}
       />
 
-      {/* 9. Create Draft Order Modal */}
-      <CreateDraftOrderModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreateOrder={handleCreateOrder}
-      />
-
-      {/* 10. Confirmation Modal for Order Actions & Status Changes */}
+      {/* 9. Confirmation Modal for Order Actions & Status Changes */}
       {confirmDialog && (
         <ConfirmationModal
           isOpen={Boolean(confirmDialog)}

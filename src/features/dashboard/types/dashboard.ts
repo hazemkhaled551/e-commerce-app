@@ -81,7 +81,15 @@ export type OrderFilterTab =
   | 'returned'
   | 'cancelled'
 
-export type DateRangePeriod = 'today' | '7d' | '30d' | '90d' | 'ytd' | '12m'
+export type DateRangePeriod =
+  | 'today'
+  | '7d'
+  | '30d'
+  | '90d'
+  | 'ytd'
+  | '12m'
+  | 'this_month'
+  | 'custom'
 
 export interface DateRangeFilter {
   period: DateRangePeriod

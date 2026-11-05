@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Info,
   Link as LinkIcon,
@@ -10,7 +10,11 @@ import {
   Quote,
   Code,
   Image as ImageIcon,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react'
+import { checkProductSlugAvailability } from '../../api/adminProductApi'
 
 interface GeneralInfoSectionProps {
   title: string
@@ -35,6 +39,57 @@ export function GeneralInfoSection({
 }: GeneralInfoSectionProps) {
   const [isEditingSlug, setIsEditingSlug] = useState(false)
   const [activeTab, setActiveTab] = useState<'visual' | 'html'>('visual')
+
+  // Live remote check for slug
+  const [remoteSlugCheck, setRemoteSlugCheck] = useState<{
+    slug: string
+    status: 'idle' | 'checking' | 'available' | 'taken'
+    message: string | null
+  }>({
+    slug: '',
+    status: 'idle',
+    message: null,
+  })
+
+  const trimmedSlug = slug.trim().toLowerCase()
+
+  useEffect(() => {
+    if (!trimmedSlug || trimmedSlug.length < 2) return
+
+    let ignore = false
+    const timer = setTimeout(() => {
+      checkProductSlugAvailability(trimmedSlug)
+        .then((result) => {
+          if (!ignore) {
+            setRemoteSlugCheck({
+              slug: trimmedSlug,
+              status: result.available ? 'available' : 'taken',
+              message: result.available ? null : result.message || 'Slug already in use',
+            })
+          }
+        })
+        .catch(() => {
+          if (!ignore) {
+            setRemoteSlugCheck({
+              slug: trimmedSlug,
+              status: 'taken',
+              message: 'Check failed',
+            })
+          }
+        })
+    }, 400)
+
+    return () => {
+      ignore = true
+      clearTimeout(timer)
+    }
+  }, [trimmedSlug])
+
+  const slugStatus = !trimmedSlug
+    ? 'idle'
+    : remoteSlugCheck.slug === trimmedSlug
+      ? remoteSlugCheck.status
+      : 'checking'
 
   const handleTitleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
@@ -94,13 +149,33 @@ export function GeneralInfoSection({
             <input
               type="text"
               value={slug}
-              onChange={(e) => onSlugChange(e.target.value)}
+              onChange={(e) => onSlugChange(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
               className="h-7 px-2 font-mono text-xs bg-white rounded border border-outline-variant/60 flex-1 max-w-sm text-primary focus:outline-none focus:border-primary"
             />
           ) : (
             <span className="text-xs text-on-surface-variant font-mono truncate">
               https://nexa-store.com/products/
               <span className="font-semibold text-primary underline">{slug || 'your-product-slug'}</span>
+            </span>
+          )}
+
+          {/* Availability pill */}
+          {slugStatus === 'checking' && (
+            <span className="shrink-0 flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded font-medium">
+              <Loader2 className="w-3 h-3 animate-spin text-amber-600" />
+              <span>Checking</span>
+            </span>
+          )}
+          {slugStatus === 'available' && (
+            <span className="shrink-0 flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-semibold">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+              <span>Available</span>
+            </span>
+          )}
+          {slugStatus === 'taken' && (
+            <span className="shrink-0 flex items-center gap-1 text-[11px] text-red-700 bg-red-50 px-2 py-0.5 rounded font-semibold">
+              <AlertCircle className="w-3 h-3 text-red-600" />
+              <span>Taken</span>
             </span>
           )}
         </div>

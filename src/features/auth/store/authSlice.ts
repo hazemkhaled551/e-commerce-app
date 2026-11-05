@@ -36,7 +36,11 @@ import {
 const TOKEN_KEY = 'nexa_auth_token'
 const USER_KEY = 'nexa_auth_user'
 
-const savedToken = getCookie(ACCESS_TOKEN_COOKIE) || null
+const savedToken =
+  getCookie(ACCESS_TOKEN_COOKIE) ||
+  (typeof window !== 'undefined'
+    ? localStorage.getItem(TOKEN_KEY) || localStorage.getItem('access_token') || localStorage.getItem('token')
+    : null)
 
 const savedUser =
   typeof window !== 'undefined'
@@ -48,7 +52,7 @@ const savedUser =
 const initialState: AuthState = {
   user: savedUser,
   token: savedToken,
-  isAuthenticated: Boolean(savedToken),
+  isAuthenticated: Boolean(savedToken && savedUser),
   status: 'idle',
   error: null,
 }
@@ -62,24 +66,26 @@ export const loginUser = createAsyncThunk<
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
       const data = await loginApi(credentials)
-      const token = data.data?.accessToken
-      const user = data.data?.user || {
+      const token = data.data?.accessToken || (data as unknown as { accessToken?: string }).accessToken
+      const user = data.data?.user || (data as unknown as { user?: User }).user || {
         id: 'usr_' + Date.now(),
         name: credentials.email.split('@')[0],
         email: credentials.email,
         role: 'CUSTOMER',
       }
 
-      // Store accessToken in Cookies (not localStorage)
+      // Store accessToken in Cookies and localStorage for persistence
       if (token) {
         setCookie(ACCESS_TOKEN_COOKIE, token, 7)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(TOKEN_KEY, token)
+        }
       }
 
-      // Store user data in localStorage (separate from token)
+      // Store user data in localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem(USER_KEY, JSON.stringify(user))
         localStorage.setItem('user', JSON.stringify(user))
-        localStorage.removeItem(TOKEN_KEY)
       }
 
       return {
@@ -262,6 +268,7 @@ export const logoutUser = createAsyncThunk<
         localStorage.removeItem(TOKEN_KEY)
         localStorage.removeItem(USER_KEY)
         localStorage.removeItem('user')
+        localStorage.removeItem('access_token')
       }
     }
   }
@@ -282,6 +289,7 @@ export const authSlice = createSlice({
         localStorage.removeItem(TOKEN_KEY)
         localStorage.removeItem(USER_KEY)
         localStorage.removeItem('user')
+        localStorage.removeItem('access_token')
       }
     },
     clearError: (state) => {

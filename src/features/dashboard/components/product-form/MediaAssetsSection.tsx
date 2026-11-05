@@ -32,14 +32,19 @@ export function MediaAssetsSection({
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return
-    const file = e.target.files[0]
-    const fakeUrl = URL.createObjectURL(file)
-    onAddMedia({
-      id: `media-${Date.now()}`,
-      url: fakeUrl,
-      alt: file.name,
-      isPrimary: mediaItems.length === 0,
+    // Allow multiple files at once
+    Array.from(e.target.files).forEach((file, idx) => {
+      const previewUrl = URL.createObjectURL(file)
+      onAddMedia({
+        id: `media-${Date.now()}-${idx}`,
+        url: previewUrl,
+        alt: file.name,
+        isPrimary: mediaItems.length === 0 && idx === 0,
+        file,
+      })
     })
+    // reset input so the same file can be re-selected
+    e.target.value = ''
   }
 
   const handleAddVideo = () => {
@@ -64,7 +69,8 @@ export function MediaAssetsSection({
       <label className="p-6 rounded-xl bg-surface-container-low hover:bg-surface-container flex flex-col items-center justify-center text-center cursor-pointer transition-all border-2 border-dashed border-outline-variant/60 group">
         <input
           type="file"
-          accept="image/*,video/*,.glb"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
           className="hidden"
           onChange={handleFileUpload}
         />

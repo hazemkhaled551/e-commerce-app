@@ -1,49 +1,7 @@
 import type { DashboardKpi, DashboardOrder, DateRangeFilter } from '../types/dashboard'
+import { getDynamicDateRangePresets } from '../utils/dateRangeUtils'
 
-export const DATE_RANGE_OPTIONS: DateRangeFilter[] = [
-  {
-    period: 'today',
-    label: 'Today',
-    dateRangeText: '(Apr 15, 2026)',
-    startDate: '2026-04-15',
-    endDate: '2026-04-15',
-  },
-  {
-    period: '7d',
-    label: 'Last 7 Days',
-    dateRangeText: '(Apr 8 – Apr 15, 2026)',
-    startDate: '2026-04-08',
-    endDate: '2026-04-15',
-  },
-  {
-    period: '30d',
-    label: 'Last 30 Days',
-    dateRangeText: '(Mar 17 – Apr 15, 2026)',
-    startDate: '2026-03-17',
-    endDate: '2026-04-15',
-  },
-  {
-    period: '90d',
-    label: 'Last 90 Days',
-    dateRangeText: '(Jan 15 – Apr 15, 2026)',
-    startDate: '2026-01-15',
-    endDate: '2026-04-15',
-  },
-  {
-    period: 'ytd',
-    label: 'Year to Date (YTD)',
-    dateRangeText: '(Jan 1 – Apr 15, 2026)',
-    startDate: '2026-01-01',
-    endDate: '2026-04-15',
-  },
-  {
-    period: '12m',
-    label: 'Last 12 Months',
-    dateRangeText: '(Apr 2025 – Apr 2026)',
-    startDate: '2025-04-15',
-    endDate: '2026-04-15',
-  },
-]
+export const DATE_RANGE_OPTIONS: DateRangeFilter[] = getDynamicDateRangePresets()
 
 export const mockDashboardKpis: DashboardKpi[] = [
   {

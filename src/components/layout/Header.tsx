@@ -151,13 +151,15 @@ export function Header() {
                   <span className="px-3 py-1.5 text-xs text-on-surface-variant border-b border-outline-variant/30 truncate font-body-sm">
                     {user?.email}
                   </span>
-                  <Link
-                    to="/admin"
-                    className="w-full text-left px-3 py-2 text-xs text-primary hover:bg-surface-container-low transition-colors cursor-pointer flex items-center gap-2 border-b border-outline-variant/30"
-                  >
-                    <span className="material-symbols-outlined text-sm">dashboard</span>
-                    <span>Admin Console</span>
-                  </Link>
+                  {String(user?.role || '').trim().toUpperCase() === 'ADMIN' && (
+                    <Link
+                      to="/admin"
+                      className="w-full text-left px-3 py-2 text-xs text-primary hover:bg-surface-container-low transition-colors cursor-pointer flex items-center gap-2 border-b border-outline-variant/30"
+                    >
+                      <span className="material-symbols-outlined text-sm">dashboard</span>
+                      <span>Admin Console</span>
+                    </Link>
+                  )}
                   <button
                     type="button"
                     onClick={logout}

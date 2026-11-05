@@ -5,9 +5,25 @@ interface CatalogToolbarProps {
   filters: CatalogFilters
   onFilterChange: (key: keyof CatalogFilters, value: string) => void
   onResetFilters?: () => void
+  categories?: string[]
+  brands?: string[]
 }
 
-export function CatalogToolbar({ filters, onFilterChange }: CatalogToolbarProps) {
+export function CatalogToolbar({
+  filters,
+  onFilterChange,
+  categories,
+  brands,
+}: CatalogToolbarProps) {
+  const categoryOptions =
+    categories && categories.length > 0
+      ? categories
+      : ['Electronics & Audio', 'Kitchen & Culinary', 'Home & Office', 'Accessories']
+
+  const brandOptions =
+    brands && brands.length > 0
+      ? brands
+      : ['AeroSound', 'DeskPower', 'Cast & Clay', 'Nordic Minimalist']
   return (
     <div className="p-3.5 rounded-2xl bg-surface-container-lowest shadow-[0_2px_12px_rgba(36,51,49,0.03)] flex flex-col xl:flex-row xl:items-center justify-between gap-3 border border-outline-variant/60">
       {/* Search Field */}
@@ -37,10 +53,11 @@ export function CatalogToolbar({ filters, onFilterChange }: CatalogToolbarProps)
             className="appearance-none h-9 pl-3 pr-8 rounded-xl bg-surface-container-low/70 text-on-surface text-xs font-medium hover:bg-surface-container transition-all cursor-pointer focus:outline-none focus:border-primary border border-outline-variant/60"
           >
             <option value="all">All Categories</option>
-            <option value="Electronics & Audio">Electronics &amp; Audio</option>
-            <option value="Kitchen & Culinary">Kitchen &amp; Culinary</option>
-            <option value="Home & Office">Home &amp; Office</option>
-            <option value="Accessories">Accessories</option>
+            {categoryOptions.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
           </select>
           <ChevronDown className="w-3.5 h-3.5 text-outline absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
@@ -84,10 +101,11 @@ export function CatalogToolbar({ filters, onFilterChange }: CatalogToolbarProps)
             className="appearance-none h-9 pl-3 pr-8 rounded-xl bg-surface-container-low/70 text-on-surface text-xs font-medium hover:bg-surface-container transition-all cursor-pointer focus:outline-none focus:border-primary border border-outline-variant/60"
           >
             <option value="all">Brand: All</option>
-            <option value="AeroSound">AeroSound</option>
-            <option value="DeskPower">DeskPower</option>
-            <option value="Cast & Clay">Cast &amp; Clay</option>
-            <option value="Nordic Minimalist">Nordic Minimalist</option>
+            {brandOptions.map((brand) => (
+              <option key={brand} value={brand}>
+                {brand}
+              </option>
+            ))}
           </select>
           <ChevronDown className="w-3.5 h-3.5 text-outline absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>

@@ -32,6 +32,9 @@ export class ApiError extends Error {
 const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1').trim()
 export const API_BASE_URL = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl
 
+// The raw origin without the /api/v1 prefix — used to build absolute refresh URL
+const API_ORIGIN = API_BASE_URL.replace(/\/api\/v\d+$/, '')
+
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
@@ -143,7 +146,7 @@ axiosInstance.interceptors.response.use(
           data?: { accessToken?: string; [key: string]: unknown }
           accessToken?: string
         }>(
-          `${API_BASE_URL}/api/v1/auth/refresh`,
+          `${API_ORIGIN}/api/v1/auth/refresh`,
           {},
           {
             withCredentials: true,

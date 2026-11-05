@@ -69,9 +69,28 @@ export function DashboardOverviewPage() {
           { ...mockDashboardKpis[2], value: '$70.65' },
           { ...mockDashboardKpis[3], value: '24 Orders' },
         ]
+      case 'this_month':
       case '30d':
-      default:
         return mockDashboardKpis
+      case 'custom':
+      default: {
+        const start = new Date(currentRange.startDate)
+        const end = new Date(currentRange.endDate)
+        const diffMs = end.getTime() - start.getTime()
+        const days = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1)
+        const rev = (4281.69 * days).toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 2,
+        })
+        const ords = Math.round(61.4 * days).toLocaleString()
+        return [
+          { ...mockDashboardKpis[0], value: rev },
+          { ...mockDashboardKpis[1], value: ords },
+          { ...mockDashboardKpis[2], value: '$69.73' },
+          { ...mockDashboardKpis[3], value: `${Math.min(24, Math.max(4, Math.round(days * 0.8)))} Orders` },
+        ]
+      }
     }
   }, [currentRange])
 

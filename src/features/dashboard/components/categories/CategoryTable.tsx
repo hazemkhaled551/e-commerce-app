@@ -10,6 +10,7 @@ import {
   MoreVertical,
   ChevronLeft,
   ChevronRight,
+  Eye,
 } from 'lucide-react'
 import type { CategoryItem } from '../../types/category'
 
@@ -18,6 +19,7 @@ interface CategoryTableProps {
   selectedIds: string[]
   onToggleSelect: (id: string) => void
   onToggleSelectAll: () => void
+  onViewCategory?: (category: CategoryItem) => void
   onEditCategory: (category: CategoryItem) => void
   onAddSubcategory: (parentCategory: CategoryItem) => void
   onPreviewCategory: (category: CategoryItem) => void
@@ -29,6 +31,7 @@ export function CategoryTable({
   selectedIds,
   onToggleSelect,
   onToggleSelectAll,
+  onViewCategory,
   onEditCategory,
   onAddSubcategory,
   onPreviewCategory,
@@ -139,9 +142,13 @@ export function CategoryTable({
 
                       <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-on-surface group-hover:text-primary transition-colors text-sm">
+                          <button
+                            type="button"
+                            onClick={() => onViewCategory?.(cat)}
+                            className="font-semibold text-on-surface hover:text-primary transition-colors text-sm text-left cursor-pointer"
+                          >
                             {cat.name}
-                          </span>
+                          </button>
                           {cat.isFeatured && (
                             <span title="Featured Collection" className="inline-flex items-center">
                               <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
@@ -211,6 +218,17 @@ export function CategoryTable({
                   {/* Actions */}
                   <td className="py-3 px-4 text-right">
                     <div className="flex items-center justify-end gap-1">
+                      {onViewCategory && (
+                        <button
+                          type="button"
+                          onClick={() => onViewCategory(cat)}
+                          className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+                          title="View Details"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      )}
+
                       <button
                         type="button"
                         onClick={() => onEditCategory(cat)}

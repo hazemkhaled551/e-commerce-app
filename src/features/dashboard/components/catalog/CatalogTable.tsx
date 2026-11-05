@@ -17,6 +17,13 @@ interface CatalogTableProps {
   onEditProduct: (product: CatalogProduct) => void
   onViewProduct: (product: CatalogProduct) => void
   onUnarchiveProduct?: (product: CatalogProduct) => void
+  page?: number
+  limit?: number
+  totalItems?: number
+  totalPages?: number
+  onPageChange?: (page: number) => void
+  onLimitChange?: (limit: number) => void
+  isLoading?: boolean
 }
 
 export function CatalogTable({
@@ -27,6 +34,13 @@ export function CatalogTable({
   onEditProduct,
   onViewProduct,
   onUnarchiveProduct,
+  page = 1,
+  limit = 10,
+  totalItems = products.length,
+  totalPages = Math.max(1, Math.ceil(totalItems / limit)),
+  onPageChange,
+  onLimitChange,
+  isLoading = false,
 }: CatalogTableProps) {
   const isAllSelected =
     products.length > 0 && products.every((p) => selectedIds.includes(p.id))
@@ -331,17 +345,25 @@ export function CatalogTable({
       <div className="p-3.5 bg-surface-container-low/70 flex flex-col sm:flex-row items-center justify-between gap-3 select-none border-t border-outline-variant/60 text-xs text-on-surface-variant">
         <div className="flex items-center gap-3 flex-wrap">
           <span>
-            Showing <strong className="text-on-surface font-semibold">1 to {products.length}</strong> of{' '}
-            <strong className="text-on-surface font-semibold">428</strong> products
+            Showing{' '}
+            <strong className="text-on-surface font-semibold">
+              {totalItems === 0 ? 0 : (page - 1) * limit + 1} to{' '}
+              {Math.min(page * limit, totalItems)}
+            </strong>{' '}
+            of <strong className="text-on-surface font-semibold">{totalItems}</strong> products
           </span>
           <div className="h-3.5 w-px bg-outline-variant/60 hidden sm:block" />
           <div className="flex items-center gap-1.5">
             <span>Rows per page:</span>
-            <select className="h-7 pl-2 pr-6 rounded-lg bg-surface-container-lowest text-on-surface font-semibold focus:outline-none border border-outline-variant/60 cursor-pointer">
-              <option>10</option>
-              <option>25</option>
-              <option>50</option>
-              <option>100</option>
+            <select
+              value={limit}
+              onChange={(e) => onLimitChange?.(Number(e.target.value) || 10)}
+              className="h-7 pl-2 pr-6 rounded-lg bg-surface-container-lowest text-on-surface font-semibold focus:outline-none border border-outline-variant/60 cursor-pointer"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
             </select>
           </div>
         </div>
@@ -349,39 +371,42 @@ export function CatalogTable({
         <div className="flex items-center gap-1">
           <button
             type="button"
-            disabled
-            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-outline opacity-40 cursor-not-allowed flex items-center justify-center border border-outline-variant/50"
+            disabled={page <= 1 || isLoading}
+            onClick={() => onPageChange?.(page - 1)}
+            aria-label="Previous Page"
+            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center border border-outline-variant/50 transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
           </button>
+
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            let pageNum = i + 1
+            if (totalPages > 5 && page > 3) {
+              pageNum = page - 2 + i
+              if (pageNum > totalPages) pageNum = totalPages - (4 - i)
+            }
+            return (
+              <button
+                key={pageNum}
+                type="button"
+                onClick={() => onPageChange?.(pageNum)}
+                className={`w-7 h-7 rounded-lg font-bold flex items-center justify-center transition-all cursor-pointer text-xs ${
+                  page === pageNum
+                    ? 'bg-primary text-on-primary shadow-xs'
+                    : 'bg-surface-container-lowest text-on-surface hover:bg-surface-container border border-outline-variant/50'
+                }`}
+              >
+                {pageNum}
+              </button>
+            )
+          })}
+
           <button
             type="button"
-            className="w-7 h-7 rounded-lg bg-primary text-on-primary font-bold flex items-center justify-center shadow-xs cursor-pointer text-xs"
-          >
-            1
-          </button>
-          <button
-            type="button"
-            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-medium flex items-center justify-center transition-all cursor-pointer border border-outline-variant/50 text-xs"
-          >
-            2
-          </button>
-          <button
-            type="button"
-            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-medium flex items-center justify-center transition-all cursor-pointer border border-outline-variant/50 text-xs"
-          >
-            3
-          </button>
-          <span className="px-1 text-outline">...</span>
-          <button
-            type="button"
-            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-medium flex items-center justify-center transition-all cursor-pointer border border-outline-variant/50 text-xs"
-          >
-            43
-          </button>
-          <button
-            type="button"
-            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container flex items-center justify-center transition-all cursor-pointer border border-outline-variant/50"
+            disabled={page >= totalPages || isLoading}
+            onClick={() => onPageChange?.(page + 1)}
+            aria-label="Next Page"
+            className="w-7 h-7 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center border border-outline-variant/50 transition-colors cursor-pointer"
           >
             <ChevronRight className="w-3.5 h-3.5" />
           </button>

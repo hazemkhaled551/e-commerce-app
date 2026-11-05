@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Info } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
@@ -12,7 +12,25 @@ import type { LoginCredentials, AuthPreviewState } from '../types/auth'
 
 export function LoginPage() {
   const navigate = useNavigate()
-  const { login, resendVerification, status } = useAuth()
+  const location = useLocation()
+  const { login, resendVerification, status, isAuthenticated, user } = useAuth()
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const role = String(user.role || '').trim().toUpperCase()
+      const isAdmin = role === 'ADMIN'
+      const from = (location.state as { from?: { pathname?: string } })?.from?.pathname
+
+      if (isAdmin) {
+        const destination = from && from.startsWith('/admin') ? from : '/admin'
+        navigate(destination, { replace: true })
+      } else {
+        const destination = from && !from.startsWith('/admin') ? from : '/'
+        navigate(destination, { replace: true })
+      }
+    }
+  }, [isAuthenticated, user, location.state, navigate])
 
   // Dynamic server feedback states (handled from backend response)
   const [serverState, setServerState] = useState<AuthPreviewState>('default')
@@ -48,8 +66,20 @@ export function LoginPage() {
       setServerTitle(undefined)
       setServerMessage(undefined)
 
-      await login(data)
-      navigate('/', { replace: true })
+      const result = await login(data)
+      const returnedUser = result?.user || result?.data?.user
+      const role = String(returnedUser?.role || '').trim().toUpperCase()
+      const isAdmin = role === 'ADMIN'
+
+      const from = (location.state as { from?: { pathname?: string } })?.from?.pathname
+
+      if (isAdmin) {
+        const destination = from && from.startsWith('/admin') ? from : '/admin'
+        navigate(destination, { replace: true })
+      } else {
+        const destination = from && !from.startsWith('/admin') ? from : '/'
+        navigate(destination, { replace: true })
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Authentication failed'
       const lower = msg.toLowerCase()
@@ -116,7 +146,7 @@ export function LoginPage() {
               {/* Title & Introduction */}
               <div className="text-center mb-6 relative z-10">
                 <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold tracking-wider uppercase mb-2">
-                  Customer Portal
+                  Portal Sign In
                 </span>
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-on-surface">
                   Welcome back

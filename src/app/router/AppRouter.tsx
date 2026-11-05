@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { CustomerLayout } from '@/components/layout/CustomerLayout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
 import { FullPageLoader } from '@/components/feedback/PageLoader'
+import { AdminRoute } from './AdminRoute'
 
 // Lazy-loaded customer storefront pages
 const ProductsPage = lazy(() =>
@@ -60,19 +61,21 @@ export function AppRouter() {
         <Route path="/product-detail" element={<ProductDetailPage />} />
       </Route>
 
-      {/* 2. Admin Dashboard Layout (Unprotected for now until backend implements roles) */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<DashboardOverviewPage />} />
-        <Route path="dashboard" element={<DashboardOverviewPage />} />
-        <Route path="orders" element={<OrdersPage />} />
-        <Route path="orders/:id" element={<OrderDetailPage />} />
-        <Route path="products" element={<ProductsCatalogPage />} />
-        <Route path="products/new" element={<ProductEditPage />} />
-        <Route path="products/:id/edit" element={<ProductEditPage />} />
-        <Route path="products/:id" element={<ProductEditPage />} />
-        <Route path="categories" element={<CategoriesPage />} />
+      {/* 2. Admin Dashboard Layout (Protected: ADMIN role required) */}
+      <Route element={<AdminRoute />}>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<DashboardOverviewPage />} />
+          <Route path="dashboard" element={<DashboardOverviewPage />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="orders/:id" element={<OrderDetailPage />} />
+          <Route path="products" element={<ProductsCatalogPage />} />
+          <Route path="products/new" element={<ProductEditPage />} />
+          <Route path="products/:id/edit" element={<ProductEditPage />} />
+          <Route path="products/:id" element={<ProductEditPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
+        </Route>
+        <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
       </Route>
-      <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
 
       {/* 3. Authentication Routes */}
       <Route

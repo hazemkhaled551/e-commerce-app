@@ -1,27 +1,54 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react'
 import { ConfirmationModal, type ConfirmationModalProps } from '@/components/ui'
-import type { CatalogProduct, CatalogFilters } from '../types/catalog'
-
-type ConfirmModalState = Omit<ConfirmationModalProps, 'isOpen' | 'onClose'> | null
-import { mockCatalogProducts, mockCatalogMetrics } from '../data/mockCatalogData'
+import type { CatalogProduct, CatalogFilters, CatalogMetrics } from '../types/catalog'
+import {
+  getAdminProducts,
+  getAdminProductMetrics,
+  type AdminProductMeta,
+} from '../api/adminProductApi'
 import { CatalogHeader } from '../components/catalog/CatalogHeader'
 import { CatalogMetricCards } from '../components/catalog/CatalogMetricCards'
 import { CatalogToolbar } from '../components/catalog/CatalogToolbar'
 import { CatalogBulkActions } from '../components/catalog/CatalogBulkActions'
 import { CatalogTable } from '../components/catalog/CatalogTable'
 import { CatalogEmptyState } from '../components/catalog/CatalogEmptyState'
-import { AddProductModal } from '../components/catalog/AddProductModal'
+
+type ConfirmModalState = Omit<ConfirmationModalProps, 'isOpen' | 'onClose'> | null
 
 export function ProductsCatalogPage() {
   const navigate = useNavigate()
-  const [products, setProducts] = useState<CatalogProduct[]>(mockCatalogProducts)
+
+  // Master product data state (loaded from API)
+  const [products, setProducts] = useState<CatalogProduct[]>([])
+  const [metrics, setMetrics] = useState<CatalogMetrics>({
+    totalProducts: 0,
+    publishedCount: 0,
+    lowStockCount: 0,
+    draftCount: 0,
+  })
+  const [meta, setMeta] = useState<AdminProductMeta>({
+    page: 1,
+    limit: 10,
+    totalItems: 0,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  })
+
+  // Pagination & Request State
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Selection & Modal States
   const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmModalState>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
+  // Faceted Filters
   const [filters, setFilters] = useState<CatalogFilters>({
     searchTerm: '',
     category: 'all',
@@ -29,6 +56,15 @@ export function ProductsCatalogPage() {
     stock: 'all',
     brand: 'all',
   })
+
+  // Debounced search to prevent excessive API calls while typing
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.searchTerm)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(filters.searchTerm)
+    }, 350)
+    return () => clearTimeout(timer)
+  }, [filters.searchTerm])
 
   // Show temporary feedback toast
   const showToast = (message: string) => {
@@ -38,8 +74,90 @@ export function ProductsCatalogPage() {
     }, 3000)
   }
 
-  // Handle filter changes
+  // Fetch catalog metrics from API on mount
+  useEffect(() => {
+    let ignore = false
+    getAdminProductMetrics()
+      .then((data) => {
+        if (!ignore) {
+          setMetrics(data)
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not load product metrics from API:', err)
+      })
+
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  // Fetch products catalog with query filters & pagination
+  const refreshProducts = useCallback(() => {
+    setIsLoading(true)
+    setError(null)
+    getAdminProducts({
+      page,
+      limit,
+      search: debouncedSearch,
+      category: filters.category,
+      status: filters.status,
+      stock: filters.stock,
+      brand: filters.brand,
+      sortBy: 'updatedAt',
+      sortOrder: 'desc',
+    })
+      .then((res) => {
+        setProducts(res.products)
+        setMeta(res.meta)
+        setIsLoading(false)
+      })
+      .catch((err) => {
+        const msg = err instanceof Error ? err.message : 'Failed to load catalog products'
+        setError(msg)
+        showToast(msg)
+        setIsLoading(false)
+      })
+  }, [page, limit, debouncedSearch, filters.category, filters.status, filters.stock, filters.brand])
+
+  useEffect(() => {
+    let ignore = false
+
+    getAdminProducts({
+      page,
+      limit,
+      search: debouncedSearch,
+      category: filters.category,
+      status: filters.status,
+      stock: filters.stock,
+      brand: filters.brand,
+      sortBy: 'updatedAt',
+      sortOrder: 'desc',
+    })
+      .then((res) => {
+        if (!ignore) {
+          setProducts(res.products)
+          setMeta(res.meta)
+          setIsLoading(false)
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          const msg = err instanceof Error ? err.message : 'Failed to load catalog products'
+          setError(msg)
+          showToast(msg)
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      ignore = true
+    }
+  }, [page, limit, debouncedSearch, filters.category, filters.status, filters.stock, filters.brand])
+
+  // Handle filter changes (resets page to 1)
   const handleFilterChange = (key: keyof CatalogFilters, value: string) => {
+    setPage(1)
     setFilters((prev) => ({
       ...prev,
       [key]: value,
@@ -47,6 +165,7 @@ export function ProductsCatalogPage() {
   }
 
   const handleResetFilters = () => {
+    setPage(1)
     setFilters({
       searchTerm: '',
       category: 'all',
@@ -56,47 +175,35 @@ export function ProductsCatalogPage() {
     })
   }
 
-  // Compute filtered product list
-  const filteredProducts = useMemo(() => {
-    return products.filter((item) => {
-      // 1. Search keyword
-      if (filters.searchTerm.trim()) {
-        const query = filters.searchTerm.toLowerCase()
-        const matchName = item.name.toLowerCase().includes(query)
-        const matchSku = item.sku.toLowerCase().includes(query)
-        const matchUpc = item.upc.toLowerCase().includes(query)
-        const matchBrand = item.brand.toLowerCase().includes(query)
-        const matchCategory = item.category.toLowerCase().includes(query)
-        if (!matchName && !matchSku && !matchUpc && !matchBrand && !matchCategory) {
-          return false
-        }
-      }
-
-      // 2. Category
-      if (filters.category !== 'all' && item.category !== filters.category) {
-        return false
-      }
-
-      // 3. Status
-      if (filters.status !== 'all' && item.status !== filters.status) {
-        return false
-      }
-
-      // 4. Stock state
-      if (filters.stock !== 'all') {
-        if (filters.stock === 'in_stock' && item.stockState !== 'in_stock') return false
-        if (filters.stock === 'low_stock' && item.stockState !== 'low_stock' && item.stockState !== 'critical_low') return false
-        if (filters.stock === 'out_of_stock' && item.stockState !== 'out_of_stock') return false
-      }
-
-      // 5. Brand
-      if (filters.brand !== 'all' && item.brand !== filters.brand) {
-        return false
-      }
-
-      return true
+  // Extract available categories & brands dynamically from loaded products
+  const availableCategories = useMemo(() => {
+    const set = new Set<string>()
+    products.forEach((p) => {
+      if (p.category && p.category !== 'Uncategorized') set.add(p.category)
     })
-  }, [products, filters])
+    return Array.from(set)
+  }, [products])
+
+  const availableBrands = useMemo(() => {
+    const set = new Set<string>()
+    products.forEach((p) => {
+      if (p.brand && p.brand !== 'General') set.add(p.brand)
+    })
+    return Array.from(set)
+  }, [products])
+
+  // Effective metrics fallback
+  const effectiveMetrics: CatalogMetrics = useMemo(() => {
+    if (metrics.totalProducts > 0) return metrics
+    return {
+      totalProducts: meta.totalItems || products.length,
+      publishedCount: products.filter((p) => p.status === 'published').length,
+      lowStockCount: products.filter(
+        (p) => p.stockState === 'low_stock' || p.stockState === 'critical_low'
+      ).length,
+      draftCount: products.filter((p) => p.status === 'draft').length,
+    }
+  }, [metrics, meta.totalItems, products])
 
   // Selection handlers
   const handleToggleSelect = (productId: string) => {
@@ -106,14 +213,13 @@ export function ProductsCatalogPage() {
   }
 
   const handleToggleSelectAll = () => {
-    const allFilteredIds = filteredProducts.map((p) => p.id)
-    const isAllSelected =
-      allFilteredIds.length > 0 && allFilteredIds.every((id) => selectedIds.includes(id))
+    const allIds = products.map((p) => p.id)
+    const isAllSelected = allIds.length > 0 && allIds.every((id) => selectedIds.includes(id))
 
     if (isAllSelected) {
-      setSelectedIds((prev) => prev.filter((id) => !allFilteredIds.includes(id)))
+      setSelectedIds((prev) => prev.filter((id) => !allIds.includes(id)))
     } else {
-      setSelectedIds((prev) => Array.from(new Set([...prev, ...allFilteredIds])))
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...allIds])))
     }
   }
 
@@ -121,7 +227,7 @@ export function ProductsCatalogPage() {
     setSelectedIds([])
   }
 
-  // Bulk Actions with Mandatory Admin Confirmations
+  // Bulk Actions
   const handleBulkPublish = () => {
     const count = selectedIds.length
     setConfirmDialog({
@@ -275,7 +381,9 @@ export function ProductsCatalogPage() {
       ],
       onConfirm: () => {
         setProducts((prev) =>
-          prev.map((p) => (p.id === product.id ? { ...p, status: 'draft', lastUpdatedDate: 'Just now' } : p))
+          prev.map((p) =>
+            p.id === product.id ? { ...p, status: 'draft', lastUpdatedDate: 'Just now' } : p
+          )
         )
         setConfirmDialog(null)
         showToast(`Product "${product.name}" restored to draft status.`)
@@ -283,15 +391,10 @@ export function ProductsCatalogPage() {
     })
   }
 
-  // Add Product
-  const handleAddProduct = (newProduct: CatalogProduct) => {
-    setProducts((prev) => [newProduct, ...prev])
-    showToast(`Created new product: ${newProduct.name}`)
-  }
-
   // Export Catalog
   const handleExportCatalog = () => {
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(products, null, 2))
+    const dataStr =
+      'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(products, null, 2))
     const downloadAnchor = document.createElement('a')
     downloadAnchor.setAttribute('href', dataStr)
     downloadAnchor.setAttribute('download', `nexa-catalog-${Date.now()}.json`)
@@ -318,13 +421,15 @@ export function ProductsCatalogPage() {
       />
 
       {/* 2. KPI Metric Cards */}
-      <CatalogMetricCards metrics={mockCatalogMetrics} />
+      <CatalogMetricCards metrics={effectiveMetrics} />
 
       {/* 3. Search and Faceted Filtering Toolbar */}
       <CatalogToolbar
         filters={filters}
         onFilterChange={handleFilterChange}
         onResetFilters={handleResetFilters}
+        categories={availableCategories}
+        brands={availableBrands}
       />
 
       {/* 4. Bulk Action Floating Bar */}
@@ -338,16 +443,49 @@ export function ProductsCatalogPage() {
         onClearSelection={handleClearSelection}
       />
 
-      {/* 5. Products Table or Zero Results Empty State */}
-      {filteredProducts.length > 0 ? (
+      {/* 5. Error State Banner */}
+      {error && (
+        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            <span>{error}</span>
+          </div>
+          <button
+            type="button"
+            onClick={refreshProducts}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-red-200 text-red-700 hover:bg-red-100 font-semibold transition-colors cursor-pointer"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Retry</span>
+          </button>
+        </div>
+      )}
+
+      {/* 6. Products Table or Zero Results Empty State */}
+      {isLoading ? (
+        <div className="p-16 rounded-2xl bg-white border border-outline-variant/60 flex flex-col items-center justify-center gap-3">
+          <div className="w-8 h-8 rounded-full border-3 border-primary/20 border-t-primary animate-spin" />
+          <p className="text-xs font-semibold text-on-surface-variant">Loading catalog products...</p>
+        </div>
+      ) : products.length > 0 ? (
         <CatalogTable
-          products={filteredProducts}
+          products={products}
           selectedIds={selectedIds}
           onToggleSelect={handleToggleSelect}
           onToggleSelectAll={handleToggleSelectAll}
           onEditProduct={handleEditProduct}
           onViewProduct={handleViewProduct}
           onUnarchiveProduct={handleUnarchiveProduct}
+          page={page}
+          limit={limit}
+          totalItems={meta.totalItems}
+          totalPages={meta.totalPages}
+          onPageChange={setPage}
+          onLimitChange={(newLimit) => {
+            setLimit(newLimit)
+            setPage(1)
+          }}
+          isLoading={isLoading}
         />
       ) : (
         <CatalogEmptyState
@@ -355,13 +493,6 @@ export function ProductsCatalogPage() {
           onBrowseDrafts={() => handleFilterChange('status', 'draft')}
         />
       )}
-
-      {/* 6. Add Product Modal Dialog */}
-      <AddProductModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAddProduct={handleAddProduct}
-      />
 
       {/* 7. Catalog Confirmation Dialog */}
       {confirmDialog && (

@@ -26,8 +26,14 @@ export function AdminSidebar({ isMobileOpen = false, onCloseMobile }: AdminSideb
   const location = useLocation()
   const { user } = useAuth()
 
-  const userName = user?.name || 'Alexander Wright'
-  const userRole = user?.role === 'CUSTOMER' ? 'Store Administrator' : 'Operations Lead'
+  const userName = user?.name || 'Administrator'
+  const roleUpper = String(user?.role || '').trim().toUpperCase()
+  const userRole =
+    roleUpper === 'ADMIN'
+      ? 'System Administrator'
+      : roleUpper === 'CUSTOMER'
+        ? 'Customer Account'
+        : user?.role || 'System Administrator'
 
   const isCurrent = (path: string) => {
     if (path === '/admin' || path === '/admin/dashboard') {

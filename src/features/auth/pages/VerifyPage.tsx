@@ -197,8 +197,11 @@ export function VerifyPage() {
     try {
       setIsVerifying(true)
       setOtpError(null)
-      await verifyEmail({ email: targetEmail, otp: enteredCode })
-      navigate('/', { replace: true })
+      const result = await verifyEmail({ email: targetEmail, otp: enteredCode })
+      const verifiedUser = result?.user || result?.data?.user
+      const role = String(verifiedUser?.role || '').trim().toUpperCase()
+      const isAdmin = role === 'ADMIN'
+      navigate(isAdmin ? '/admin' : '/', { replace: true })
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Invalid or expired verification code'
       setOtpError(msg)

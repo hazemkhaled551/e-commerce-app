@@ -1,12 +1,16 @@
-import { useState } from 'react'
-import { FolderTree, X, Tag, Plus } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { FolderTree, X, Tag, Plus, Loader2 } from 'lucide-react'
+import type { CategoryItem } from '../../types/category'
+import { getAdminCategories } from '../../api/adminCategoryApi'
 
 interface TaxonomySidebarProps {
   category: string
+  categoryId?: string
+  categories?: CategoryItem[]
   brand: string
   collections: string[]
   tags: string[]
-  onCategoryChange: (cat: string) => void
+  onCategoryChange: (categoryId: string, categoryName: string) => void
   onBrandChange: (brand: string) => void
   onToggleCollection: (collection: string) => void
   onAddTag: (tag: string) => void
@@ -22,6 +26,8 @@ const AVAILABLE_COLLECTIONS = [
 
 export function TaxonomySidebar({
   category,
+  categoryId,
+  categories: initialCategories,
   brand,
   collections,
   tags,
@@ -32,6 +38,36 @@ export function TaxonomySidebar({
   onRemoveTag,
 }: TaxonomySidebarProps) {
   const [tagInput, setTagInput] = useState('')
+  const [fetchedCategories, setFetchedCategories] = useState<CategoryItem[]>([])
+  const [hasFetched, setHasFetched] = useState(false)
+
+  const loadedCategories =
+    initialCategories && initialCategories.length > 0 ? initialCategories : fetchedCategories
+
+  const isLoadingCats = (!initialCategories || initialCategories.length === 0) && !hasFetched
+
+  useEffect(() => {
+    if (initialCategories && initialCategories.length > 0) return
+
+    let ignore = false
+    getAdminCategories({ view: 'flat', limit: 100 })
+      .then((res) => {
+        if (!ignore) {
+          setFetchedCategories(res.categories)
+          setHasFetched(true)
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          console.warn('Could not load categories in TaxonomySidebar:', err)
+          setHasFetched(true)
+        }
+      })
+
+    return () => {
+      ignore = true
+    }
+  }, [initialCategories])
 
   const handleAddTagSubmit = () => {
     if (tagInput.trim()) {
@@ -40,12 +76,21 @@ export function TaxonomySidebar({
     }
   }
 
-  const handleChangeCategoryPrompt = () => {
-    const newCat = window.prompt(
-      'Enter category path (e.g., Electronics > Audio > Over-Ear Headphones):',
-      category
-    )
-    if (newCat) onCategoryChange(newCat)
+  // Find effective selected category ID
+  const selectedCatId =
+    categoryId ||
+    loadedCategories.find(
+      (c) => c.name.toLowerCase() === category.toLowerCase() || c.id === category
+    )?.id ||
+    ''
+
+  const handleSelectCategory = (id: string) => {
+    const selected = loadedCategories.find((c) => c.id === id)
+    if (selected) {
+      onCategoryChange(selected.id, selected.name)
+    } else {
+      onCategoryChange(id, id)
+    }
   }
 
   return (
@@ -57,23 +102,43 @@ export function TaxonomySidebar({
         </h2>
       </div>
 
-      {/* Product Category */}
+      {/* Product Category - Select Dropdown */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
-          Product Category
-        </label>
-        <div className="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between border border-outline-variant/60 shadow-xs">
-          <span className="text-xs text-on-surface font-medium truncate">
-            {category}
-          </span>
-          <button
-            type="button"
-            onClick={handleChangeCategoryPrompt}
-            className="text-primary hover:underline text-xs font-semibold shrink-0 cursor-pointer ml-2"
-          >
-            Change
-          </button>
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
+            Product Category <span className="text-red-500">*</span>
+          </label>
+          {isLoadingCats && (
+            <span className="flex items-center gap-1 text-[10px] text-primary">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span>Loading...</span>
+            </span>
+          )}
         </div>
+
+        <div className="relative">
+          <select
+            value={selectedCatId}
+            onChange={(e) => handleSelectCategory(e.target.value)}
+            disabled={isLoadingCats}
+            className="w-full h-10 px-3 pr-8 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-xs font-medium disabled:opacity-50"
+          >
+            <option value="" disabled>
+              {isLoadingCats ? 'Loading categories...' : 'Select Category...'}
+            </option>
+            {loadedCategories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.level === 'subcategory'
+                  ? `↳ ${c.name} (${c.parentName || 'Subcategory'})`
+                  : c.name}
+              </option>
+            ))}
+          </select>
+          <FolderTree className="w-4 h-4 text-primary/50 absolute right-2.5 top-3 pointer-events-none" />
+        </div>
+        <span className="text-[11px] text-on-surface-variant">
+          Assigns product to store navigation and category filters.
+        </span>
       </div>
 
       {/* Brand / Manufacturer */}

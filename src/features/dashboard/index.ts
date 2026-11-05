@@ -4,6 +4,15 @@ export { OrderDetailPage } from './pages/OrderDetailPage'
 export { ProductsCatalogPage } from './pages/ProductsCatalogPage'
 export { ProductEditPage } from './pages/ProductEditPage'
 export { CategoriesPage } from './pages/CategoriesPage'
+export {
+  getAdminProducts,
+  getAdminProductMetrics,
+  getAdminProductById,
+} from './api/adminProductApi'
+export {
+  getAdminCategories,
+  getAdminCategoryKpis,
+} from './api/adminCategoryApi'
 
 export type { DashboardOrder, DashboardKpi, OrderFilterTab } from './types/dashboard'
 export type {

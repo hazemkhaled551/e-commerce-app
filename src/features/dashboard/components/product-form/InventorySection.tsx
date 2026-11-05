@@ -1,4 +1,6 @@
-import { Warehouse } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Warehouse, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import { checkProductSkuAvailability } from '../../api/adminProductApi'
 
 interface InventorySectionProps {
   sku: string
@@ -27,6 +29,57 @@ export function InventorySection({
   onPolicyChange,
   onAutoGenerateSku,
 }: InventorySectionProps) {
+  // Remote SKU check state
+  const [remoteSkuCheck, setRemoteSkuCheck] = useState<{
+    sku: string
+    status: 'idle' | 'checking' | 'available' | 'taken'
+    message: string | null
+  }>({
+    sku: '',
+    status: 'idle',
+    message: null,
+  })
+
+  const trimmedSku = sku.trim()
+
+  useEffect(() => {
+    if (!trimmedSku) return
+
+    let ignore = false
+    const timer = setTimeout(() => {
+      checkProductSkuAvailability(trimmedSku)
+        .then((result) => {
+          if (!ignore) {
+            setRemoteSkuCheck({
+              sku: trimmedSku,
+              status: result.available ? 'available' : 'taken',
+              message: result.available ? null : result.message || 'SKU is already in use',
+            })
+          }
+        })
+        .catch(() => {
+          if (!ignore) {
+            setRemoteSkuCheck({
+              sku: trimmedSku,
+              status: 'taken',
+              message: 'Check failed',
+            })
+          }
+        })
+    }, 400)
+
+    return () => {
+      ignore = true
+      clearTimeout(timer)
+    }
+  }, [trimmedSku])
+
+  const skuStatus = !trimmedSku
+    ? 'idle'
+    : remoteSkuCheck.sku === trimmedSku
+      ? remoteSkuCheck.status
+      : 'checking'
+
   return (
     <section className="bg-white rounded-xl p-6 shadow-sm flex flex-col gap-5 border border-outline-variant/60">
       <div className="flex items-center justify-between pb-3 border-b border-outline-variant/60">
@@ -49,9 +102,29 @@ export function InventorySection({
         {/* SKU */}
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-wider text-on-surface" htmlFor="sku-input">
-              SKU (Stock Keeping Unit)
-            </label>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface" htmlFor="sku-input">
+                SKU (Stock Keeping Unit)
+              </label>
+              {skuStatus === 'checking' && (
+                <span className="flex items-center gap-1 text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
+                  <Loader2 className="w-2.5 h-2.5 animate-spin text-amber-600" />
+                  <span>Checking</span>
+                </span>
+              )}
+              {skuStatus === 'available' && (
+                <span className="flex items-center gap-1 text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-semibold">
+                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                  <span>Available</span>
+                </span>
+              )}
+              {skuStatus === 'taken' && (
+                <span className="flex items-center gap-1 text-[10px] text-red-700 bg-red-50 px-1.5 py-0.5 rounded font-semibold">
+                  <AlertCircle className="w-2.5 h-2.5 text-red-600" />
+                  <span>Taken</span>
+                </span>
+              )}
+            </div>
             <button
               type="button"
               onClick={onAutoGenerateSku}
@@ -64,8 +137,14 @@ export function InventorySection({
             id="sku-input"
             type="text"
             value={sku}
-            onChange={(e) => onSkuChange(e.target.value)}
-            className="w-full h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-mono text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-xs"
+            onChange={(e) => onSkuChange(e.target.value.toUpperCase())}
+            className={`w-full h-10 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-mono text-sm border transition-colors focus:outline-none focus:ring-2 shadow-xs ${
+              skuStatus === 'available'
+                ? 'border-emerald-400 focus:border-emerald-500 focus:ring-emerald-200'
+                : skuStatus === 'taken'
+                  ? 'border-red-400 focus:border-red-500 focus:ring-red-200'
+                  : 'border-outline-variant/60 focus:border-primary focus:ring-primary/20'
+            }`}
           />
         </div>
 

@@ -5,6 +5,7 @@ export interface ProductMediaItem {
   url: string
   alt: string
   isPrimary: boolean
+  file?: File   // actual File object for upload; absent for existing/remote media
 }
 
 export interface WarehouseAllocation {
@@ -71,6 +72,7 @@ export interface ProductFormData {
     b2b: boolean
   }
   cornerRibbon: 'BESTSELLER' | 'NEW ARRIVAL' | '20% OFF' | 'STAFF PICK' | 'None'
+  categoryId?: string
   category: string
   brand: string
   collections: string[]
