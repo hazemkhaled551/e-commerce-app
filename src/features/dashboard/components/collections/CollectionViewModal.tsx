@@ -3,6 +3,7 @@ import {
   Layers,
   Sparkles,
   Edit2,
+  PackagePlus,
 } from 'lucide-react'
 import type { CollectionItem } from '../../types/collection'
 
@@ -11,6 +12,7 @@ interface CollectionViewModalProps {
   onClose: () => void
   collection: CollectionItem | null
   onEdit: (collection: CollectionItem) => void
+  onManageProducts: (collection: CollectionItem) => void
 }
 
 export function CollectionViewModal({
@@ -18,6 +20,7 @@ export function CollectionViewModal({
   onClose,
   collection,
   onEdit,
+  onManageProducts,
 }: CollectionViewModalProps) {
   if (!isOpen || !collection) return null
 
@@ -137,25 +140,38 @@ export function CollectionViewModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 bg-surface-container-low border-t border-outline-variant/60 flex items-center justify-between">
+        <div className="px-6 py-3.5 bg-surface-container-low border-t border-outline-variant/60 flex items-center justify-between gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-white border border-outline-variant/60 text-on-surface text-xs font-semibold hover:bg-surface-container transition-colors"
+            className="px-4 py-2 rounded-xl bg-white border border-outline-variant/60 text-on-surface text-xs font-semibold hover:bg-surface-container transition-colors cursor-pointer"
           >
             Close
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              onClose()
-              onEdit(collection)
-            }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-xs font-semibold shadow-xs transition-all"
-          >
-            <Edit2 className="w-3.5 h-3.5" />
-            <span>Edit Collection</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                onClose()
+                onManageProducts(collection)
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold border border-outline-variant/60 transition-all cursor-pointer"
+            >
+              <PackagePlus className="w-3.5 h-3.5 text-primary" />
+              <span>Manage Products</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onClose()
+                onEdit(collection)
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-xs font-semibold shadow-xs transition-all cursor-pointer"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+              <span>Edit</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

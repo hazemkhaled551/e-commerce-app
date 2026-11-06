@@ -6,6 +6,7 @@ import {
   Sparkles,
   Clock,
   Archive,
+  PackagePlus,
 } from 'lucide-react'
 import type { CollectionItem } from '../../types/collection'
 
@@ -18,6 +19,7 @@ interface CollectionTableProps {
   onEdit: (collection: CollectionItem) => void
   onDelete: (collection: CollectionItem) => void
   onAddNew: () => void
+  onManageProducts: (collection: CollectionItem) => void
 }
 
 export function CollectionTable({
@@ -29,6 +31,7 @@ export function CollectionTable({
   onEdit,
   onDelete,
   onAddNew,
+  onManageProducts,
 }: CollectionTableProps) {
   const isAllSelected =
     collections.length > 0 && selectedIds.length === collections.length
@@ -170,9 +173,15 @@ export function CollectionTable({
 
                   {/* Curated Products */}
                   <td className="py-3.5 px-3 text-center">
-                    <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface text-[11px] font-bold">
-                      {col.productCount} SKUs
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onManageProducts(col)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high hover:bg-primary/10 hover:text-primary text-on-surface text-[11px] font-bold transition-all cursor-pointer group/skus border border-transparent hover:border-primary/20"
+                      title="Manage Products in Collection"
+                    >
+                      <PackagePlus className="w-3 h-3 text-on-surface-variant group-hover/skus:text-primary transition-colors" />
+                      <span>{col.productCount} SKUs</span>
+                    </button>
                   </td>
 
                   {/* Status Badge */}
@@ -210,6 +219,15 @@ export function CollectionTable({
                   {/* Actions */}
                   <td className="py-3.5 pr-4 pl-3 text-right">
                     <div className="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={() => onManageProducts(col)}
+                        className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/10 cursor-pointer transition-colors"
+                        title="Manage collection products"
+                      >
+                        <PackagePlus className="w-3.5 h-3.5" />
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => onView(col)}

@@ -10,12 +10,30 @@ export interface CollectionItem {
   imageUrl?: string
   status: CollectionStatus
   productCount: number
+  productIds?: string[]
   displayLocation: CollectionLocation
   isFeatured: boolean
   rulesType: CollectionRuleType
   badgeText?: string
   createdAt: string
   updatedAt: string
+}
+
+export type CollectionProductAction = 'add' | 'remove' | 'set'
+
+export interface CollectionProductsPayload {
+  action: CollectionProductAction
+  productIds: string[]
+}
+
+export interface CollectionProductsResponse {
+  success: boolean
+  status: number
+  message: string
+  data: {
+    collectionId: string
+    productCount: number
+  }
 }
 
 export interface CollectionFormData {

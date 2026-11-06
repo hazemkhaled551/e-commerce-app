@@ -9,6 +9,7 @@ export const INITIAL_MOCK_COLLECTIONS: CollectionItem[] = [
     imageUrl: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&auto=format&fit=crop&q=80',
     status: 'active',
     productCount: 8,
+    productIds: ['101', '102', '103', '104', '105', '106', '107', '108'],
     displayLocation: 'Home Grid',
     isFeatured: true,
     rulesType: 'manual',
@@ -23,7 +24,8 @@ export const INITIAL_MOCK_COLLECTIONS: CollectionItem[] = [
     description: 'Top velocity SKUs with highest conversion rates, customer ratings above 4.8 stars, and verified reviews.',
     imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
     status: 'active',
-    productCount: 16,
+    productCount: 6,
+    productIds: ['201', '202', '203', '204', '101', '102'],
     displayLocation: 'Storefront Catalog',
     isFeatured: true,
     rulesType: 'smart_automated',
@@ -38,7 +40,8 @@ export const INITIAL_MOCK_COLLECTIONS: CollectionItem[] = [
     description: 'Audiophile reference gear featuring balanced planar drivers, high impedance open-back enclosures, and DACs.',
     imageUrl: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&auto=format&fit=crop&q=80',
     status: 'active',
-    productCount: 12,
+    productCount: 4,
+    productIds: ['101', '105', '201', '202'],
     displayLocation: 'Banner',
     isFeatured: false,
     rulesType: 'manual',
@@ -53,7 +56,8 @@ export const INITIAL_MOCK_COLLECTIONS: CollectionItem[] = [
     description: 'Previous-generation hardware, end-of-batch refurbished units, and exclusive promotional outlet discounts.',
     imageUrl: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&auto=format&fit=crop&q=80',
     status: 'active',
-    productCount: 5,
+    productCount: 3,
+    productIds: ['107', '108', '204'],
     displayLocation: 'Sidebar',
     isFeatured: false,
     rulesType: 'manual',
@@ -68,7 +72,8 @@ export const INITIAL_MOCK_COLLECTIONS: CollectionItem[] = [
     description: 'Curated workflow packages combining acoustic isolation pads, desk power rails, and balanced cables.',
     imageUrl: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&auto=format&fit=crop&q=80',
     status: 'scheduled',
-    productCount: 7,
+    productCount: 3,
+    productIds: ['106', '105', '102'],
     displayLocation: 'Storefront Catalog',
     isFeatured: false,
     rulesType: 'smart_automated',
@@ -83,7 +88,8 @@ export const INITIAL_MOCK_COLLECTIONS: CollectionItem[] = [
     description: 'Low-latency aptX Lossless and multipoint Bluetooth hardware for seamless mobile-to-workstation handoff.',
     imageUrl: 'https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=600&auto=format&fit=crop&q=80',
     status: 'draft',
-    productCount: 3,
+    productCount: 2,
+    productIds: ['101', '201'],
     displayLocation: 'Home Grid',
     isFeatured: false,
     rulesType: 'manual',
@@ -116,7 +122,21 @@ export function loadCollectionsFromStorage(): CollectionItem[] {
       return INITIAL_MOCK_COLLECTIONS
     }
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_MOCK_COLLECTIONS
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return INITIAL_MOCK_COLLECTIONS
+    }
+    // Ensure all collections have productIds array synced with productCount
+    return parsed.map((col: CollectionItem) => {
+      const match = INITIAL_MOCK_COLLECTIONS.find((m) => m.id === col.id)
+      const productIds = Array.isArray(col.productIds)
+        ? col.productIds
+        : match?.productIds || []
+      return {
+        ...col,
+        productIds,
+        productCount: productIds.length > 0 ? productIds.length : (col.productCount || 0),
+      }
+    })
   } catch (err) {
     console.warn('Failed to parse collections from localStorage, fallback to initial', err)
     return INITIAL_MOCK_COLLECTIONS

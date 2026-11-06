@@ -5,18 +5,21 @@ import type {
   CollectionItem,
   CollectionFilters,
   CollectionFormData,
+  CollectionProductAction,
 } from '../types/collection'
 import {
   loadCollectionsFromStorage,
   saveCollectionsToStorage,
   calculateCollectionMetrics,
 } from '../data/mockCollectionData'
+import { updateCollectionProducts } from '../api/adminCollectionApi'
 import { CollectionHeader } from '../components/collections/CollectionHeader'
 import { CollectionMetricCards } from '../components/collections/CollectionMetricCards'
 import { CollectionToolbar } from '../components/collections/CollectionToolbar'
 import { CollectionTable } from '../components/collections/CollectionTable'
 import { CollectionFormModal } from '../components/collections/CollectionFormModal'
 import { CollectionViewModal } from '../components/collections/CollectionViewModal'
+import { CollectionProductsModal } from '../components/collections/CollectionProductsModal'
 
 type ConfirmModalState = Omit<ConfirmationModalProps, 'isOpen' | 'onClose'> | null
 
@@ -40,6 +43,8 @@ export function CollectionsPage() {
   const [editCollection, setEditCollection] = useState<CollectionItem | null>(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [viewCollection, setViewCollection] = useState<CollectionItem | null>(null)
+  const [isProductsModalOpen, setIsProductsModalOpen] = useState(false)
+  const [productsTargetCollection, setProductsTargetCollection] = useState<CollectionItem | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmModalState>(null)
 
   const showToast = (msg: string) => {
@@ -163,6 +168,56 @@ export function CollectionsPage() {
 
     setIsFormModalOpen(false)
     setEditCollection(null)
+  }
+
+  // Open Manage Products Modal
+  const handleOpenManageProducts = (collection: CollectionItem) => {
+    setProductsTargetCollection(collection)
+    setIsProductsModalOpen(true)
+  }
+
+  // Update Collection Products Handler (POST /api/v1/admin/collections/:id/products)
+  const handleUpdateCollectionProducts = async (
+    collectionId: string,
+    action: CollectionProductAction,
+    productIds: string[]
+  ) => {
+    const target = collections.find((c) => c.id === collectionId)
+    if (!target) return
+
+    let nextProductIds: string[] = []
+    if (action === 'set') {
+      nextProductIds = productIds
+    } else if (action === 'add') {
+      nextProductIds = Array.from(
+        new Set([...(target.productIds || []), ...productIds])
+      )
+    } else if (action === 'remove') {
+      nextProductIds = (target.productIds || []).filter(
+        (id) => !productIds.includes(id)
+      )
+    }
+
+    const now = new Date().toISOString()
+    setCollections((prev) =>
+      prev.map((c) =>
+        c.id === collectionId
+          ? {
+              ...c,
+              productIds: nextProductIds,
+              productCount: nextProductIds.length,
+              updatedAt: now,
+            }
+          : c
+      )
+    )
+
+    // Call API Contract 3.10 POST /api/v1/admin/collections/:id/products
+    await updateCollectionProducts(collectionId, { action, productIds })
+
+    showToast(
+      `Updated products for "${target.title}" (${nextProductIds.length} items).`
+    )
   }
 
   // Single Delete
@@ -316,6 +371,7 @@ export function CollectionsPage() {
           setEditCollection(null)
           setIsFormModalOpen(true)
         }}
+        onManageProducts={handleOpenManageProducts}
       />
 
       {/* 5. Add / Edit Collection Form Modal */}
@@ -341,6 +397,18 @@ export function CollectionsPage() {
           setEditCollection(col)
           setIsFormModalOpen(true)
         }}
+        onManageProducts={handleOpenManageProducts}
+      />
+
+      {/* 7. Manage Collection Products Modal (API Contract 3.10) */}
+      <CollectionProductsModal
+        isOpen={isProductsModalOpen}
+        onClose={() => {
+          setIsProductsModalOpen(false)
+          setProductsTargetCollection(null)
+        }}
+        collection={productsTargetCollection}
+        onSave={handleUpdateCollectionProducts}
       />
     </div>
   )
