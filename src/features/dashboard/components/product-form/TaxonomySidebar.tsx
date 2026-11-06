@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
-import { FolderTree, X, Tag, Plus, Loader2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { FolderTree, X, Tag, Plus, Loader2, ExternalLink } from 'lucide-react'
 import type { CategoryItem } from '../../types/category'
 import { getAdminCategories } from '../../api/adminCategoryApi'
+import { loadBrandsFromStorage } from '../../data/mockBrandData'
+import { loadCollectionsFromStorage } from '../../data/mockCollectionData'
 
 interface TaxonomySidebarProps {
   category: string
@@ -16,13 +19,6 @@ interface TaxonomySidebarProps {
   onAddTag: (tag: string) => void
   onRemoveTag: (tag: string) => void
 }
-
-const AVAILABLE_COLLECTIONS = [
-  'Featured Highlights (Home Grid)',
-  'Best Sellers 2025',
-  'Audio Architecture Showcase',
-  'Clearance Vault',
-]
 
 export function TaxonomySidebar({
   category,
@@ -40,6 +36,12 @@ export function TaxonomySidebar({
   const [tagInput, setTagInput] = useState('')
   const [fetchedCategories, setFetchedCategories] = useState<CategoryItem[]>([])
   const [hasFetched, setHasFetched] = useState(false)
+  const [availableBrands] = useState<string[]>(() =>
+    loadBrandsFromStorage().map((b) => b.name)
+  )
+  const [availableCollections] = useState<string[]>(() =>
+    loadCollectionsFromStorage().map((c) => c.title)
+  )
 
   const loadedCategories =
     initialCategories && initialCategories.length > 0 ? initialCategories : fetchedCategories
@@ -143,9 +145,21 @@ export function TaxonomySidebar({
 
       {/* Brand / Manufacturer */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
-          Brand / Manufacturer
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
+            Brand / Manufacturer
+          </label>
+          <Link
+            to="/admin/brands"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[10px] text-primary hover:underline flex items-center gap-0.5 font-medium"
+            title="Open Brands management page in new tab"
+          >
+            <span>Manage Brands</span>
+            <ExternalLink className="w-2.5 h-2.5" />
+          </Link>
+        </div>
         <select
           value={brand}
           onChange={(e) => {
@@ -158,24 +172,37 @@ export function TaxonomySidebar({
           }}
           className="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-on-surface text-sm border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 cursor-pointer shadow-xs"
         >
-          <option value="Nexa Audio Labs (Internal)">Nexa Audio Labs (Internal)</option>
-          <option value="AeroSound">AeroSound</option>
-          <option value="Sony Master Audio">Sony Master Audio</option>
-          <option value="Sennheiser Pro">Sennheiser Pro</option>
-          <option value="Bose Commercial">Bose Commercial</option>
-          <option value="DeskPower">DeskPower</option>
-          <option value="Cast & Clay">Cast &amp; Clay</option>
+          {availableBrands.map((bName) => (
+            <option key={bName} value={bName}>
+              {bName}
+            </option>
+          ))}
+          {!availableBrands.includes(brand) && brand && (
+            <option value={brand}>{brand}</option>
+          )}
           <option value="__add_new__">+ Add New Brand</option>
         </select>
       </div>
 
       {/* Collections */}
       <div className="flex flex-col gap-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
-          Collections
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
+            Collections
+          </label>
+          <Link
+            to="/admin/collections"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[10px] text-primary hover:underline flex items-center gap-0.5 font-medium"
+            title="Open Collections management page in new tab"
+          >
+            <span>Manage Collections</span>
+            <ExternalLink className="w-2.5 h-2.5" />
+          </Link>
+        </div>
         <div className="flex flex-col gap-2">
-          {AVAILABLE_COLLECTIONS.map((c) => {
+          {availableCollections.map((c) => {
             const isChecked = collections.includes(c)
             return (
               <label key={c} className="flex items-center gap-2 cursor-pointer group">
@@ -183,7 +210,7 @@ export function TaxonomySidebar({
                   type="checkbox"
                   checked={isChecked}
                   onChange={() => onToggleCollection(c)}
-                  className="rounded text-primary border-outline-variant/80 focus:ring-primary/30 cursor-pointer w-4 h-4"
+                  className="rounded text-primary border-outline-variant/80 focus:ring-primary/30 cursor-pointer w-4 h-4 accent-primary"
                 />
                 <span
                   className={`text-xs ${

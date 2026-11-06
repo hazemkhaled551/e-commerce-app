@@ -4,6 +4,8 @@ export { OrderDetailPage } from './pages/OrderDetailPage'
 export { ProductsCatalogPage } from './pages/ProductsCatalogPage'
 export { ProductEditPage } from './pages/ProductEditPage'
 export { CategoriesPage } from './pages/CategoriesPage'
+export { BrandsPage } from './pages/BrandsPage'
+export { CollectionsPage } from './pages/CollectionsPage'
 export {
   getAdminProducts,
   getAdminProductMetrics,
@@ -37,3 +39,19 @@ export type {
   CategoryStatus,
   CategoryLevel,
 } from './types/category'
+export type {
+  BrandItem,
+  BrandFormData,
+  BrandMetrics,
+  BrandFilters,
+  BrandStatus,
+} from './types/brand'
+export type {
+  CollectionItem,
+  CollectionFormData,
+  CollectionMetrics,
+  CollectionFilters,
+  CollectionStatus,
+  CollectionLocation,
+  CollectionRuleType,
+} from './types/collection'

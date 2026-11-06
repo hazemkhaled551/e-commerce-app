@@ -32,6 +32,12 @@ const ProductEditPage = lazy(() =>
 const CategoriesPage = lazy(() =>
   import('@/features/dashboard').then((m) => ({ default: m.CategoriesPage }))
 )
+const BrandsPage = lazy(() =>
+  import('@/features/dashboard').then((m) => ({ default: m.BrandsPage }))
+)
+const CollectionsPage = lazy(() =>
+  import('@/features/dashboard').then((m) => ({ default: m.CollectionsPage }))
+)
 
 // Lazy-loaded auth pages
 const LoginPage = lazy(() =>
@@ -73,6 +79,8 @@ export function AppRouter() {
           <Route path="products/:id/edit" element={<ProductEditPage />} />
           <Route path="products/:id" element={<ProductEditPage />} />
           <Route path="categories" element={<CategoriesPage />} />
+          <Route path="brands" element={<BrandsPage />} />
+          <Route path="collections" element={<CollectionsPage />} />
         </Route>
         <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
       </Route>
