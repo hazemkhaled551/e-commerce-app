@@ -3,9 +3,32 @@ import type { CollectionMetrics } from '../../types/collection'
 
 interface CollectionMetricCardsProps {
   metrics: CollectionMetrics
+  isLoading?: boolean
 }
 
-export function CollectionMetricCards({ metrics }: CollectionMetricCardsProps) {
+export function CollectionMetricCards({ metrics, isLoading = false }: CollectionMetricCardsProps) {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="p-4 rounded-xl bg-white border border-outline-variant/60 shadow-2xs flex flex-col justify-between animate-pulse"
+          >
+            <div className="flex items-center justify-between">
+              <div className="h-3 w-24 bg-surface-container rounded" />
+              <div className="w-7 h-7 rounded-lg bg-surface-container" />
+            </div>
+            <div className="mt-2 flex items-baseline gap-2">
+              <div className="h-7 w-10 bg-surface-container rounded" />
+              <div className="h-3 w-16 bg-surface-container rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   const activeRate =
     metrics.totalCollections > 0
       ? Math.round((metrics.activeCollections / metrics.totalCollections) * 100)

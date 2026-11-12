@@ -55,6 +55,17 @@ axiosInstance.interceptors.request.use(
     if (token && config.headers && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`
     }
+
+    // Override default JSON Content-Type for FormData so Axios keeps multipart/form-data
+    // (the browser XHR/fetch adapter then attaches the boundary automatically)
+    if (config.data instanceof FormData && config.headers) {
+      if (typeof config.headers.set === 'function') {
+        config.headers.set('Content-Type', 'multipart/form-data')
+      } else {
+        config.headers['Content-Type'] = 'multipart/form-data'
+      }
+    }
+
     return config
   },
   (error: unknown) => {

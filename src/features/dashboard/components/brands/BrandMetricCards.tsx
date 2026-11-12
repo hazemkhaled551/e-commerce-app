@@ -3,13 +3,36 @@ import type { BrandMetrics } from '../../types/brand'
 
 interface BrandMetricCardsProps {
   metrics: BrandMetrics
+  isLoading?: boolean
 }
 
-export function BrandMetricCards({ metrics }: BrandMetricCardsProps) {
+export function BrandMetricCards({ metrics, isLoading = false }: BrandMetricCardsProps) {
   const activeRate =
     metrics.totalBrands > 0
       ? Math.round((metrics.activeBrands / metrics.totalBrands) * 100)
       : 0
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="p-4 rounded-xl bg-white border border-outline-variant/60 shadow-2xs flex flex-col justify-between gap-3 animate-pulse"
+          >
+            <div className="flex items-center justify-between">
+              <div className="h-3 w-20 bg-surface-container-high rounded" />
+              <div className="w-7 h-7 rounded-lg bg-surface-container-high" />
+            </div>
+            <div className="flex items-baseline gap-2 mt-2">
+              <div className="h-7 w-10 bg-surface-container-high rounded" />
+              <div className="h-3 w-16 bg-surface-container rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
@@ -83,4 +106,3 @@ export function BrandMetricCards({ metrics }: BrandMetricCardsProps) {
     </div>
   )
 }
-

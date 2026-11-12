@@ -1,18 +1,24 @@
-import { useState, useMemo, useEffect } from 'react'
-import { CheckCircle2 } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { CheckCircle2, AlertCircle, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react'
 import { ConfirmationModal, type ConfirmationModalProps } from '@/components/ui'
 import type {
   CollectionItem,
   CollectionFilters,
   CollectionFormData,
+  CollectionMetrics,
   CollectionProductAction,
 } from '../types/collection'
 import {
-  loadCollectionsFromStorage,
-  saveCollectionsToStorage,
-  calculateCollectionMetrics,
-} from '../data/mockCollectionData'
-import { updateCollectionProducts } from '../api/adminCollectionApi'
+  getAdminCollections,
+  getAdminCollectionMetrics,
+  createAdminCollection,
+  updateAdminCollection,
+  deleteAdminCollection,
+  bulkUpdateCollectionStatus,
+  bulkDeleteCollections,
+  updateCollectionProducts,
+  type AdminCollectionMeta,
+} from '../api/adminCollectionApi'
 import { CollectionHeader } from '../components/collections/CollectionHeader'
 import { CollectionMetricCards } from '../components/collections/CollectionMetricCards'
 import { CollectionToolbar } from '../components/collections/CollectionToolbar'
@@ -23,12 +29,33 @@ import { CollectionProductsModal } from '../components/collections/CollectionPro
 
 type ConfirmModalState = Omit<ConfirmationModalProps, 'isOpen' | 'onClose'> | null
 
+const EMPTY_METRICS: CollectionMetrics = {
+  totalCollections: 0,
+  activeCollections: 0,
+  featuredCount: 0,
+  curatedProductsCount: 0,
+}
+
 export function CollectionsPage() {
-  const [collections, setCollections] = useState<CollectionItem[]>(() =>
-    loadCollectionsFromStorage()
-  )
+  const [collections, setCollections] = useState<CollectionItem[]>([])
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isMetricsLoading, setIsMetricsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [metrics, setMetrics] = useState<CollectionMetrics>(EMPTY_METRICS)
+
+  // Pagination State
+  const [page, setPage] = useState(1)
+  const [limit] = useState(20)
+  const [meta, setMeta] = useState<AdminCollectionMeta>({
+    page: 1,
+    limit: 20,
+    totalItems: 0,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  })
 
   // Filters State
   const [filters, setFilters] = useState<CollectionFilters>({
@@ -38,13 +65,24 @@ export function CollectionsPage() {
     sortBy: 'title',
   })
 
+  // Debounced search
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.searchTerm)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(filters.searchTerm)
+      setPage(1)
+    }, 350)
+    return () => clearTimeout(timer)
+  }, [filters.searchTerm])
+
   // Modal States
   const [isFormModalOpen, setIsFormModalOpen] = useState(false)
   const [editCollection, setEditCollection] = useState<CollectionItem | null>(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [viewCollection, setViewCollection] = useState<CollectionItem | null>(null)
   const [isProductsModalOpen, setIsProductsModalOpen] = useState(false)
-  const [productsTargetCollection, setProductsTargetCollection] = useState<CollectionItem | null>(null)
+  const [productsTargetCollection, setProductsTargetCollection] =
+    useState<CollectionItem | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmModalState>(null)
 
   const showToast = (msg: string) => {
@@ -54,53 +92,140 @@ export function CollectionsPage() {
     }, 3000)
   }
 
-  // Persist to localStorage whenever collections array changes
+  const mapSortParams = useCallback((sortBy: CollectionFilters['sortBy']) => {
+    if (sortBy === 'productCount') {
+      return { sortBy: 'productCount' as const, sortOrder: 'desc' as const }
+    }
+    if (sortBy === 'recent') {
+      return { sortBy: 'updatedAt' as const, sortOrder: 'desc' as const }
+    }
+    return { sortBy: 'title' as const, sortOrder: 'asc' as const }
+  }, [])
+
+  // Fetch metrics independently from API
+  const refreshMetrics = useCallback(async () => {
+    setIsMetricsLoading(true)
+    try {
+      const apiMetrics = await getAdminCollectionMetrics()
+      setMetrics(apiMetrics)
+    } catch (err) {
+      console.warn('Failed to fetch collection metrics:', err)
+    } finally {
+      setIsMetricsLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
-    saveCollectionsToStorage(collections)
-  }, [collections])
-
-  // Filtered & Sorted Collections
-  const filteredCollections = useMemo(() => {
-    return collections
-      .filter((c) => {
-        // Search
-        if (filters.searchTerm.trim()) {
-          const q = filters.searchTerm.toLowerCase()
-          const matchesTitle = c.title.toLowerCase().includes(q)
-          const matchesSlug = c.slug.toLowerCase().includes(q)
-          const matchesBadge = c.badgeText?.toLowerCase().includes(q)
-          if (!matchesTitle && !matchesSlug && !matchesBadge) return false
+    let ignore = false
+    getAdminCollectionMetrics()
+      .then((apiMetrics) => {
+        if (!ignore) {
+          setMetrics(apiMetrics)
         }
-        // Status filter
-        if (filters.status !== 'all' && c.status !== filters.status) {
-          return false
-        }
-        // Location filter
-        if (filters.location !== 'all' && c.displayLocation !== filters.location) {
-          return false
-        }
-
-        return true
       })
-      .sort((a, b) => {
-        if (filters.sortBy === 'title') {
-          return a.title.localeCompare(b.title)
-        }
-        if (filters.sortBy === 'productCount') {
-          return (b.productCount || 0) - (a.productCount || 0)
-        }
-        if (filters.sortBy === 'recent') {
-          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        }
-        return 0
+      .catch((err) => {
+        console.warn('Failed to fetch collection metrics:', err)
       })
-  }, [collections, filters])
+      .finally(() => {
+        if (!ignore) {
+          setIsMetricsLoading(false)
+        }
+      })
+    return () => {
+      ignore = true
+    }
+  }, [])
 
-  // Metrics
-  const metrics = useMemo(
-    () => calculateCollectionMetrics(collections),
-    [collections]
-  )
+  // Fetch collections from API
+  const fetchCollections = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    const { sortBy, sortOrder } = mapSortParams(filters.sortBy)
+
+    try {
+      const result = await getAdminCollections({
+        page,
+        limit,
+        search: debouncedSearch.trim() || undefined,
+        status: filters.status !== 'all' ? filters.status : undefined,
+        location: filters.location !== 'all' ? filters.location : undefined,
+        sortBy,
+        sortOrder,
+      })
+      setCollections(result.collections)
+      setMeta(result.meta)
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : 'Failed to load collections from API'
+      setError(msg)
+      setCollections([])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [
+    page,
+    limit,
+    debouncedSearch,
+    filters.status,
+    filters.location,
+    filters.sortBy,
+    mapSortParams,
+  ])
+
+  useEffect(() => {
+    let ignore = false
+    const { sortBy, sortOrder } = mapSortParams(filters.sortBy)
+
+    getAdminCollections({
+      page,
+      limit,
+      search: debouncedSearch.trim() || undefined,
+      status: filters.status !== 'all' ? filters.status : undefined,
+      location: filters.location !== 'all' ? filters.location : undefined,
+      sortBy,
+      sortOrder,
+    })
+      .then((result) => {
+        if (!ignore) {
+          setCollections(result.collections)
+          setMeta(result.meta)
+          setError(null)
+          setIsLoading(false)
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          const msg =
+            err instanceof Error ? err.message : 'Failed to load collections from API'
+          setError(msg)
+          setCollections([])
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      ignore = true
+    }
+  }, [
+    page,
+    limit,
+    debouncedSearch,
+    filters.status,
+    filters.location,
+    filters.sortBy,
+    mapSortParams,
+  ])
+
+  const handleFilterChange = (nextFilters: CollectionFilters) => {
+    if (
+      nextFilters.status !== filters.status ||
+      nextFilters.location !== filters.location ||
+      nextFilters.sortBy !== filters.sortBy
+    ) {
+      setPage(1)
+    }
+    setFilters(nextFilters)
+  }
 
   // Selection handlers
   const handleSelectToggle = (id: string) => {
@@ -110,64 +235,28 @@ export function CollectionsPage() {
   }
 
   const handleSelectAll = () => {
-    if (selectedIds.length === filteredCollections.length) {
+    if (selectedIds.length === collections.length) {
       setSelectedIds([])
     } else {
-      setSelectedIds(filteredCollections.map((c) => c.id))
+      setSelectedIds(collections.map((c) => c.id))
     }
   }
 
-  // Create / Edit Save Handler
-  const handleSaveCollection = (formData: CollectionFormData) => {
-    const now = new Date().toISOString()
-
+  // Create / Edit Save Handler (multipart/form-data)
+  const handleSaveCollection = async (
+    formData: CollectionFormData,
+    imageFile: File | null
+  ) => {
     if (formData.id) {
-      // Edit existing
-      setCollections((prev) =>
-        prev.map((item) =>
-          item.id === formData.id
-            ? {
-                ...item,
-                title: formData.title.trim(),
-                slug: formData.slug.trim(),
-                description: formData.description?.trim() || undefined,
-                imageUrl: formData.imageUrl?.trim() || undefined,
-                status: formData.status,
-                displayLocation: formData.displayLocation,
-                isFeatured: formData.isFeatured,
-                rulesType: formData.rulesType,
-                badgeText: formData.badgeText?.trim() || undefined,
-                updatedAt: now,
-              }
-            : item
-        )
-      )
-      showToast(`Updated collection "${formData.title}".`)
+      const updated = await updateAdminCollection(formData.id, formData, imageFile)
+      showToast(`Updated collection "${updated.title}".`)
     } else {
-      // Add new
-      const newCol: CollectionItem = {
-        id: `col-${Date.now()}`,
-        title: formData.title.trim(),
-        slug: formData.slug.trim(),
-        description: formData.description?.trim() || undefined,
-        imageUrl:
-          formData.imageUrl?.trim() ||
-          'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&auto=format&fit=crop&q=80',
-        status: formData.status,
-        productCount: 0,
-        displayLocation: formData.displayLocation,
-        isFeatured: formData.isFeatured,
-        rulesType: formData.rulesType,
-        badgeText: formData.badgeText?.trim() || undefined,
-        createdAt: now,
-        updatedAt: now,
-      }
-      setCollections((prev) => [newCol, ...prev])
-      showToast(`Created collection "${newCol.title}".`)
+      const created = await createAdminCollection(formData, imageFile)
+      showToast(`Created collection "${created.title}".`)
     }
-
     setIsFormModalOpen(false)
     setEditCollection(null)
+    await Promise.all([fetchCollections(), refreshMetrics()])
   }
 
   // Open Manage Products Modal
@@ -183,41 +272,12 @@ export function CollectionsPage() {
     productIds: string[]
   ) => {
     const target = collections.find((c) => c.id === collectionId)
-    if (!target) return
-
-    let nextProductIds: string[] = []
-    if (action === 'set') {
-      nextProductIds = productIds
-    } else if (action === 'add') {
-      nextProductIds = Array.from(
-        new Set([...(target.productIds || []), ...productIds])
-      )
-    } else if (action === 'remove') {
-      nextProductIds = (target.productIds || []).filter(
-        (id) => !productIds.includes(id)
-      )
-    }
-
-    const now = new Date().toISOString()
-    setCollections((prev) =>
-      prev.map((c) =>
-        c.id === collectionId
-          ? {
-              ...c,
-              productIds: nextProductIds,
-              productCount: nextProductIds.length,
-              updatedAt: now,
-            }
-          : c
-      )
-    )
-
-    // Call API Contract 3.10 POST /api/v1/admin/collections/:id/products
-    await updateCollectionProducts(collectionId, { action, productIds })
-
+    const response = await updateCollectionProducts(collectionId, { action, productIds })
+    const count = response.data?.productCount ?? productIds.length
     showToast(
-      `Updated products for "${target.title}" (${nextProductIds.length} items).`
+      `Updated products for "${target?.title || 'collection'}" (${count} items).`
     )
+    await Promise.all([fetchCollections(), refreshMetrics()])
   }
 
   // Single Delete
@@ -229,32 +289,48 @@ export function CollectionsPage() {
       variant: 'danger',
       icon: 'trash',
       badgeText: 'Permanent Action',
-      onConfirm: () => {
-        setCollections((prev) => prev.filter((c) => c.id !== collection.id))
-        setSelectedIds((prev) => prev.filter((id) => id !== collection.id))
-        setConfirmDialog(null)
-        showToast(`Deleted collection "${collection.title}".`)
+      onConfirm: async () => {
+        try {
+          await deleteAdminCollection(collection.id)
+          setSelectedIds((prev) => prev.filter((id) => id !== collection.id))
+          setConfirmDialog(null)
+          showToast(`Deleted collection "${collection.title}".`)
+          await Promise.all([fetchCollections(), refreshMetrics()])
+        } catch (err) {
+          setConfirmDialog(null)
+          showToast(err instanceof Error ? err.message : 'Failed to delete collection')
+        }
       },
     })
   }
 
   // Bulk Actions
-  const handleBulkActivate = () => {
-    setCollections((prev) =>
-      prev.map((c) => (selectedIds.includes(c.id) ? { ...c, status: 'active' } : c))
-    )
-    showToast(`Published ${selectedIds.length} collections live.`)
-    setSelectedIds([])
+  const handleBulkActivate = async () => {
+    try {
+      await bulkUpdateCollectionStatus({
+        collectionIds: selectedIds,
+        status: 'ACTIVE',
+      })
+      showToast(`Published ${selectedIds.length} collections live.`)
+      setSelectedIds([])
+      await Promise.all([fetchCollections(), refreshMetrics()])
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Failed to activate collections')
+    }
   }
 
-  const handleBulkArchive = () => {
-    setCollections((prev) =>
-      prev.map((c) =>
-        selectedIds.includes(c.id) ? { ...c, status: 'archived' } : c
-      )
-    )
-    showToast(`Archived ${selectedIds.length} collections.`)
-    setSelectedIds([])
+  const handleBulkArchive = async () => {
+    try {
+      await bulkUpdateCollectionStatus({
+        collectionIds: selectedIds,
+        status: 'ARCHIVED',
+      })
+      showToast(`Archived ${selectedIds.length} collections.`)
+      setSelectedIds([])
+      await Promise.all([fetchCollections(), refreshMetrics()])
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Failed to archive collections')
+    }
   }
 
   const handleBulkDelete = () => {
@@ -265,35 +341,33 @@ export function CollectionsPage() {
       variant: 'danger',
       icon: 'trash',
       badgeText: 'Bulk Deletion',
-      onConfirm: () => {
-        setCollections((prev) => prev.filter((c) => !selectedIds.includes(c.id)))
-        showToast(`Deleted ${selectedIds.length} collections.`)
-        setSelectedIds([])
-        setConfirmDialog(null)
+      onConfirm: async () => {
+        try {
+          await bulkDeleteCollections({ collectionIds: selectedIds })
+          showToast(`Deleted ${selectedIds.length} collections.`)
+          setSelectedIds([])
+          setConfirmDialog(null)
+          await Promise.all([fetchCollections(), refreshMetrics()])
+        } catch (err) {
+          setConfirmDialog(null)
+          showToast(
+            err instanceof Error ? err.message : 'Failed to delete collections'
+          )
+        }
       },
     })
   }
 
   // Export CSV
   const handleExportCsv = () => {
-    const headers = [
-      'ID',
-      'Title',
-      'Slug',
-      'Status',
-      'Location',
-      'IsFeatured',
-      'RuleType',
-      'ProductCount',
-    ]
-    const rows = filteredCollections.map((c) => [
+    const headers = ['ID', 'Title', 'Slug', 'Status', 'Location', 'IsFeatured', 'ProductCount']
+    const rows = collections.map((c) => [
       c.id,
       `"${c.title.replace(/"/g, '""')}"`,
       c.slug,
       c.status,
       `"${c.displayLocation}"`,
       c.isFeatured ? 'Yes' : 'No',
-      c.rulesType,
       c.productCount,
     ])
     const csvContent =
@@ -335,16 +409,16 @@ export function CollectionsPage() {
           setIsFormModalOpen(true)
         }}
         onExport={handleExportCsv}
-        totalCount={collections.length}
+        totalCount={meta.totalItems}
       />
 
-      {/* 2. Metric KPI Cards */}
-      <CollectionMetricCards metrics={metrics} />
+      {/* 2. Metric KPI Cards (Directly from API) */}
+      <CollectionMetricCards metrics={metrics} isLoading={isMetricsLoading} />
 
       {/* 3. Filter & Search Toolbar */}
       <CollectionToolbar
         filters={filters}
-        onFilterChange={setFilters}
+        onFilterChange={handleFilterChange}
         selectedCount={selectedIds.length}
         onBulkActivate={handleBulkActivate}
         onBulkArchive={handleBulkArchive}
@@ -352,29 +426,87 @@ export function CollectionsPage() {
         onClearSelection={() => setSelectedIds([])}
       />
 
-      {/* 4. Collections Table */}
-      <CollectionTable
-        collections={filteredCollections}
-        selectedIds={selectedIds}
-        onSelectToggle={handleSelectToggle}
-        onSelectAll={handleSelectAll}
-        onView={(col) => {
-          setViewCollection(col)
-          setIsViewModalOpen(true)
-        }}
-        onEdit={(col) => {
-          setEditCollection(col)
-          setIsFormModalOpen(true)
-        }}
-        onDelete={handleDeleteCollection}
-        onAddNew={() => {
-          setEditCollection(null)
-          setIsFormModalOpen(true)
-        }}
-        onManageProducts={handleOpenManageProducts}
-      />
+      {/* 4. Error Banner */}
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            <span>{error}</span>
+          </div>
+          <button
+            type="button"
+            onClick={fetchCollections}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-red-200 text-red-700 hover:bg-red-100 font-semibold transition-colors cursor-pointer shrink-0"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Retry</span>
+          </button>
+        </div>
+      )}
 
-      {/* 5. Add / Edit Collection Form Modal */}
+      {/* 5. Collections Table */}
+      {isLoading ? (
+        <div className="p-16 rounded-xl bg-white border border-outline-variant/60 flex flex-col items-center justify-center gap-3">
+          <div className="w-8 h-8 rounded-full border-3 border-primary/20 border-t-primary animate-spin" />
+          <p className="text-xs font-semibold text-on-surface-variant">
+            Loading collections...
+          </p>
+        </div>
+      ) : (
+        <CollectionTable
+          collections={collections}
+          selectedIds={selectedIds}
+          onSelectToggle={handleSelectToggle}
+          onSelectAll={handleSelectAll}
+          onView={(col) => {
+            setViewCollection(col)
+            setIsViewModalOpen(true)
+          }}
+          onEdit={(col) => {
+            setEditCollection(col)
+            setIsFormModalOpen(true)
+          }}
+          onDelete={handleDeleteCollection}
+          onAddNew={() => {
+            setEditCollection(null)
+            setIsFormModalOpen(true)
+          }}
+          onManageProducts={handleOpenManageProducts}
+        />
+      )}
+
+      {/* Pagination Bar */}
+      {!isLoading && meta.totalPages > 1 && (
+        <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-outline-variant/60 text-xs text-on-surface-variant">
+          <span>
+            Page <strong className="text-on-surface">{meta.page}</strong> of{' '}
+            <strong className="text-on-surface">{meta.totalPages}</strong> (
+            {meta.totalItems} collections)
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={!meta.hasPrevPage}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-outline-variant/60 bg-surface-container-lowest text-on-surface font-semibold disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed hover:bg-surface-container"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span>Prev</span>
+            </button>
+            <button
+              type="button"
+              disabled={!meta.hasNextPage}
+              onClick={() => setPage((p) => p + 1)}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-outline-variant/60 bg-surface-container-lowest text-on-surface font-semibold disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed hover:bg-surface-container"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Add / Edit Collection Form Modal */}
       <CollectionFormModal
         isOpen={isFormModalOpen}
         onClose={() => {
@@ -385,7 +517,7 @@ export function CollectionsPage() {
         editItem={editCollection}
       />
 
-      {/* 6. View Detail Modal */}
+      {/* 7. View Detail Modal */}
       <CollectionViewModal
         isOpen={isViewModalOpen}
         onClose={() => {
@@ -400,7 +532,7 @@ export function CollectionsPage() {
         onManageProducts={handleOpenManageProducts}
       />
 
-      {/* 7. Manage Collection Products Modal (API Contract 3.10) */}
+      {/* 8. Manage Collection Products Modal (API Contract 3.10) */}
       <CollectionProductsModal
         isOpen={isProductsModalOpen}
         onClose={() => {

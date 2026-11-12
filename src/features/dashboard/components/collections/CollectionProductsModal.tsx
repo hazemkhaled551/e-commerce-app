@@ -8,11 +8,12 @@ import {
   Save,
   Loader2,
   Filter,
+  AlertCircle,
 } from 'lucide-react'
 import type { CollectionItem, CollectionProductAction } from '../../types/collection'
 import type { CatalogProduct } from '../../types/catalog'
 import { getAdminProducts } from '../../api/adminProductApi'
-import { FALLBACK_PRODUCTS } from '@/features/products/api/productApi'
+import { getAdminCollectionById } from '../../api/adminCollectionApi'
 
 interface CollectionProductsModalProps {
   isOpen: boolean
@@ -25,87 +26,78 @@ interface CollectionProductsModalProps {
   ) => Promise<void> | void
 }
 
-function getFallbackCatalogProducts(): CatalogProduct[] {
-  return FALLBACK_PRODUCTS.map((p) => ({
-    id: String(p.id),
-    name: p.title,
-    variantLabel: p.variantLabel || 'Standard',
-    sku: `SKU-${p.id}`,
-    upc: `UPC-${p.id}`,
-    category: p.category || 'General',
-    brand: 'Nexa Hardware',
-    stockCount: p.stockStatus === 'low-stock' ? 2 : 25,
-    stockState: p.stockStatus === 'low-stock' ? ('low_stock' as const) : ('in_stock' as const),
-    stockPercentage: p.stockStatus === 'low-stock' ? 10 : 85,
-    stockNote: p.stockLabel || 'In stock',
-    price: p.price,
-    originalPrice: p.originalPrice,
-    costPrice: Math.round(p.price * 0.6),
-    marginPercent: 40,
-    status: 'published' as const,
-    unitsSold30d: 12,
-    revenue30dText: `$${(p.price * 12).toFixed(0)}`,
-    lastUpdatedDate: 'Recently',
-    lastUpdatedBy: 'Admin',
-    imageUrl: p.image,
-  }))
-}
-
 export function CollectionProductsModal({
   isOpen,
   onClose,
   collection,
   onSave,
 }: CollectionProductsModalProps) {
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [prevTarget, setPrevTarget] = useState<{
+    collectionId?: string
+    isOpen: boolean
+  }>({
+    collectionId: collection?.id,
+    isOpen,
+  })
+  const [selectedIds, setSelectedIds] = useState<string[]>(
+    () => collection?.productIds || []
+  )
   const [searchTerm, setSearchTerm] = useState('')
   const [tabFilter, setTabFilter] = useState<'all' | 'assigned' | 'unassigned'>('all')
   const [products, setProducts] = useState<CatalogProduct[]>([])
   const [isLoadingProducts, setIsLoadingProducts] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
-  // Reset state when collection changes or modal opens
-  useEffect(() => {
+  if (prevTarget.collectionId !== collection?.id || prevTarget.isOpen !== isOpen) {
+    setPrevTarget({ collectionId: collection?.id, isOpen })
+    setSelectedIds(collection?.productIds || [])
+    setSearchTerm('')
+    setTabFilter('all')
+    setSaveError(null)
+    setLoadError(null)
     if (isOpen && collection) {
-      setSelectedIds(collection.productIds || [])
-      setSearchTerm('')
-      setTabFilter('all')
+      setIsLoadingProducts(true)
     }
-  }, [isOpen, collection?.id])
+  }
 
-  // Load available products when modal opens
+  // Load available products & latest collection details when modal opens
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen || !collection) return
 
     let isCancelled = false
-    setIsLoadingProducts(true)
+    const collectionId = collection.id
 
-    async function load() {
-      try {
-        const result = await getAdminProducts({ limit: 100 })
-        if (!isCancelled) {
-          setProducts(
-            result.products && result.products.length > 0
-              ? result.products
-              : getFallbackCatalogProducts()
-          )
+    Promise.all([
+      getAdminProducts({ limit: 100 }),
+      getAdminCollectionById(collectionId).catch(() => null),
+    ])
+      .then(([productsResult, detail]) => {
+        if (isCancelled) return
+        setProducts(productsResult.products || [])
+        if (detail?.productIds) {
+          setSelectedIds(detail.productIds)
         }
-      } catch {
-        if (!isCancelled) {
-          setProducts(getFallbackCatalogProducts())
-        }
-      } finally {
+        setLoadError(null)
+      })
+      .catch((err) => {
+        if (isCancelled) return
+        setLoadError(
+          err instanceof Error ? err.message : 'Failed to load catalog products'
+        )
+        setProducts([])
+      })
+      .finally(() => {
         if (!isCancelled) {
           setIsLoadingProducts(false)
         }
-      }
-    }
+      })
 
-    load()
     return () => {
       isCancelled = true
     }
-  }, [isOpen])
+  }, [isOpen, collection])
 
   const filteredProducts = useMemo(() => {
     if (!isOpen) return []
@@ -115,7 +107,8 @@ export function CollectionProductsModal({
       if (tabFilter === 'assigned' && !isAssigned) return false
       if (tabFilter === 'unassigned' && isAssigned) return false
       if (q) {
-        const ok = p.name.toLowerCase().includes(q) ||
+        const ok =
+          p.name.toLowerCase().includes(q) ||
           p.sku.toLowerCase().includes(q) ||
           p.category.toLowerCase().includes(q)
         if (!ok) return false
@@ -144,10 +137,15 @@ export function CollectionProductsModal({
 
   const handleSave = async () => {
     if (!collection) return
+    setSaveError(null)
     setIsSaving(true)
     try {
       await onSave(collection.id, 'set', selectedIds)
       onClose()
+    } catch (err) {
+      setSaveError(
+        err instanceof Error ? err.message : 'Failed to update collection products'
+      )
     } finally {
       setIsSaving(false)
     }
@@ -179,9 +177,13 @@ export function CollectionProductsModal({
                   {selectedIds.length} Selected
                 </span>
                 {diffCount !== 0 && (
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    diffCount > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
-                  }`}>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      diffCount > 0
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : 'bg-amber-50 text-amber-700'
+                    }`}
+                  >
                     {diffCount > 0 ? `+${diffCount} added` : `${diffCount} removed`}
                   </span>
                 )}
@@ -204,6 +206,14 @@ export function CollectionProductsModal({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Save / Load Error */}
+        {(saveError || loadError) && (
+          <div className="mx-6 mt-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-2 shrink-0">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+            <span>{saveError || loadError}</span>
+          </div>
+        )}
 
         {/* Toolbar */}
         <div className="px-6 py-3 border-b border-outline-variant/50 bg-white flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
@@ -241,7 +251,8 @@ export function CollectionProductsModal({
               >
                 {tab === 'all' && `All (${products.length})`}
                 {tab === 'assigned' && `Assigned (${selectedIds.length})`}
-                {tab === 'unassigned' && `Unassigned (${Math.max(0, products.length - selectedIds.length)})`}
+                {tab === 'unassigned' &&
+                  `Unassigned (${Math.max(0, products.length - selectedIds.length)})`}
               </button>
             ))}
           </div>
@@ -251,17 +262,29 @@ export function CollectionProductsModal({
         <div className="px-6 py-2 bg-surface-container-low/30 border-b border-outline-variant/40 flex items-center justify-between text-[11px] text-on-surface-variant shrink-0">
           <span>Showing {filteredProducts.length} products</span>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={handleSelectAllVisible} className="hover:text-primary font-medium cursor-pointer">
+            <button
+              type="button"
+              onClick={handleSelectAllVisible}
+              className="hover:text-primary font-medium cursor-pointer"
+            >
               Select All Visible
             </button>
             <span>•</span>
-            <button type="button" onClick={handleDeselectAllVisible} className="hover:text-primary font-medium cursor-pointer">
+            <button
+              type="button"
+              onClick={handleDeselectAllVisible}
+              className="hover:text-primary font-medium cursor-pointer"
+            >
               Deselect Visible
             </button>
             {selectedIds.length > 0 && (
               <>
                 <span>•</span>
-                <button type="button" onClick={() => setSelectedIds([])} className="text-red-600 hover:text-red-700 font-medium cursor-pointer">
+                <button
+                  type="button"
+                  onClick={() => setSelectedIds([])}
+                  className="text-red-600 hover:text-red-700 font-medium cursor-pointer"
+                >
                   Clear All
                 </button>
               </>
@@ -324,9 +347,13 @@ export function CollectionProductsModal({
                     </div>
 
                     <div className="min-w-0 flex flex-col">
-                      <span className="text-xs font-bold text-on-surface truncate">{p.name}</span>
+                      <span className="text-xs font-bold text-on-surface truncate">
+                        {p.name}
+                      </span>
                       <div className="flex items-center gap-2 text-[11px] text-on-surface-variant mt-0.5">
-                        <span className="font-mono text-[10px] px-1.5 rounded bg-surface-container">{p.sku}</span>
+                        <span className="font-mono text-[10px] px-1.5 rounded bg-surface-container">
+                          {p.sku}
+                        </span>
                         <span>•</span>
                         <span>{p.category}</span>
                       </div>
@@ -335,8 +362,12 @@ export function CollectionProductsModal({
 
                   <div className="flex items-center gap-3 shrink-0">
                     <div className="text-right">
-                      <span className="text-xs font-bold text-on-surface block">${p.price.toFixed(2)}</span>
-                      <span className="text-[10px] text-on-surface-variant block">{p.stockCount} in stock</span>
+                      <span className="text-xs font-bold text-on-surface block">
+                        ${p.price.toFixed(2)}
+                      </span>
+                      <span className="text-[10px] text-on-surface-variant block">
+                        {p.stockCount} in stock
+                      </span>
                     </div>
 
                     {isSelected ? (
@@ -346,7 +377,10 @@ export function CollectionProductsModal({
                         </span>
                         <button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); handleToggleProduct(p.id) }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleToggleProduct(p.id)
+                          }}
                           className="px-2 py-0.5 rounded-md text-[11px] font-medium text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors cursor-pointer"
                         >
                           Remove
@@ -359,7 +393,10 @@ export function CollectionProductsModal({
                         </span>
                         <button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); handleToggleProduct(p.id) }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleToggleProduct(p.id)
+                          }}
                           className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold text-primary bg-primary/10 hover:bg-primary/20 border border-primary/20 transition-colors cursor-pointer"
                         >
                           + Add

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import {
   X,
   Building2,
@@ -10,10 +10,12 @@ import {
   UploadCloud,
   Upload,
   Trash2,
+  Loader2,
 } from 'lucide-react'
 import { countries } from 'countries-list'
 import type { BrandFormData, BrandItem, BrandStatus } from '../../types/brand'
 import { defaultBrandFormData } from '../../data/mockBrandData'
+import { checkBrandSlugAvailability } from '../../api/adminBrandApi'
 
 // Pre-sorted list of all countries from countries-list library
 const COUNTRY_OPTIONS = Object.entries(countries)
@@ -23,10 +25,12 @@ const COUNTRY_OPTIONS = Object.entries(countries)
   }))
   .sort((a, b) => a.name.localeCompare(b.name))
 
+type SlugStatus = 'idle' | 'checking' | 'available' | 'taken'
+
 interface BrandFormModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (data: BrandFormData) => void
+  onSave: (data: BrandFormData, logoFile: File | null) => Promise<void> | void
   editItem?: BrandItem | null
 }
 
@@ -64,12 +68,20 @@ export function BrandFormModal({
   const [formData, setFormData] = useState<BrandFormData>(() => getInitialFormData(editItem))
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isAutoSlug, setIsAutoSlug] = useState(!editItem)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle')
+  const slugDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   if (prevTarget.editId !== editItem?.id || prevTarget.isOpen !== isOpen) {
     setPrevTarget({ editId: editItem?.id, isOpen })
     setFormData(getInitialFormData(editItem))
     setIsAutoSlug(!editItem)
     setErrors({})
+    setLogoFile(null)
+    setSubmitError(null)
+    setSlugStatus('idle')
   }
 
   if (!isOpen) return null
@@ -88,6 +100,7 @@ export function BrandFormModal({
       }))
     }
     reader.readAsDataURL(file)
+    setLogoFile(file)
     // reset input value so re-uploading the same file works
     e.target.value = ''
   }
@@ -97,16 +110,40 @@ export function BrandFormModal({
       ...prev,
       logoUrl: '',
     }))
+    setLogoFile(null)
+  }
+
+  const triggerSlugCheck = (cleanSlug: string) => {
+    if (slugDebounceRef.current) {
+      clearTimeout(slugDebounceRef.current)
+    }
+
+    if (!cleanSlug || (editItem && cleanSlug === editItem.slug)) {
+      setSlugStatus('idle')
+      return
+    }
+
+    setSlugStatus('checking')
+    slugDebounceRef.current = setTimeout(async () => {
+      try {
+        const result = await checkBrandSlugAvailability(cleanSlug, editItem?.id)
+        setSlugStatus(result.available ? 'available' : 'taken')
+      } catch {
+        setSlugStatus('idle')
+      }
+    }, 600)
   }
 
   const handleNameChange = (val: string) => {
     const updated: Partial<BrandFormData> = { name: val }
     if (isAutoSlug) {
-      updated.slug = val
+      const autoSlug = val
         .toLowerCase()
         .trim()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '')
+      updated.slug = autoSlug
+      triggerSlugCheck(autoSlug)
     }
     setFormData((prev) => ({ ...prev, ...updated }))
     if (errors.name) {
@@ -132,6 +169,7 @@ export function BrandFormModal({
         return next
       })
     }
+    triggerSlugCheck(clean)
   }
 
   const validate = (): boolean => {
@@ -146,16 +184,26 @@ export function BrandFormModal({
       errs.slug = 'Slug identifier is required'
     } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(formData.slug.trim())) {
       errs.slug = 'Slug must be lowercase alphanumeric with hyphens (e.g. aero-sound)'
+    } else if (slugStatus === 'taken') {
+      errs.slug = 'This slug is already taken'
     }
 
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    onSave(formData)
+    setSubmitError(null)
+    setIsSaving(true)
+    try {
+      await onSave(formData, logoFile)
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to save brand')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -190,6 +238,12 @@ export function BrandFormModal({
 
         {/* Modal Body Form */}
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto flex flex-col gap-4">
+          {submitError && (
+            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+              <span>{submitError}</span>
+            </div>
+          )}
           {/* Brand Name */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold uppercase tracking-wider text-on-surface">
@@ -234,11 +288,37 @@ export function BrandFormModal({
                 value={formData.slug}
                 onChange={(e) => handleSlugChange(e.target.value)}
                 placeholder="aerosound"
-                className={`w-full h-10 pl-18 pr-3 rounded-lg bg-surface-container-lowest text-on-surface text-sm font-mono border ${
+                className={`w-full h-10 pl-18 pr-9 rounded-lg bg-surface-container-lowest text-on-surface text-sm font-mono border ${
                   errors.slug ? 'border-red-500 focus:ring-red-200' : 'border-outline-variant/60 focus:border-primary'
                 } focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-2xs transition-all`}
               />
+              {/* Slug availability indicator */}
+              {slugStatus !== 'idle' && (
+                <span className="absolute right-3 top-2.5">
+                  {slugStatus === 'checking' && (
+                    <Loader2 className="w-4 h-4 text-on-surface-variant animate-spin" />
+                  )}
+                  {slugStatus === 'available' && (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  )}
+                  {slugStatus === 'taken' && (
+                    <AlertCircle className="w-4 h-4 text-red-500" />
+                  )}
+                </span>
+              )}
             </div>
+            {slugStatus === 'taken' && !errors.slug && (
+              <span className="flex items-center gap-1 text-[11px] text-red-600 font-medium">
+                <AlertCircle className="w-3 h-3" />
+                <span>This slug is already taken</span>
+              </span>
+            )}
+            {slugStatus === 'available' && !errors.slug && (
+              <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
+                <CheckCircle2 className="w-3 h-3" />
+                <span>Slug is available</span>
+              </span>
+            )}
             {errors.slug && (
               <span className="flex items-center gap-1 text-[11px] text-red-600 font-medium">
                 <AlertCircle className="w-3 h-3" />
@@ -413,16 +493,27 @@ export function BrandFormModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold transition-colors cursor-pointer"
+              disabled={isSaving}
+              className="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-xs font-semibold shadow-xs transition-all cursor-pointer"
+              disabled={isSaving || slugStatus === 'checking'}
+              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-primary hover:bg-primary-hover text-on-primary text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>{editItem ? 'Save Brand Changes' : 'Create Brand'}</span>
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{editItem ? 'Save Brand Changes' : 'Create Brand'}</span>
+                </>
+              )}
             </button>
           </div>
         </form>
