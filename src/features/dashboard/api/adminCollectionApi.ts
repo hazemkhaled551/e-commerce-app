@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/lib/api/axiosInstance'
+import { axiosInstance, normalizeImageUrl } from '@/lib/api/axiosInstance'
 import type {
   CollectionFormData,
   CollectionItem,
@@ -116,16 +116,18 @@ function formatCollectionFromApi(item: Record<string, unknown>): CollectionItem 
     item.productCount ?? countObj?.products ?? productIds?.length ?? 0
   )
 
+  const rawImage =
+    (item.logoUrl as string | undefined) ??
+    (typeof item.logo === 'string' ? item.logo : logoObj?.url) ??
+    (item.imageUrl as string | undefined) ??
+    (typeof item.image === 'string' ? item.image : imageObj?.url)
+
   return {
     id: String(item.id ?? item._id ?? ''),
     title: String(item.title ?? ''),
     slug: String(item.slug ?? ''),
     description: item.description ? String(item.description) : undefined,
-    imageUrl: (item.logoUrl ??
-      logoObj?.url ??
-      item.imageUrl ??
-      imageObj?.url ??
-      '') as string | undefined,
+    imageUrl: normalizeImageUrl(rawImage),
     status,
     productCount,
     productIds,

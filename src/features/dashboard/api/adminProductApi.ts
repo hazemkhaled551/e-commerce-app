@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/lib/api/axiosInstance'
+import { axiosInstance, normalizeImageUrl } from '@/lib/api/axiosInstance'
 import type { CatalogProduct, CatalogMetrics, ProductStatus, ProductStockState } from '../types/catalog'
 
 export interface ProductQueryParams {
@@ -131,10 +131,11 @@ export function formatProductFromApi(item: Record<string, unknown>): CatalogProd
     ),
     lastUpdatedDate: String(item.lastUpdatedDate || formattedDate),
     lastUpdatedBy: String(item.lastUpdatedBy || 'Administrator'),
-    imageUrl:
+    imageUrl: normalizeImageUrl(
       typeof item.imageUrl === 'string' && item.imageUrl
         ? item.imageUrl
-        : primaryMedia?.url || undefined,
+        : primaryMedia?.url || undefined
+    ),
   }
 }
 

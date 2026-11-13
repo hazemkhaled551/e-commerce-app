@@ -16,6 +16,7 @@ import { countries } from 'countries-list'
 import type { BrandFormData, BrandItem, BrandStatus } from '../../types/brand'
 import { defaultBrandFormData } from '../../data/mockBrandData'
 import { checkBrandSlugAvailability } from '../../api/adminBrandApi'
+import { normalizeImageUrl } from '@/lib/api/axiosInstance'
 
 // Pre-sorted list of all countries from countries-list library
 const COUNTRY_OPTIONS = Object.entries(countries)
@@ -40,7 +41,7 @@ function getInitialFormData(editItem?: BrandItem | null): BrandFormData {
       id: editItem.id,
       name: editItem.name,
       slug: editItem.slug,
-      logoUrl: editItem.logoUrl || '',
+      logoUrl: normalizeImageUrl(editItem.logoUrl) || '',
       websiteUrl: editItem.websiteUrl || '',
       description: editItem.description || '',
       status: editItem.status,

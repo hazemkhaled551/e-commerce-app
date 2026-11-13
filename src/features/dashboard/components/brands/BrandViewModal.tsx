@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   X,
   Building2,
@@ -7,12 +8,29 @@ import {
   Mail,
 } from 'lucide-react'
 import type { BrandItem } from '../../types/brand'
+import { normalizeImageUrl } from '@/lib/api/axiosInstance'
 
 interface BrandViewModalProps {
   isOpen: boolean
   onClose: () => void
   brand: BrandItem | null
   onEdit: (brand: BrandItem) => void
+}
+
+function BrandViewLogo({ src, alt }: { src?: string; alt: string }) {
+  const [hasError, setHasError] = useState(false)
+  const resolvedUrl = normalizeImageUrl(src)
+  if (!resolvedUrl || hasError) {
+    return <Building2 className="w-7 h-7 text-on-surface-variant/40" />
+  }
+  return (
+    <img
+      src={resolvedUrl}
+      alt={alt}
+      className="w-full h-full object-contain p-1"
+      onError={() => setHasError(true)}
+    />
+  )
 }
 
 export function BrandViewModal({
@@ -44,15 +62,7 @@ export function BrandViewModal({
         <div className="p-6 bg-surface-container-low border-b border-outline-variant/60 flex items-start justify-between">
           <div className="flex items-center gap-3.5">
             <div className="w-14 h-14 rounded-xl bg-white border border-outline-variant/60 overflow-hidden shadow-xs flex items-center justify-center shrink-0">
-              {brand.logoUrl ? (
-                <img
-                  src={brand.logoUrl}
-                  alt={brand.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <Building2 className="w-7 h-7 text-on-surface-variant/40" />
-              )}
+              <BrandViewLogo src={brand.logoUrl} alt={brand.name} />
             </div>
             <div>
               <div className="flex items-center gap-1.5 flex-wrap">

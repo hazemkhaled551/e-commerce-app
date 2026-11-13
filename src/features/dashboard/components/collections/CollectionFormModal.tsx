@@ -18,6 +18,7 @@ import type {
 } from '../../types/collection'
 import { defaultCollectionFormData } from '../../data/mockCollectionData'
 import { checkCollectionSlugAvailability } from '../../api/adminCollectionApi'
+import { normalizeImageUrl } from '@/lib/api/axiosInstance'
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken'
 
@@ -35,7 +36,7 @@ function getInitialFormData(editItem?: CollectionItem | null): CollectionFormDat
       title: editItem.title,
       slug: editItem.slug,
       description: editItem.description || '',
-      imageUrl: editItem.imageUrl || '',
+      imageUrl: normalizeImageUrl(editItem.imageUrl) || '',
       status: editItem.status,
       displayLocation: editItem.displayLocation,
       isFeatured: editItem.isFeatured,

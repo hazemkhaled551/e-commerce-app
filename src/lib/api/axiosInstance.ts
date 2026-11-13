@@ -33,7 +33,37 @@ const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/
 export const API_BASE_URL = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl
 
 // The raw origin without the /api/v1 prefix — used to build absolute refresh URL
-const API_ORIGIN = API_BASE_URL.replace(/\/api\/v\d+$/, '')
+export const API_ORIGIN = API_BASE_URL.replace(/\/api\/v\d+$/, '')
+
+/**
+ * Resolves and normalizes image URLs returned from the API.
+ * Handles cases where the backend omitted the base URL or produced "undefined/uploads/..." or relative paths.
+ * Replaces undefined base URL with the API base origin (e.g. http://localhost:3000).
+ */
+export function normalizeImageUrl(rawUrl?: unknown): string | undefined {
+  if (!rawUrl || typeof rawUrl !== 'string') return undefined
+  let trimmed = rawUrl.trim()
+  if (!trimmed || trimmed === 'undefined' || trimmed === 'null') return undefined
+
+  // Replace literal "undefined/" or "null/" or "http://undefined/" at the start
+  if (/^(?:https?:\/\/)?undefined\//i.test(trimmed)) {
+    trimmed = trimmed.replace(/^(?:https?:\/\/)?undefined\/?/i, `${API_ORIGIN}/`)
+  } else if (/^(?:https?:\/\/)?null\//i.test(trimmed)) {
+    trimmed = trimmed.replace(/^(?:https?:\/\/)?null\/?/i, `${API_ORIGIN}/`)
+  } else if (trimmed.startsWith('/undefined/')) {
+    trimmed = `${API_ORIGIN}${trimmed.replace(/^\/undefined/, '')}`
+  } else if (trimmed.includes('/undefined/uploads/')) {
+    trimmed = trimmed.replace('/undefined/uploads/', '/uploads/')
+  }
+
+  // If it's a relative path starting with /uploads/ or uploads/
+  if (trimmed.startsWith('/uploads/') || trimmed.startsWith('uploads/')) {
+    const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+    trimmed = `${API_ORIGIN}${cleanPath}`
+  }
+
+  return trimmed
+}
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

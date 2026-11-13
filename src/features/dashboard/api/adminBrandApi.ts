@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/lib/api/axiosInstance'
+import { axiosInstance, normalizeImageUrl } from '@/lib/api/axiosInstance'
 import type { BrandItem, BrandFormData, BrandMetrics, BrandStatus } from '../types/brand'
 
 export interface BrandQueryParams {
@@ -47,11 +47,16 @@ function formatBrandFromApi(item: Record<string, unknown>): BrandItem {
     rawStatus === 'active' || rawStatus === 'inactive' || rawStatus === 'archived'
       ? rawStatus
       : 'active'
+  const rawLogo =
+    (item.logoUrl as string | undefined) ??
+    (typeof item.logo === 'string' ? item.logo : logoObj?.url) ??
+    (item.imageUrl as string | undefined)
+
   return {
     id: (item.id ?? item._id ?? '') as string,
     name: (item.name ?? '') as string,
     slug: (item.slug ?? '') as string,
-    logoUrl: (logoObj?.url ?? item.logoUrl ?? '') as string | undefined,
+    logoUrl: normalizeImageUrl(rawLogo),
     websiteUrl: (item.websiteUrl ?? '') as string | undefined,
     description: (item.description ?? '') as string | undefined,
     status,

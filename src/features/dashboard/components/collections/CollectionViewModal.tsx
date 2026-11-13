@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   X,
   Layers,
@@ -6,6 +7,7 @@ import {
   PackagePlus,
 } from 'lucide-react'
 import type { CollectionItem } from '../../types/collection'
+import { normalizeImageUrl } from '@/lib/api/axiosInstance'
 
 interface CollectionViewModalProps {
   isOpen: boolean
@@ -13,6 +15,26 @@ interface CollectionViewModalProps {
   collection: CollectionItem | null
   onEdit: (collection: CollectionItem) => void
   onManageProducts: (collection: CollectionItem) => void
+}
+
+function CollectionViewBanner({ src, alt }: { src?: string; alt: string }) {
+  const [hasError, setHasError] = useState(false)
+  const resolvedUrl = normalizeImageUrl(src)
+  if (!resolvedUrl || hasError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary">
+        <Layers className="w-10 h-10 opacity-40" />
+      </div>
+    )
+  }
+  return (
+    <img
+      src={resolvedUrl}
+      alt={alt}
+      className="w-full h-full object-cover"
+      onError={() => setHasError(true)}
+    />
+  )
 }
 
 export function CollectionViewModal({
@@ -43,17 +65,7 @@ export function CollectionViewModal({
       >
         {/* Banner Cover */}
         <div className="relative h-32 bg-surface-container overflow-hidden">
-          {collection.imageUrl ? (
-            <img
-              src={collection.imageUrl}
-              alt={collection.title}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary">
-              <Layers className="w-10 h-10 opacity-40" />
-            </div>
-          )}
+          <CollectionViewBanner src={collection.imageUrl} alt={collection.title} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
           {/* Close button */}

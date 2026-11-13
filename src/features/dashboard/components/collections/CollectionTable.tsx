@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Edit2,
   Trash2,
@@ -9,6 +10,25 @@ import {
   PackagePlus,
 } from 'lucide-react'
 import type { CollectionItem } from '../../types/collection'
+import { normalizeImageUrl } from '@/lib/api/axiosInstance'
+
+function CollectionCoverThumbnail({ src, alt }: { src?: string; alt: string }) {
+  const [hasError, setHasError] = useState(false)
+  const resolvedUrl = normalizeImageUrl(src)
+
+  if (!resolvedUrl || hasError) {
+    return <Layers className="w-5 h-5 text-on-surface-variant/50" />
+  }
+
+  return (
+    <img
+      src={resolvedUrl}
+      alt={alt}
+      className="w-full h-full object-cover"
+      onError={() => setHasError(true)}
+    />
+  )
+}
 
 interface CollectionTableProps {
   collections: CollectionItem[]
@@ -119,18 +139,7 @@ export function CollectionTable({
                   <td className="py-3.5 px-3">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-10 rounded-lg overflow-hidden bg-surface-container shrink-0 border border-outline-variant/60 flex items-center justify-center shadow-2xs">
-                        {col.imageUrl ? (
-                          <img
-                            src={col.imageUrl}
-                            alt={col.title}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              ;(e.target as HTMLElement).style.display = 'none'
-                            }}
-                          />
-                        ) : (
-                          <Layers className="w-5 h-5 text-on-surface-variant/50" />
-                        )}
+                        <CollectionCoverThumbnail src={col.imageUrl} alt={col.title} />
                       </div>
                       <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">

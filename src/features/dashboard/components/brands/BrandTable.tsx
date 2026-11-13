@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   ExternalLink,
   Edit2,
@@ -10,6 +11,25 @@ import {
   Archive,
 } from 'lucide-react'
 import type { BrandItem } from '../../types/brand'
+import { normalizeImageUrl } from '@/lib/api/axiosInstance'
+
+function BrandLogoThumbnail({ src, alt }: { src?: string; alt: string }) {
+  const [hasError, setHasError] = useState(false)
+  const resolvedUrl = normalizeImageUrl(src)
+
+  if (!resolvedUrl || hasError) {
+    return <Building2 className="w-5 h-5 text-on-surface-variant/60" />
+  }
+
+  return (
+    <img
+      src={resolvedUrl}
+      alt={alt}
+      className="w-full h-full object-contain p-1"
+      onError={() => setHasError(true)}
+    />
+  )
+}
 
 interface BrandTableProps {
   brands: BrandItem[]
@@ -116,19 +136,7 @@ export function BrandTable({
                   <td className="py-3.5 px-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg overflow-hidden bg-surface-container shrink-0 border border-outline-variant/60 flex items-center justify-center shadow-2xs">
-                        {brand.logoUrl ? (
-                          <img
-                            src={brand.logoUrl}
-                            alt={brand.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              // Fallback on broken image
-                              ;(e.target as HTMLElement).style.display = 'none'
-                            }}
-                          />
-                        ) : (
-                          <Building2 className="w-5 h-5 text-on-surface-variant/60" />
-                        )}
+                        <BrandLogoThumbnail src={brand.logoUrl} alt={brand.name} />
                       </div>
                       <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
