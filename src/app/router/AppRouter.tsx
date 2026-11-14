@@ -38,6 +38,9 @@ const BrandsPage = lazy(() =>
 const CollectionsPage = lazy(() =>
   import('@/features/dashboard').then((m) => ({ default: m.CollectionsPage }))
 )
+const PromotionsPage = lazy(() =>
+  import('@/features/dashboard').then((m) => ({ default: m.PromotionsPage }))
+)
 
 // Lazy-loaded auth pages
 const LoginPage = lazy(() =>
@@ -81,6 +84,7 @@ export function AppRouter() {
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="brands" element={<BrandsPage />} />
           <Route path="collections" element={<CollectionsPage />} />
+          <Route path="promotions" element={<PromotionsPage />} />
         </Route>
         <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
       </Route>

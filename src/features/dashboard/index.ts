@@ -6,6 +6,7 @@ export { ProductEditPage } from './pages/ProductEditPage'
 export { CategoriesPage } from './pages/CategoriesPage'
 export { BrandsPage } from './pages/BrandsPage'
 export { CollectionsPage } from './pages/CollectionsPage'
+export { PromotionsPage } from './pages/PromotionsPage'
 export {
   getAdminProducts,
   getAdminProductMetrics,
@@ -15,6 +16,14 @@ export {
   getAdminCategories,
   getAdminCategoryKpis,
 } from './api/adminCategoryApi'
+export {
+  getAdminPromotions,
+  getAdminPromotionMetrics,
+  getAdminPromotionById,
+  createAdminPromotion,
+  updateAdminPromotion,
+  deleteAdminPromotion,
+} from './api/adminPromotionApi'
 
 export type { DashboardOrder, DashboardKpi, OrderFilterTab } from './types/dashboard'
 export type {
@@ -55,3 +64,12 @@ export type {
   CollectionLocation,
   CollectionRuleType,
 } from './types/collection'
+export type {
+  PromotionItem,
+  PromotionFormData,
+  PromotionMetrics,
+  PromotionFilters,
+  PromotionStatus,
+  PromotionDiscountType,
+  PromotionAppliesTo,
+} from './types/promotion'

@@ -241,9 +241,13 @@ export function AdminSidebar({ isMobileOpen = false, onCloseMobile }: AdminSideb
                 </div>
               </Link>
               <Link
-                to="/admin"
+                to="/admin/promotions"
                 onClick={onCloseMobile}
-                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
+                className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                  isCurrent('/admin/promotions')
+                    ? 'bg-primary text-on-primary font-semibold shadow-xs'
+                    : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                }`}
               >
                 <div className="flex items-center gap-2.5">
                   <Tag className="w-4 h-4 shrink-0" />
