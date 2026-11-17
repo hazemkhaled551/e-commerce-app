@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { CheckCircle2, AlertCircle, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react'
 import { ConfirmationModal, type ConfirmationModalProps } from '@/components/ui'
+import { DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 import type { BrandItem, BrandFilters, BrandFormData, BrandMetrics } from '../types/brand'
 import {
   getAdminBrands,
@@ -57,13 +58,13 @@ export function BrandsPage() {
     sortBy: 'name',
   })
 
-  // Debounced search
+  // Debounced search (500ms)
   const [debouncedSearch, setDebouncedSearch] = useState(filters.searchTerm)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(filters.searchTerm)
       setPage(1)
-    }, 350)
+    }, DEFAULT_DEBOUNCE_MS)
     return () => clearTimeout(timer)
   }, [filters.searchTerm])
 

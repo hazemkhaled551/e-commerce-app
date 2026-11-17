@@ -15,6 +15,7 @@ import type {
   PromotionStatus,
 } from '../../types/promotion'
 import { checkPromotionCodeAvailability } from '../../api/adminPromotionApi'
+import { DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 
 interface PromotionFormModalProps {
   isOpen: boolean
@@ -86,6 +87,7 @@ export function PromotionFormModal({
   const [isSaving, setIsSaving] = useState(false)
   const [codeStatus, setCodeStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
   const codeCheckTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const latestCodeRef = useRef<string>('')
 
   if (prevTarget.editId !== editItem?.id || prevTarget.isOpen !== isOpen) {
     setPrevTarget({ editId: editItem?.id, isOpen })
@@ -98,12 +100,20 @@ export function PromotionFormModal({
     setIsSaving(false)
   }
 
-  // Cleanup code check debounce timer on unmount
+  // Cleanup code check debounce timer on close / unmount
   useEffect(() => {
-    return () => {
-      if (codeCheckTimerRef.current) clearTimeout(codeCheckTimerRef.current)
+    if (!isOpen && codeCheckTimerRef.current) {
+      clearTimeout(codeCheckTimerRef.current)
+      codeCheckTimerRef.current = null
+      latestCodeRef.current = ''
     }
-  }, [])
+    return () => {
+      if (codeCheckTimerRef.current) {
+        clearTimeout(codeCheckTimerRef.current)
+        codeCheckTimerRef.current = null
+      }
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -121,14 +131,18 @@ export function PromotionFormModal({
 
   const triggerCodeAvailabilityCheck = (codeVal: string) => {
     if (codeCheckTimerRef.current) clearTimeout(codeCheckTimerRef.current)
-    if (!codeVal.trim()) {
+    const normalized = codeVal.trim().toUpperCase()
+    latestCodeRef.current = normalized
+
+    if (!normalized || (editItem && normalized === editItem.code.toUpperCase())) {
       setCodeStatus('idle')
       return
     }
 
     setCodeStatus('checking')
     codeCheckTimerRef.current = setTimeout(async () => {
-      const res = await checkPromotionCodeAvailability(codeVal, editItem?.id)
+      const res = await checkPromotionCodeAvailability(normalized, editItem?.id)
+      if (latestCodeRef.current !== normalized) return
       setCodeStatus(res.available ? 'available' : 'taken')
       if (!res.available) {
         setErrors((prev) => ({ ...prev, code: res.message || 'Code is already taken' }))
@@ -139,7 +153,7 @@ export function PromotionFormModal({
           return next
         })
       }
-    }, 400)
+    }, DEFAULT_DEBOUNCE_MS)
   }
 
   const validate = (): boolean => {

@@ -15,10 +15,12 @@ import {
   Loader2,
 } from 'lucide-react'
 import { checkProductSlugAvailability } from '../../api/adminProductApi'
+import { DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 
 interface GeneralInfoSectionProps {
   title: string
   slug: string
+  initialSlug?: string
   subtitle: string
   descriptionHtml: string
   onTitleChange: (val: string) => void
@@ -30,6 +32,7 @@ interface GeneralInfoSectionProps {
 export function GeneralInfoSection({
   title,
   slug,
+  initialSlug,
   subtitle,
   descriptionHtml,
   onTitleChange,
@@ -52,9 +55,12 @@ export function GeneralInfoSection({
   })
 
   const trimmedSlug = slug.trim().toLowerCase()
+  const isInitialEditSlug = Boolean(
+    initialSlug && trimmedSlug === initialSlug.trim().toLowerCase()
+  )
 
   useEffect(() => {
-    if (!trimmedSlug || trimmedSlug.length < 2) return
+    if (!trimmedSlug || trimmedSlug.length < 2 || isInitialEditSlug) return
 
     let ignore = false
     const timer = setTimeout(() => {
@@ -77,19 +83,21 @@ export function GeneralInfoSection({
             })
           }
         })
-    }, 400)
+    }, DEFAULT_DEBOUNCE_MS)
 
     return () => {
       ignore = true
       clearTimeout(timer)
     }
-  }, [trimmedSlug])
+  }, [trimmedSlug, isInitialEditSlug])
 
   const slugStatus = !trimmedSlug
     ? 'idle'
-    : remoteSlugCheck.slug === trimmedSlug
-      ? remoteSlugCheck.status
-      : 'checking'
+    : isInitialEditSlug
+      ? 'available'
+      : remoteSlugCheck.slug === trimmedSlug
+        ? remoteSlugCheck.status
+        : 'checking'
 
   const handleTitleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value

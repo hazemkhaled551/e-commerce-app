@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useDebounce, DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 import {
   X,
   Search,
@@ -43,6 +44,7 @@ export function CollectionProductsModal({
     () => collection?.productIds || []
   )
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearchTerm = useDebounce(searchTerm, DEFAULT_DEBOUNCE_MS)
   const [tabFilter, setTabFilter] = useState<'all' | 'assigned' | 'unassigned'>('all')
   const [products, setProducts] = useState<CatalogProduct[]>([])
   const [isLoadingProducts, setIsLoadingProducts] = useState(false)
@@ -101,7 +103,7 @@ export function CollectionProductsModal({
 
   const filteredProducts = useMemo(() => {
     if (!isOpen) return []
-    const q = searchTerm.trim().toLowerCase()
+    const q = debouncedSearchTerm.trim().toLowerCase()
     return products.filter((p) => {
       const isAssigned = selectedIds.includes(p.id)
       if (tabFilter === 'assigned' && !isAssigned) return false
@@ -115,7 +117,7 @@ export function CollectionProductsModal({
       }
       return true
     })
-  }, [products, selectedIds, searchTerm, tabFilter, isOpen])
+  }, [products, selectedIds, debouncedSearchTerm, tabFilter, isOpen])
 
   const handleToggleProduct = (productId: string) => {
     setSelectedIds((prev) =>

@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react'
 import { ConfirmationModal, type ConfirmationModalProps } from '@/components/ui'
+import { DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 import type { CatalogProduct, CatalogFilters, CatalogMetrics } from '../types/catalog'
 import {
   getAdminProducts,
@@ -57,12 +58,13 @@ export function ProductsCatalogPage() {
     brand: 'all',
   })
 
-  // Debounced search to prevent excessive API calls while typing
+  // Debounced search (500ms) to prevent excessive API calls while typing
   const [debouncedSearch, setDebouncedSearch] = useState(filters.searchTerm)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(filters.searchTerm)
-    }, 350)
+      setPage(1)
+    }, DEFAULT_DEBOUNCE_MS)
     return () => clearTimeout(timer)
   }, [filters.searchTerm])
 
@@ -157,7 +159,9 @@ export function ProductsCatalogPage() {
 
   // Handle filter changes (resets page to 1)
   const handleFilterChange = (key: keyof CatalogFilters, value: string) => {
-    setPage(1)
+    if (key !== 'searchTerm') {
+      setPage(1)
+    }
     setFilters((prev) => ({
       ...prev,
       [key]: value,

@@ -115,6 +115,12 @@ export function ProductEditPage() {
   const [formData, setFormData] = useState<ProductFormData>(() => {
     return isEditMode ? sampleAeroSoundFormData : defaultNewProductFormData
   })
+  const [initialIdentifiers, setInitialIdentifiers] = useState<{ slug?: string; sku?: string }>(
+    () =>
+      isEditMode
+        ? { slug: sampleAeroSoundFormData.slug, sku: sampleAeroSoundFormData.sku }
+        : {}
+  )
 
   // Real categories from API
   const [categories, setCategories] = useState<CategoryItem[]>([])
@@ -160,7 +166,9 @@ export function ProductEditPage() {
         .then((productData) => {
           if (isMounted && productData && Object.keys(productData).length > 0) {
             const formatted = formatProductFromApi(productData)
-            setFormData(buildFormDataFromCatalog(formatted))
+            const built = buildFormDataFromCatalog(formatted)
+            setFormData(built)
+            setInitialIdentifiers({ slug: built.slug, sku: built.sku })
           }
         })
         .catch((err) => {
@@ -470,6 +478,7 @@ export function ProductEditPage() {
           <GeneralInfoSection
             title={formData.title}
             slug={formData.slug}
+            initialSlug={initialIdentifiers.slug}
             subtitle={formData.subtitle}
             descriptionHtml={formData.descriptionHtml}
             onTitleChange={(val) => updateForm((prev) => ({ ...prev, title: val }))}
@@ -518,6 +527,7 @@ export function ProductEditPage() {
           {/* 4. Inventory & Stock */}
           <InventorySection
             sku={formData.sku}
+            initialSku={initialIdentifiers.sku}
             barcode={formData.barcode}
             stockCount={formData.stockCount}
             lowStockThreshold={formData.lowStockThreshold}

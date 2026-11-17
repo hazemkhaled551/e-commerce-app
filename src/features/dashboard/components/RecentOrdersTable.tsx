@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDebounce, DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 import { Link } from 'react-router-dom'
 import {
   Search,
@@ -38,6 +39,7 @@ export function RecentOrdersTable({
 }: RecentOrdersTableProps) {
   const [activeTab, setActiveTab] = useState<OrderFilterTab>('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearchTerm = useDebounce(searchTerm, DEFAULT_DEBOUNCE_MS)
 
   // Filter orders based on active tab and search query
   const filteredOrders = orders.filter((order) => {
@@ -55,9 +57,9 @@ export function RecentOrdersTable({
       return false
     }
 
-    // Search filter
-    if (searchTerm.trim()) {
-      const q = searchTerm.toLowerCase()
+    // Search filter (500ms debounced)
+    if (debouncedSearchTerm.trim()) {
+      const q = debouncedSearchTerm.toLowerCase()
       const matchNumber = order.orderNumber.toLowerCase().includes(q)
       const matchCustomer = order.customerName.toLowerCase().includes(q)
       const matchEmail = order.customerEmail.toLowerCase().includes(q)

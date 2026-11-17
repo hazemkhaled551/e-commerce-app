@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Download, CheckCircle2 } from 'lucide-react'
 import { ConfirmationModal, type ConfirmationModalProps } from '@/components/ui'
+import { useDebounce, DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 import type { DashboardOrder, OrderFilterTab } from '../types/dashboard'
 import { mockOrdersKpiData, mockOrdersList } from '../data/mockOrdersData'
 import { OrdersMetricCards } from '../components/orders/OrdersMetricCards'
@@ -77,6 +78,9 @@ export function OrdersPage() {
     showToast('Filters have been reset to default.')
   }
 
+  // Debounced search (500ms)
+  const debouncedSearch = useDebounce(filters.search, DEFAULT_DEBOUNCE_MS)
+
   // Filter logic
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
@@ -102,8 +106,8 @@ export function OrdersPage() {
       }
 
       // 2. Search query (order #, customer name, email, tracking #)
-      if (filters.search.trim()) {
-        const query = filters.search.toLowerCase()
+      if (debouncedSearch.trim()) {
+        const query = debouncedSearch.toLowerCase()
         const matchNum = order.orderNumber.toLowerCase().includes(query)
         const matchCust = order.customerName.toLowerCase().includes(query)
         const matchEmail = order.customerEmail.toLowerCase().includes(query)
@@ -132,7 +136,7 @@ export function OrdersPage() {
 
       return true
     })
-  }, [orders, activeTab, filters])
+  }, [orders, activeTab, filters.paymentStatus, filters.fulfillmentStatus, filters.salesChannel, debouncedSearch])
 
   // Dynamic counts for status tabs
   const tabCounts = useMemo(() => {

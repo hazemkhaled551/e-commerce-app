@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Warehouse, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 import { checkProductSkuAvailability } from '../../api/adminProductApi'
+import { DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 
 interface InventorySectionProps {
   sku: string
+  initialSku?: string
   barcode: string
   stockCount: number
   lowStockThreshold: number
@@ -18,6 +20,7 @@ interface InventorySectionProps {
 
 export function InventorySection({
   sku,
+  initialSku,
   barcode,
   stockCount,
   lowStockThreshold,
@@ -41,9 +44,12 @@ export function InventorySection({
   })
 
   const trimmedSku = sku.trim()
+  const isInitialEditSku = Boolean(
+    initialSku && trimmedSku.toLowerCase() === initialSku.trim().toLowerCase()
+  )
 
   useEffect(() => {
-    if (!trimmedSku) return
+    if (!trimmedSku || isInitialEditSku) return
 
     let ignore = false
     const timer = setTimeout(() => {
@@ -66,19 +72,21 @@ export function InventorySection({
             })
           }
         })
-    }, 400)
+    }, DEFAULT_DEBOUNCE_MS)
 
     return () => {
       ignore = true
       clearTimeout(timer)
     }
-  }, [trimmedSku])
+  }, [trimmedSku, isInitialEditSku])
 
   const skuStatus = !trimmedSku
     ? 'idle'
-    : remoteSkuCheck.sku === trimmedSku
-      ? remoteSkuCheck.status
-      : 'checking'
+    : isInitialEditSku
+      ? 'available'
+      : remoteSkuCheck.sku === trimmedSku
+        ? remoteSkuCheck.status
+        : 'checking'
 
   return (
     <section className="bg-white rounded-xl p-6 shadow-sm flex flex-col gap-5 border border-outline-variant/60">

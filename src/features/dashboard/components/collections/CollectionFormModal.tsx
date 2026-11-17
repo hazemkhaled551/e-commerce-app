@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   X,
   Layers,
@@ -19,6 +19,7 @@ import type {
 import { defaultCollectionFormData } from '../../data/mockCollectionData'
 import { checkCollectionSlugAvailability } from '../../api/adminCollectionApi'
 import { normalizeImageUrl } from '@/lib/api/axiosInstance'
+import { DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken'
 
@@ -70,6 +71,21 @@ export function CollectionFormModal({
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle')
   const slugDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const latestSlugRef = useRef<string>('')
+
+  useEffect(() => {
+    if (!isOpen && slugDebounceRef.current) {
+      clearTimeout(slugDebounceRef.current)
+      slugDebounceRef.current = null
+      latestSlugRef.current = ''
+    }
+    return () => {
+      if (slugDebounceRef.current) {
+        clearTimeout(slugDebounceRef.current)
+        slugDebounceRef.current = null
+      }
+    }
+  }, [isOpen])
 
   if (prevTarget.editId !== editItem?.id || prevTarget.isOpen !== isOpen) {
     setPrevTarget({ editId: editItem?.id, isOpen })
@@ -87,6 +103,7 @@ export function CollectionFormModal({
     if (slugDebounceRef.current) {
       clearTimeout(slugDebounceRef.current)
     }
+    latestSlugRef.current = cleanSlug
 
     if (!cleanSlug || (editItem && cleanSlug === editItem.slug)) {
       setSlugStatus('idle')
@@ -97,11 +114,15 @@ export function CollectionFormModal({
     slugDebounceRef.current = setTimeout(async () => {
       try {
         const result = await checkCollectionSlugAvailability(cleanSlug)
-        setSlugStatus(result.available ? 'available' : 'taken')
+        if (latestSlugRef.current === cleanSlug) {
+          setSlugStatus(result.available ? 'available' : 'taken')
+        }
       } catch {
-        setSlugStatus('idle')
+        if (latestSlugRef.current === cleanSlug) {
+          setSlugStatus('idle')
+        }
       }
-    }, 600)
+    }, DEFAULT_DEBOUNCE_MS)
   }
 
   const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

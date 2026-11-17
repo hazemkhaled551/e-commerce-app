@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Logo } from '@/components/ui/Logo'
+import { useDebounce, DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 import { useCart } from '@/features/cart'
 import { useProducts } from '@/features/products'
 import { useAuth } from '@/features/auth'
@@ -13,8 +14,15 @@ export function Header() {
   const { changeCategory, changeSearch, searchQuery } = useProducts()
   const { user, isAuthenticated, logout } = useAuth()
   const [localSearch, setLocalSearch] = useState(searchQuery)
+  const debouncedLocalSearch = useDebounce(localSearch, DEFAULT_DEBOUNCE_MS)
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    if (debouncedLocalSearch !== searchQuery) {
+      changeSearch(debouncedLocalSearch)
+    }
+  }, [debouncedLocalSearch, searchQuery, changeSearch])
 
   const handleSearchSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -69,7 +77,6 @@ export function Header() {
               value={localSearch}
               onChange={(e) => {
                 setLocalSearch(e.target.value)
-                changeSearch(e.target.value)
               }}
             />
             <kbd className="hidden md:inline-flex items-center gap-0.5 px-2 py-0.5 text-[10px] font-semibold text-on-surface-variant bg-surface-container-high rounded shadow-xs">
@@ -214,7 +221,6 @@ export function Header() {
               value={localSearch}
               onChange={(e) => {
                 setLocalSearch(e.target.value)
-                changeSearch(e.target.value)
               }}
             />
             {localSearch && (

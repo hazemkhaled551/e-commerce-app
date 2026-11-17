@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { CheckCircle2, AlertCircle, RefreshCw, FolderPlus } from 'lucide-react'
+import { useDebounce, DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 import type { CategoryItem, CategoryFilters, CategoryFormData, CategoryKpis } from '../types/category'
 import {
   getAdminCategories,
@@ -58,14 +59,8 @@ export function CategoriesPage() {
     level: 'all',
   })
 
-  // Debounced search to prevent excessive API calls
-  const [debouncedSearch, setDebouncedSearch] = useState(filters.searchTerm)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(filters.searchTerm)
-    }, 350)
-    return () => clearTimeout(timer)
-  }, [filters.searchTerm])
+  // Debounced search (500ms) to prevent excessive API calls
+  const debouncedSearch = useDebounce(filters.searchTerm, DEFAULT_DEBOUNCE_MS)
 
   const showToast = (msg: string) => {
     setToastMessage(msg)

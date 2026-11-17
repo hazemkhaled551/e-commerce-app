@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   X,
   Building2,
@@ -17,6 +17,7 @@ import type { BrandFormData, BrandItem, BrandStatus } from '../../types/brand'
 import { defaultBrandFormData } from '../../data/mockBrandData'
 import { checkBrandSlugAvailability } from '../../api/adminBrandApi'
 import { normalizeImageUrl } from '@/lib/api/axiosInstance'
+import { DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 
 // Pre-sorted list of all countries from countries-list library
 const COUNTRY_OPTIONS = Object.entries(countries)
@@ -74,6 +75,21 @@ export function BrandFormModal({
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle')
   const slugDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const latestSlugRef = useRef<string>('')
+
+  useEffect(() => {
+    if (!isOpen && slugDebounceRef.current) {
+      clearTimeout(slugDebounceRef.current)
+      slugDebounceRef.current = null
+      latestSlugRef.current = ''
+    }
+    return () => {
+      if (slugDebounceRef.current) {
+        clearTimeout(slugDebounceRef.current)
+        slugDebounceRef.current = null
+      }
+    }
+  }, [isOpen])
 
   if (prevTarget.editId !== editItem?.id || prevTarget.isOpen !== isOpen) {
     setPrevTarget({ editId: editItem?.id, isOpen })
@@ -118,6 +134,7 @@ export function BrandFormModal({
     if (slugDebounceRef.current) {
       clearTimeout(slugDebounceRef.current)
     }
+    latestSlugRef.current = cleanSlug
 
     if (!cleanSlug || (editItem && cleanSlug === editItem.slug)) {
       setSlugStatus('idle')
@@ -128,11 +145,15 @@ export function BrandFormModal({
     slugDebounceRef.current = setTimeout(async () => {
       try {
         const result = await checkBrandSlugAvailability(cleanSlug, editItem?.id)
-        setSlugStatus(result.available ? 'available' : 'taken')
+        if (latestSlugRef.current === cleanSlug) {
+          setSlugStatus(result.available ? 'available' : 'taken')
+        }
       } catch {
-        setSlugStatus('idle')
+        if (latestSlugRef.current === cleanSlug) {
+          setSlugStatus('idle')
+        }
       }
-    }, 600)
+    }, DEFAULT_DEBOUNCE_MS)
   }
 
   const handleNameChange = (val: string) => {

@@ -12,6 +12,7 @@ import {
 import type { CategoryFormData, CategoryItem } from '../../types/category'
 import { defaultCategoryFormData } from '../../data/mockCategoryData'
 import { checkCategorySlugAvailability } from '../../api/adminCategoryApi'
+import { DEFAULT_DEBOUNCE_MS } from '@/hooks/useDebounce'
 
 interface CategoryFormModalProps {
   isOpen: boolean
@@ -173,7 +174,7 @@ export function CategoryFormModal({
             })
           }
         })
-    }, 350)
+    }, DEFAULT_DEBOUNCE_MS)
 
     return () => {
       ignore = true
